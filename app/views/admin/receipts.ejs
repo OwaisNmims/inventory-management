@@ -1,0 +1,732 @@
+<%- include ('partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item">
+                        <a href="/admin/product-company-mapping">Product Mapping</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        <i class="fa-solid fa-receipt me-1"></i>Mapping Receipts
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <!-- SUMMARY CARDS -->
+          <div class="row mb-4">
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="text-primary" id="total-receipts">0</h3>
+                  <p class="mb-0">Total Receipts</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="text-success" id="total-products-mapped">0</h3>
+                  <p class="mb-0">Products Mapped</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="text-info" id="active-companies">0</h3>
+                  <p class="mb-0">Companies Involved</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card text-center">
+                <div class="card-body">
+                  <h3 class="text-warning" id="todays-receipts">0</h3>
+                  <p class="mb-0">Today's Receipts</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3><i class="fa-solid fa-receipt me-2"></i>Mapping Receipts</h3>
+              </div>
+              <div class="table-actions">
+                <a href="/admin/product-company-mapping" style="background: none; border: none" class="me-2" title="Back to Product Mapping">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <button style="background: none; border: none" class="refresh-receipts me-2" title="Refresh Data">
+                  <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <button style="background: none; border: none" class="export-receipts me-2" title="Export to CSV">
+                  <i class="fa-solid fa-download"></i>
+                </button>
+                <button style="background: none; border: none" class="validate-integrity" title="Validate Data Integrity">
+                  <i class="fa-solid fa-shield-halved"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- FILTERS SECTION -->
+            <div class="filters-section mb-4">
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-company">Filter by Company</label>
+                  <select class="form-select filter-select" id="filter-company" multiple>
+                    <!-- Options will be populated dynamically -->
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-date-from">Date From</label>
+                  <input type="date" class="form-control" id="filter-date-from">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-date-to">Date To</label>
+                  <input type="date" class="form-control" id="filter-date-to">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" style="visibility: hidden;">Actions</label>
+                  <div class="d-flex gap-2 mb-2">
+                    <button class="btn btn-secondary" id="apply-filters">Apply Filters</button>
+                    <button class="btn btn-outline-secondary" id="clear-filters">Clear All</button>
+                  </div>
+                  <div>
+                    <small class="text-muted" id="filter-status"></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="receipts-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Sr No.</th>
+                      <th scope="col">Receipt Number</th>
+                      <th scope="col">Company</th>
+                      <th scope="col">Total Products</th>
+                      <th scope="col">Mapping Date</th>
+                      <th scope="col">Created By</th>
+                      <th scope="col">Notes</th>
+                      <th class="text-center" scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="receipts-tbody">
+                    <tr>
+                      <td colspan="8" class="text-center">Loading receipts...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <!-- PAGINATION -->
+              <div class="table-footer mt-3">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="row-count-info">
+                      <span class="text-muted">
+                        Showing <span id="visible-receipts">0</span> of <span id="total-receipts-count">0</span> receipts
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <nav aria-label="Receipt pagination">
+                      <ul class="pagination justify-content-end" id="receipt-pagination">
+                        <!-- Pagination will be generated dynamically -->
+                      </ul>
+                    </nav>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!-- Receipt Details Modal -->
+<div class="modal fade" id="receipt-details-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="receipt-details-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="receipt-details-title">RECEIPT DETAILS</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="receipt-details-body">
+        <div class="text-center">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p class="mt-2">Loading receipt details...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="print-receipt">
+          <i class="fas fa-print"></i> Print Receipt
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Data Integrity Modal -->
+<div class="modal fade" id="integrity-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="integrity-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">DATA INTEGRITY CHECK</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" id="integrity-results">
+        <div class="text-center">
+          <i class="fas fa-spinner fa-spin fa-2x"></i>
+          <p class="mt-2">Running integrity checks...</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include ('partials/footer') %>
+
+<!-- CUSTOM CSS -->
+<style>
+  .filters-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .receipt-detail-card {
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #f8f9fa;
+  }
+  
+  .product-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+  }
+  
+  .product-item:last-child {
+    border-bottom: none;
+  }
+  
+  .status-badge {
+    font-size: 0.8em;
+    padding: 4px 8px;
+  }
+  
+  .receipt-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  
+  @media print {
+    .modal-header, .modal-footer, .btn {
+      display: none !important;
+    }
+    .modal-body {
+      padding: 0 !important;
+    }
+  }
+</style>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+$(document).ready(function() {
+  let receiptsData = [];
+  let filteredData = [];
+  let currentPage = 1;
+  const itemsPerPage = 10;
+
+  // Initialize page
+  loadReceipts();
+  initializeFilters();
+
+  // Load all receipts
+  function loadReceipts() {
+    $("#receipts-tbody").html('<tr><td colspan="8" class="text-center">Loading receipts...</td></tr>');
+    
+    $.ajax({
+      method: "GET",
+      url: "/admin/product-company-mapping/receipts",
+      success: function(response) {
+        if (response.status === 200 && response.data) {
+          receiptsData = response.data;
+          filteredData = [...receiptsData];
+          updateSummaryCards();
+          updateCompanyFilter();
+          displayReceipts();
+          setupPagination();
+        } else {
+          $("#receipts-tbody").html('<tr><td colspan="8" class="text-center text-danger">Error loading receipts</td></tr>');
+        }
+      },
+      error: function() {
+        $("#receipts-tbody").html('<tr><td colspan="8" class="text-center text-danger">Error loading receipts</td></tr>');
+      }
+    });
+  }
+
+  // Update summary cards
+  function updateSummaryCards() {
+    const totalReceipts = receiptsData.length;
+    const totalProducts = receiptsData.reduce((sum, receipt) => sum + receipt.total_products, 0);
+    const uniqueCompanies = new Set(receiptsData.map(r => r.company_name)).size;
+    const today = new Date().toDateString();
+    const todaysReceipts = receiptsData.filter(r => new Date(r.mapping_date).toDateString() === today).length;
+
+    $("#total-receipts").text(totalReceipts);
+    $("#total-products-mapped").text(totalProducts);
+    $("#active-companies").text(uniqueCompanies);
+    $("#todays-receipts").text(todaysReceipts);
+  }
+
+  // Update company filter options
+  function updateCompanyFilter() {
+    const companies = [...new Set(receiptsData.map(r => r.company_name))].sort();
+    const companySelect = $("#filter-company");
+    companySelect.empty();
+    
+    companies.forEach(company => {
+      companySelect.append(`<option value="${company}">${company}</option>`);
+    });
+  }
+
+  // Display receipts with pagination
+  function displayReceipts() {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const pageData = filteredData.slice(startIndex, endIndex);
+    
+    if (pageData.length === 0) {
+      $("#receipts-tbody").html('<tr><td colspan="8" class="text-center">No receipts found</td></tr>');
+      return;
+    }
+
+    let receiptsHtml = '';
+    pageData.forEach((receipt, index) => {
+      const globalIndex = startIndex + index + 1;
+      const date = new Date(receipt.mapping_date).toLocaleDateString();
+      const time = new Date(receipt.mapping_date).toLocaleTimeString();
+      
+      receiptsHtml += `
+        <tr data-receipt-id="${receipt.receipt_id}">
+          <td>${globalIndex}</td>
+          <td>
+            <strong class="text-primary">${receipt.receipt_number}</strong>
+          </td>
+          <td>
+            <div><strong>${receipt.company_name}</strong></div>
+            <small class="text-muted">${receipt.company_code}</small>
+          </td>
+          <td>
+            <span class="badge bg-info">${receipt.total_products}</span>
+          </td>
+          <td>
+            <div>${date}</div>
+            <small class="text-muted">${time}</small>
+          </td>
+          <td>
+            <span class="badge bg-secondary">User ${receipt.created_by || 'Unknown'}</span>
+          </td>
+          <td>
+            <div class="text-truncate" style="max-width: 200px;" title="${receipt.notes || ''}">
+              ${receipt.notes || '-'}
+            </div>
+          </td>
+          <td class="text-center">
+            <div class="action-btns">
+              <button class="btn btn-sm btn-outline-info view-receipt me-1" 
+                      data-receipt='${JSON.stringify(receipt)}' 
+                      title="View Details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-success print-receipt-btn me-1" 
+                      data-receipt='${JSON.stringify(receipt)}' 
+                      title="Print Receipt">
+                <i class="fas fa-print"></i>
+              </button>
+              <button class="btn btn-sm btn-outline-primary export-receipt" 
+                      data-receipt='${JSON.stringify(receipt)}' 
+                      title="Export to PDF">
+                <i class="fas fa-file-pdf"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    $("#receipts-tbody").html(receiptsHtml);
+    $("#visible-receipts").text(filteredData.length);
+    $("#total-receipts-count").text(receiptsData.length);
+  }
+
+  // Setup pagination
+  function setupPagination() {
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+    let paginationHtml = '';
+
+    if (totalPages <= 1) {
+      $("#receipt-pagination").html('');
+      return;
+    }
+
+    // Previous button
+    paginationHtml += `
+      <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${currentPage - 1}">Previous</a>
+      </li>
+    `;
+
+    // Page numbers
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+        paginationHtml += `
+          <li class="page-item ${i === currentPage ? 'active' : ''}">
+            <a class="page-link" href="#" data-page="${i}">${i}</a>
+          </li>
+        `;
+      } else if (i === currentPage - 3 || i === currentPage + 3) {
+        paginationHtml += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+      }
+    }
+
+    // Next button
+    paginationHtml += `
+      <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+        <a class="page-link" href="#" data-page="${currentPage + 1}">Next</a>
+      </li>
+    `;
+
+    $("#receipt-pagination").html(paginationHtml);
+  }
+
+  // Pagination click handler
+  $(document).on('click', '.page-link', function(e) {
+    e.preventDefault();
+    const page = parseInt($(this).data('page'));
+    if (page && page !== currentPage) {
+      currentPage = page;
+      displayReceipts();
+      setupPagination();
+    }
+  });
+
+  // Initialize filters
+  function initializeFilters() {
+    // Set default date range (last 30 days)
+    const today = new Date();
+    const thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+    
+    $("#filter-date-to").val(today.toISOString().split('T')[0]);
+    $("#filter-date-from").val(thirtyDaysAgo.toISOString().split('T')[0]);
+  }
+
+  // Apply filters
+  function applyFilters() {
+    const selectedCompanies = $("#filter-company").val() || [];
+    const dateFrom = $("#filter-date-from").val();
+    const dateTo = $("#filter-date-to").val();
+
+    filteredData = receiptsData.filter(receipt => {
+      let showReceipt = true;
+
+      // Company filter
+      if (selectedCompanies.length > 0 && !selectedCompanies.includes(receipt.company_name)) {
+        showReceipt = false;
+      }
+
+      // Date range filter
+      const receiptDate = new Date(receipt.mapping_date).toISOString().split('T')[0];
+      if (dateFrom && receiptDate < dateFrom) {
+        showReceipt = false;
+      }
+      if (dateTo && receiptDate > dateTo) {
+        showReceipt = false;
+      }
+
+      return showReceipt;
+    });
+
+    currentPage = 1;
+    displayReceipts();
+    setupPagination();
+    updateFilterStatus();
+  }
+
+  // Clear filters
+  function clearFilters() {
+    $("#filter-company").val([]);
+    $("#filter-date-from").val('');
+    $("#filter-date-to").val('');
+    
+    filteredData = [...receiptsData];
+    currentPage = 1;
+    displayReceipts();
+    setupPagination();
+    updateFilterStatus();
+  }
+
+  // Update filter status
+  function updateFilterStatus() {
+    const selectedCompanies = $("#filter-company").val() || [];
+    const dateFrom = $("#filter-date-from").val();
+    const dateTo = $("#filter-date-to").val();
+    
+    let filterCount = 0;
+    if (selectedCompanies.length > 0) filterCount++;
+    if (dateFrom) filterCount++;
+    if (dateTo) filterCount++;
+
+    if (filterCount > 0) {
+      $("#filter-status").text(`${filterCount} filter(s) active - Showing ${filteredData.length} of ${receiptsData.length} receipts`).css('color', '#007bff');
+    } else {
+      $("#filter-status").text('No filters applied').css('color', '#6c757d');
+    }
+  }
+
+  // Event handlers
+  $("#apply-filters").on("click", applyFilters);
+  $("#clear-filters").on("click", clearFilters);
+  $("#filter-company, #filter-date-from, #filter-date-to").on("change", function() {
+    setTimeout(applyFilters, 300);
+  });
+
+  $(".refresh-receipts").on("click", function() {
+    loadReceipts();
+  });
+
+  // View receipt details
+  $(document).on("click", ".view-receipt", function() {
+    const receipt = JSON.parse($(this).attr('data-receipt'));
+    showReceiptDetails(receipt);
+  });
+
+  // Show receipt details modal
+  function showReceiptDetails(receipt) {
+    $("#receipt-details-title").text(`Receipt Details: ${receipt.receipt_number}`);
+    $("#receipt-details-body").html(`
+      <div class="text-center">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p class="mt-2">Loading receipt details...</p>
+      </div>
+    `);
+    
+    $("#receipt-details-modal").modal("show");
+    
+    // Load detailed receipt info
+    setTimeout(() => {
+      const detailsHtml = generateReceiptDetailsHtml(receipt);
+      $("#receipt-details-body").html(detailsHtml);
+    }, 500);
+  }
+
+  // Generate receipt details HTML
+  function generateReceiptDetailsHtml(receipt) {
+    const date = new Date(receipt.mapping_date);
+    
+    return `
+      <div class="receipt-header">
+        <div class="row">
+          <div class="col-md-6">
+            <h4><i class="fas fa-receipt"></i> ${receipt.receipt_number}</h4>
+            <p class="mb-0">Bulk Product Mapping Receipt</p>
+          </div>
+          <div class="col-md-6 text-end">
+            <p class="mb-1"><strong>Date:</strong> ${date.toLocaleDateString()}</p>
+            <p class="mb-1"><strong>Time:</strong> ${date.toLocaleTimeString()}</p>
+            <p class="mb-0"><strong>Created By:</strong> User ${receipt.created_by || 'Unknown'}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="receipt-detail-card">
+        <div class="row">
+          <div class="col-md-6">
+            <h6><i class="fas fa-building"></i> Company Information</h6>
+            <p><strong>Company:</strong> ${receipt.company_name}</p>
+            <p><strong>Company Code:</strong> ${receipt.company_code}</p>
+          </div>
+          <div class="col-md-6">
+            <h6><i class="fas fa-info-circle"></i> Mapping Summary</h6>
+            <p><strong>Total Products:</strong> <span class="badge bg-info">${receipt.total_products}</span></p>
+            <p><strong>Notes:</strong> ${receipt.notes || 'No notes provided'}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="receipt-detail-card">
+        <h6><i class="fas fa-boxes"></i> Products Mapped</h6>
+        ${receipt.products && receipt.products.length > 0 ? 
+          receipt.products.map(product => `
+            <div class="product-item">
+              <div class="row align-items-center">
+                <div class="col-md-4">
+                  <strong>${product.product_name}</strong>
+                </div>
+                <div class="col-md-3">
+                  <code>${product.product_code}</code>
+                </div>
+                <div class="col-md-3">
+                  <span class="badge bg-success status-badge">${product.label}</span>
+                </div>
+                <div class="col-md-2">
+                  <small class="text-muted">Active</small>
+                </div>
+              </div>
+            </div>
+          `).join('') :
+          '<p class="text-muted text-center">No products found for this receipt.</p>'
+        }
+      </div>
+
+      <div class="receipt-detail-card">
+        <div class="row">
+          <div class="col-md-12">
+            <small class="text-muted">
+              <i class="fas fa-info-circle"></i> 
+              This receipt represents a bulk mapping operation where multiple products were assigned to a single company in one transaction.
+              All products listed above were mapped with label "NEW" and existing "NEW" products for this company were updated to "OLD".
+            </small>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Data integrity check
+  $(".validate-integrity").on("click", function() {
+    $("#integrity-modal").modal("show");
+    
+    $.ajax({
+      method: "GET", 
+      url: "/admin/data-integrity/validate-mappings",
+      success: function(response) {
+        if (response.status === 200) {
+          let resultsHtml = '<div class="alert alert-info"><strong>Data Integrity Check Results</strong></div>';
+          
+          response.data.forEach(check => {
+            const statusClass = check.status === 'PASS' ? 'success' : 'danger';
+            const icon = check.status === 'PASS' ? 'check-circle' : 'exclamation-triangle';
+            
+            resultsHtml += `
+              <div class="alert alert-${statusClass}">
+                <i class="fas fa-${icon}"></i> 
+                <strong>${check.check_name}:</strong> ${check.status}
+                <br><small>${check.details}</small>
+              </div>
+            `;
+          });
+          
+          $("#integrity-results").html(resultsHtml);
+        } else {
+          $("#integrity-results").html('<div class="alert alert-danger">Error running integrity checks</div>');
+        }
+      },
+      error: function() {
+        $("#integrity-results").html('<div class="alert alert-danger">Error connecting to integrity service</div>');
+      }
+    });
+  });
+
+  // Print receipt
+  $("#print-receipt").on("click", function() {
+    window.print();
+  });
+
+  // Export receipts to CSV
+  $(".export-receipts").on("click", function() {
+    exportToCSV();
+  });
+
+  function exportToCSV() {
+    const headers = ['Receipt Number', 'Company', 'Company Code', 'Total Products', 'Mapping Date', 'Notes'];
+    const csvContent = [
+      headers.join(','),
+      ...filteredData.map(receipt => [
+        `"${receipt.receipt_number}"`,
+        `"${receipt.company_name}"`,
+        `"${receipt.company_code}"`,
+        receipt.total_products,
+        `"${new Date(receipt.mapping_date).toLocaleDateString()}"`,
+        `"${(receipt.notes || '').replace(/"/g, '""')}"`
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `mapping_receipts_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+});
+</script>
+<!--END CUSTOM JS SCRIPT -->
+
+<%- include ('partials/footer-end') %>

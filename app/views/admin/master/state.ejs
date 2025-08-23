@@ -1,0 +1,576 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a
+                href="javascript:void(0);"
+                class="btn-toggle sidebarCollapse"
+                data-placement="bottom"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="feather feather-menu"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        State
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>State</h3>
+              </div>
+              <div class="table-actions">
+                <button
+                  style="background: none; border: none"
+                  class="create-state-modal"
+                >
+                  <i class="fa-regular fa-square-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <div class="table-filter-container"></div>
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="table-content">
+                    <thead>
+                      <tr>
+                        <th scope="col">Sr No.</th>
+                        <th scope="col">Country</th>
+                        <th scope="col">State</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let i = 1; for(let data of stateData) { %>
+                      <tr data-id="<%= data.id %>">
+                        <td><%= i %></td>
+                        <td
+                          class="country-name"
+                          data-country-id="<%= data.country_lid%>"
+                        >
+                          <%= data.country_name %>
+                        </td>
+                        <td class="state-name"><%= data.state_name %></td>
+                        <td class="text-center">
+                          <div class="action-btns">
+                            <a
+                              href="javascript:void(0);"
+                              class="action-btn btn-edit bs-tooltip me-2"
+                              data-id="<%= data.id %>"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title="Edit"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="feather feather-edit-2"
+                              >
+                                <path
+                                  d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+                                ></path>
+                              </svg>
+                            </a>
+                            <a
+                              href="javascript:void(0);"
+                              class="action-btn btn-delete bs-tooltip"
+                              data-id="<%= data.id %>"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title="Delete"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="feather feather-trash-2"
+                              >
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                ></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <% i++ %> <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!--ADD Modal -->
+<div
+  class="modal fade"
+  id="add-state-modal"
+  tabindex="-1"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  aria-labelledby="add-state-modal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">ADD STATE</h5>
+        <button
+          type="button"
+          class="btn fs-4 text-dark"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row info-container">
+          <div class="col-md-3 select-fields">
+            <div class="input-group mb-3 d-flex flex-column">
+              <label class="form-label">Country</label>
+              <select
+                id="select-country"
+                autocomplete="off"
+                style="line-height: 30px"
+              >
+                <option value="">Select a Country...</option>
+                <% for(let data of countryData) { %>
+                <option value="<%= data.name %>" data-id="<%= data.id %>">
+                  <%= data.name %>
+                </option>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="add-state-input">State</label>
+              <input type="text" class="form-control" id="add-state-input" />
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+              <button class="btn text-light add-state btn-info">ADD</button>
+            </div>
+          </div>
+          <div class="col-md-9 selected-fields">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="add-more-state-table">
+                <thead>
+                  <th>Sr No.</th>
+                  <th>Country</th>
+                  <th>State</th>
+                  <th>Action</th>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn create-state btn-primary">
+          CREATE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit State Modal Start -->
+<div
+  class="modal fade"
+  id="edit-state-modal"
+  tabindex="-1"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  aria-labelledby="edit-state-modal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">EDIT STATE</h5>
+        <button
+          type="button"
+          class="btn fs-4 text-dark"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="select-fields">
+          <div class="mb-3">
+            <label class="form-label" for="edit-country-input">Country</label>
+            <select
+              id="edit-country-input"
+              autocomplete="off"
+              style="line-height: 30px"
+            >
+              <option value="">Select a Country...</option>
+              <% for(let data of countryData) { %>
+              <option value="<%= data.name %>" data-country-lid="<%= data.id%>">
+                <%= data.name %>
+              </option>
+              <% } %>
+            </select>
+
+            <label class="form-label" for="edit-state-input">State</label>
+           
+            <input
+              type="text"
+              id="edit-state-input"
+              class="form-control"/>
+       
+          </div>
+        </div>
+
+        <!-- </div> -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn save-state btn-primary">SAVE</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Edit State Modal End -->
+<%- include ('../partials/footer') %>
+
+<script>
+  let states = [];
+  $(document).ready(function () {
+    new TomSelect("#select-country", {
+      create: false,
+      sortField: {
+        field: "text",
+        direction: "asc",
+      },
+    });
+
+    $(".create-state-modal").on("click", function () {
+      $("#add-state-modal").modal("show");
+    });
+
+    function serializeTable(tableId) {
+      let i = 1;
+      console.log("this is my funcion");
+      $(`#${tableId} tbody tr`).each((index, element) => {
+        $(element).find("td:eq(0)").text(i);
+        i++;
+      });
+    }
+
+   
+    $(document).on("click", ".add-state", function () {
+      let countryName = $("#select-country").find(":selected").text();
+      let countryLid = $("#select-country option:selected").attr("data-id");
+      let stateName = $("#add-state-input").val().trim().toUpperCase();
+
+      // duplicate state valdation
+
+      let count =
+        $("#add-more-state-table tbody tr").length == 0
+          ? 0
+          : $("#add-more-state-table tbody tr").length;
+
+      count++;
+      let tableRow = `<tr class="add-states" data-country-id="${countryLid}">
+                      <td>${count}</td>
+                      <td class="add-country-lid" data-country-id="${countryLid}">${countryName}</td>
+                      <td class="add-state-name">${stateName}</td>
+                            <td><button class='delete-row'>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                                </button></td>
+                            </tr>`;
+
+      $("#add-more-state-table tbody").append(tableRow);
+    });
+    
+    
+    $(document).on("click", ".delete-row", function () {
+      let tableId = $(this).closest("table").attr("id");
+      $(this).closest("tr").remove();
+      if ($(`#${tableId} tbody tr`).length > 0) {
+        serializeTable(tableId);
+      }
+    });
+
+     // CREATE STATE START
+    
+    
+    $(document).on("click", ".create-state", function () {
+
+      if ($(document).find("#add-more-state-table tbody tr").length > 0) {
+        $(document)
+          .find("#add-more-state-table tbody tr")
+          .each((index, element) => {
+            let countryId = $(element)
+              .find(".add-country-lid")
+              .attr("data-country-id");
+
+            let countryName = $(element).find(".add-state-name").text();
+            let state = $(".add-state-name").text();
+
+            let data = {
+              country_lid: countryId,
+              name: countryName,
+            };
+            states.push(data);
+          });
+        console.log("statessss >>>>>>>>", states);
+      }
+      console.log("before ajax state", states);
+      $.ajax({
+        method: "POST", 
+        url: "/admin/state/add", 
+        data: {
+          input_json: JSON.stringify(states),
+        }, 
+        success: function (response) {
+
+          if (response[0].add_new_state.status == 200) {
+            alert("SUCCESS - Successfully Added State");
+            location.reload(true);
+
+          } else {
+            {
+              let duplicateCountries = response[0].add_new_state.error_result;
+              let countryNames = "";
+
+              duplicateCountries.forEach((element) => {
+                countryNames += `${element.name}, `;
+              });
+
+              countryNames = countryNames.substring(0, countryNames.length - 2);
+
+              console.log(countryNames);
+
+              createAlert({
+                title: response[0].add_new_state.message,
+                msg: countryNames,
+                type: "negative",
+              });
+            }
+          }
+
+          $("#add-state-modal").modal("hide");
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: "not done",
+            type: "negative",
+          });
+        
+          $("#add-country-modal").modal("hide");
+        },
+      });
+    });
+
+    // CREATE STATE END
+
+    // EDIT STATE START
+    $(document).on("click", ".btn-edit", function () {
+      $("#edit-state-modal").modal("show");
+
+      let countryName = $(this).closest("tr").find(".country-name").text().trim();
+      let stateName = $(this).closest("tr").find(".state-name").text().trim();
+
+      $("#edit-country-input").val(countryName);
+      $("#edit-state-input").val(stateName);
+      $("#edit-state-input").attr('data-id', $(this).attr("data-id"));
+      $(".save-state").attr("data-id", $(this).attr("data-id"));
+    });
+
+    $(document).on("click", ".save-state", function () {
+      let countryName, stateName, countryLid, stateLid;
+
+      countryName = $("#edit-country-input").val().trim().toUpperCase();
+      stateName = $("#edit-state-input").val().trim().toUpperCase();
+      countryLid = $(document)
+        .find("#edit-country-input option:selected")
+        .attr("data-country-lid");
+      stateLid = $(document).find("#edit-state-input").attr("data-id");
+      console.log(stateLid);
+
+      let data = {
+        stateName: stateName,
+        countryLid: countryLid,
+        stateLid: stateLid,
+      };
+      console.log("this is the data::::::::", data);
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/state/edit",
+        data: {
+          stateName,
+          countryLid,
+          stateLid,
+        },
+        success: function (response) {
+          $("#edit-state-modal").modal("hide");
+          if (response.status === 200) {
+            // createAlert({
+            //   title: "Success",
+            //   msg: response.msg,
+            //   type: "positive",
+            // });
+            alert("SUCCESS - Successfully Updated State!");
+            location.reload(true);
+
+            $("#table-content")
+              .find(`tr[data-id="${stateLid}"] .country-name`)
+              .text(countryName);
+            $("#table-content")
+              .find(`tr[data-id="${stateLid}"] .state-name`)
+              .text(stateName);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.msg,
+              type: "negative",
+            });
+            $("#edit-state-modal").modal("hide");
+          }
+        },
+        error: function (error) {
+          console.log(error);
+          createAlert({
+            title: "Error",
+            msg: response.msg,
+            type: "negative",
+          });
+        },
+      });
+    });
+  });
+  // EDIT STATE END
+
+  // DELETE STATE START
+  $(document).on("click", ".btn-delete", function () {
+    let stateLid = $(this).attr("data-id");
+
+    const isConfirmed = confirm('Are you sure you want to remove the state?');
+
+    if (!isConfirmed) {
+      return false;
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/state/delete",
+      data: {
+        stateLid: stateLid,
+      },
+      success: function (response) {
+        if (response.status === 200) {
+          alert("SUCCESS - Successfully Deleted!");
+          location.reload(true);
+        } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.msg,
+              type: "negative",
+            });
+          }
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+
+    $(this).closest("tr").remove();
+  });
+  // DELETE STATE END
+</script>
+<!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %>

@@ -1,0 +1,270 @@
+<%- include ('./partials/head') %>
+
+  <!--  BEGIN NAVBAR  -->
+  <%- include ('./partials/header') %>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+      <div class="overlay"></div>
+      <div class="search-overlay"></div>
+
+      <!--  BEGIN SIDEBAR  -->
+      <%- include ('./partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+          <div class="layout-px-spacing">
+
+            <div class="middle-content container-xxl p-0">
+
+              <!--  BEGIN BREADCRUMBS  -->
+              <div class="secondary-nav">
+                <div class="breadcrumbs-container" data-page-heading="Analytics">
+                  <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-menu">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                      </svg>
+                    </a>
+                    <div class="d-flex breadcrumb-content">
+                      <div class="page-header">
+
+                        <div class="page-title">
+                        </div>
+
+                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                          <ol class="breadcrumb">
+                            <li class="breadcrumb-item active"><a href="/admin/dashboard">Home</a></li>
+                          </ol>
+                        </nav>
+                      </div>
+                    </div>
+                  </header>
+                </div>
+              </div>
+              <!--  END BREADCRUMBS  -->
+
+
+              <div class="main-content">
+                <div class="table-template">
+                  <div class="table-header">
+                    <div class="table-title">
+                      <h3>Cost Sheets</h3>
+                    </div>
+
+                    <!-- <a href="/admin/cost-sheet/generator" class="create-tour btn my-2">
+                      New Cost Sheet<i class="fa-regular fa-square-plus mx-2"></i>
+                    </a> -->
+                    <a class="create-tour btn my-2" data-bs-toggle="modal" data-bs-target="#tour-details-modal">
+                      New Cost Sheet<i class="fa-regular fa-square-plus mx-2"></i>
+                    </a>
+                  </div>
+
+                  <div class="table-filter-container"></div>
+                  <div class="table-content">
+                    <div class="table-responsive">
+                      <table class="table table-bordered" id="table-content">
+                        <thead>
+                          <tr>
+                            <th scope="col">Sr No.</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Nights</th>
+                            <th scope="col">Days</th>
+                            <th scope="col">Created At</th>
+                            <th class="text-center" scope="col">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% costSheets.forEach((costSheet, idx)=> {%>
+
+                            <tr data-id="<%= costSheet.id %>">
+                              <td>
+                                <%- ++idx %>
+                              </td>
+                              <td class="tour-name">
+                                <%= costSheet.name %>
+                              </td>
+                              <td class="tour-nights">
+                                <%= costSheet.duration_nights %>
+                              </td>
+                              <td class="tour-days">
+                                <%= costSheet.duration_days %>
+                              </td>
+                              <td class="tour-days">
+                                <%= costSheet.created_at %>
+                              </td>
+                              <td class="text-center">
+                                <div class="action-btns">
+                                  <a href="/admin/cost-sheet/generator?id=<%= costSheet.id %>">
+                                    <i class="fa-regular fa-pen-to-square cursor-pointer btn-edit me-2"></i>
+                                  </a>
+                                  <a  class="btn-delete" data-id="<%=costSheet.id %>">
+                                    <i class="fa-solid fa-trash-can text-danger cursor-pointer"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <% }) %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--  END CONTENT AREA  -->
+    </div>
+
+
+
+    <!-- Tour Details Modal -->
+<div class="modal fade" id="tour-details-modal" tabindex="-1" role="dialog" aria-labelledby="tour-details-modal"
+aria-hidden="true">
+<div class="modal-dialog modal-xl" role="document">
+  <div class="modal-content modal-inputform">
+    <div class="modal-header modal-inputform-header">
+      <h5 class="modal-title text-dark" id="">Tour Details</h5>
+      <button type="button" class="btn fs-4 text-dark close-modal" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="row mb-4">
+        <div class="col-lg-4 col-md-4 col-sm-12 mb-2 mt-2">
+          <label>Tour Name:</label>
+          <input type="text" class="form-control" placeholder="Tour name" id="tour-name">
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+          <label>Tour Nights:</label>
+          <input type="text" class="form-control" placeholder="No. of nights" id="tour-nights">
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+          <label>Tour Days:</label>
+          <input type="text" class="form-control" placeholder="No. of days" id="tour-days" disabled>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn add-btn btn-success m-auto">
+        Create
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+<!-- Tour Details Modal //-->
+
+    <!-- END MAIN CONTAINER -->
+    <%- include ('./partials/footer') %>
+      <script>
+        $(document).ready(function () {
+//BASIC TOUR INFORMATION
+$('#tour-details-wrapper .add-btn').on('click', function () {
+    if (TOUR_LID) {
+      let tourName = TOUR_DETAILS_WRAPPER.attr('data-tour-name');
+      let tourNights = TOUR_DETAILS_WRAPPER.attr('data-tour-nights');
+      let tourDays = Number(tourNights) + 1;
+
+      $('#tour-details-modal .add-btn').text('Update');
+      $('#tour-name').val(tourName);
+      $('#tour-nights').val(tourNights);
+      $('#tour-days').val(tourDays);
+    } else {
+      $('#tour-details-modal .add-btn').text('Add');
+    }
+  })
+  $('#tour-details-modal .add-btn').on('click', function () {
+    const tourName = $('#tour-name').val();
+    const tourNights = $('#tour-nights').val();
+
+    if (!tourName || !tourNights) {
+      createAlert({
+        title: 'Incorrect input!',
+        msg: 'Please enter a tour name and tour nights.',
+        type: 'negative',
+      });
+      return false;
+    }
+     //add new tour
+     $.ajax({
+        method: "POST",
+        url: "/admin/tour/create",
+        data: {
+          tourName: tourName,
+          tourNights: tourNights
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            console.log('data>>>>>>>> ', response);
+            TOUR_LID = response.tourDetails.id;
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            })
+            location.reload()
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+  })
+
+  $("#table-content").on('click', '.btn-delete',function(){
+    console.log('HERE:::::::::::',$(this).attr('data-id'))
+    $.ajax({
+        method: "POST",
+        url: "/admin/tour/delete",
+        data: {
+          id:$(this).attr('data-id')
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            })
+            location.reload()
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+  })
+
+        })
+      </script>
+
+      <%- include ('./partials/footer-end') %>

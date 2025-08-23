@@ -1,0 +1,466 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Company Type
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Company Type</h3>
+              </div>
+              <div class="table-actions">
+                <button style="background: none; border: none" class="create-company-type-modal">
+                  <i class="fa-regular fa-square-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <div class="table-filter-container"></div>
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="table-content">
+                    <thead>
+                      <tr>
+                        <th scope="col">Sr No.</th>
+                        <th scope="col">Company Type</th>
+                        <th scope="col">Description</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let i=1; for(let data of companyTypes) { %>
+
+                      <tr data-id="<%= data.id %>">
+                        <td>
+                          <%= i %>
+                        </td>
+
+                        <td class="company-type-name">
+                          <%= data.name %>
+                        </td>
+                        <td class="company-type-description">
+                          <%= data.description || '-' %>
+                        </td>
+                        <td class="text-center">
+                          <div class="action-btns">
+                            <a href="javascript:void(0);" class="action-btn btn-edit bs-tooltip me-2" data-id="<%= data.id %>" data-toggle="tooltip" data-placement="top" title="Edit">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                              </svg>
+                            </a>
+                            <a href="javascript:void(0);" class="action-btn btn-delete bs-tooltip" data-id="<%= data.id %>" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <% i++ %>
+                      <% } %>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!--ADD Modal -->
+<div class="modal fade" id="add-company-type-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="add-company-type-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">ADD COMPANY TYPE</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row info-container">
+          <div class="col-md-3 select-fields">
+            <div class="mb-3">
+              <label class="form-label" for="add-company-type-name">Company Type Name</label>
+              <input type="text" class="form-control" id="add-company-type-name" />
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="add-company-type-description">Description</label>
+              <textarea class="form-control" id="add-company-type-description" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+              <button class="btn text-light add-company-type btn-info">ADD</button>
+            </div>
+          </div>
+          <div class="col-md-9 selected-fields">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="add-more-company-type-table">
+                <thead>
+                  <th>Sr No.</th>
+                  <th>Company Type</th>
+                  <th>Description</th>
+                  <th>Action</th>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn create-company-type btn-primary">
+          CREATE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+
+<div class="modal fade" id="edit-company-type-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="edit-company-type-modal" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">EDIT COMPANY TYPE</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="select-fields">
+          <div class="mb-3">
+            <label class="form-label" for="edit-company-type-name">Company Type Name</label>
+            <input type="text" class="form-control" id="edit-company-type-name" />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="edit-company-type-description">Description</label>
+            <textarea class="form-control" id="edit-company-type-description" rows="3"></textarea>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn save-company-type btn-primary">SAVE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<%- include ('../partials/footer') %>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+  $(document).ready(function() {
+    $(".create-company-type-modal").on("click", function() {
+      $("#add-company-type-modal").modal("show");
+    });
+
+    function serializeTable(tableId) {
+      let i = 1;
+      $(`#${tableId} tbody tr`).each((index, element) => {
+        $(element).find("td:eq(0)").text(i);
+        i++;
+      });
+    }
+
+    $(document).on("click", ".add-company-type", function() {
+      let companyTypeName = $("#add-company-type-name").val();
+      let description = $("#add-company-type-description").val();
+      
+      companyTypeName = companyTypeName.trim().toUpperCase();
+      description = description.trim();
+      
+      let duplicate = false;
+      if ($(document).find(".add-company-type-row").length > 0) {
+        $(document).find(".add-company-type-row").each((index, element) => {
+          if ($(element).find('.company-type-name').text() == companyTypeName) {
+            createAlert({
+              title: 'ERROR',
+              msg: 'You cannot add duplicate Company Type Name',
+              type: 'negative'
+            })
+            duplicate = true;
+          }
+        });
+      }
+      if (duplicate) {
+        return;
+      }
+
+      if (!companyTypeName) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Company Type Name is required',
+          type: 'negative'
+        });
+        return;
+      }
+
+      let count = $("#add-more-company-type-table tbody tr").length == undefined ? 0 : $("#add-more-company-type-table tbody tr").length;
+      let tableRow = `<tr class="add-company-type-row">
+            <td>${++count}</td>
+            <td class="company-type-name">${companyTypeName}</td>
+            <td class="company-type-description">${description || '-'}</td>
+            <td><button class='delete-row'>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+                </button></td>
+            </tr>`;
+
+      $("#add-more-company-type-table tbody").append(tableRow);
+      $("#add-company-type-name").val('');
+      $("#add-company-type-description").val('');
+    });
+
+    // add-company-type modal - for deleting added company types in table
+    $(document).on("click", ".delete-row", function() {
+      let tableId = $(this).closest("table").attr("id");
+      $(this).closest("tr").remove();
+      if ($(`#${tableId} tbody tr`).length > 0) {
+        serializeTable(tableId);
+      }
+    });
+
+    // CREATE COMPANY TYPE START
+    $(document).on("click", ".create-company-type", function() {
+      let companyTypes = [];
+      if ($(document).find(".add-company-type-row").length > 0) {
+        $(document).find(".add-company-type-row").each((index, element) => {
+          let obj = {
+            name: $(element).find('.company-type-name').text().trim(),
+            description: $(element).find('.company-type-description').text().trim() === '-' ? '' : $(element).find('.company-type-description').text().trim()
+          }
+          companyTypes.push(obj);
+        });
+      }
+
+      if (companyTypes.length === 0) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Please add at least one company type',
+          type: 'negative'
+        });
+        return;
+      }
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/company-type/insert",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          companyTypeList: companyTypes
+        }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload(true);
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+          $("#add-company-type-modal").modal("hide");
+        },
+        error: function(error) {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+          $("#add-company-type-modal").modal("hide");
+        },
+      });
+    });
+
+
+    // EDIT COMPANY TYPE START
+
+    $(document).on("click", ".btn-edit", function() {
+      console.log("edit btn clicked");
+      $("#edit-company-type-modal").modal("show");
+      let companyTypeName = $(this).closest("tr").find(".company-type-name").text().trim();
+      let description = $(this).closest("tr").find(".company-type-description").text().trim();
+      
+      $("#edit-company-type-name").val(companyTypeName);
+      $("#edit-company-type-description").val(description === '-' ? '' : description);
+      $(".save-company-type").attr("data-id", $(this).attr("data-id"));
+    });
+
+    $(document).on("click", ".save-company-type", function() {
+      let companyTypeName = $("#edit-company-type-name").val().trim();
+      let description = $("#edit-company-type-description").val().trim();
+      let companyTypeId = $(this).attr("data-id");
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/company-type/update",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          companyTypeData: {
+            companyTypeLid: companyTypeId,
+            name: companyTypeName,
+            description: description
+          }
+        }),
+        success: function(response) {
+          $("#edit-company-type-modal").modal("hide");
+          if (response.status === 200) {
+            createAlert({
+              title: 'Success',
+              msg: response.data.message,
+              type: "positive",
+            });
+
+            let row = $('#table-content').find(`tr[data-id="${companyTypeId}"]`);
+            row.find('.company-type-name').text(companyTypeName);
+            row.find('.company-type-description').text(description || '-');
+          } else {
+            createAlert({
+              title: 'Error',
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function(error) {
+          createAlert({
+            title: 'Error',
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    });
+  });
+  // EDIT COMPANY TYPE END
+
+
+  // DELETE COMPANY TYPE START
+
+  $(document).on('click', '.btn-delete', function() {
+    let companyTypeId = $(this).attr("data-id");
+    let thisBtn = $(this);
+    const isConfirmed = confirm('Are you sure you want to remove this company type?');
+
+    if (!isConfirmed) {
+      return false;
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/company-type/delete",
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: JSON.stringify({
+        companyTypeLid: companyTypeId
+      }),
+      success: function(response) {
+        if (response.status === 200) {
+          createAlert({
+            title: 'Success',
+            msg: 'Company type deleted successfully!',
+            type: "positive",
+          });
+
+          thisBtn.closest("tr").remove();
+          $('.bs-tooltip-top').remove();
+        } else {
+          createAlert({
+            title: 'ERROR',
+            msg: response.data.message,
+            type: "negative",
+          });
+        }
+      },
+      error: function(error) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+  })
+</script>
+<!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %> 

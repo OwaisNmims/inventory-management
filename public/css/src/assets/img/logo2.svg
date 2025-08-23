@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Jean Fendi Logo -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 300 120" style="enable-background:new 0 0 300 120;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#2c3e50;}
+	.st1{fill:#e74c3c;}
+	.st2{fill:#34495e;}
+</style>
+<g>
+	<!-- Background Circle -->
+	<circle class="st1" cx="60" cy="60" r="50"/>
+	
+	<!-- Letter J -->
+	<text x="35" y="75" font-family="serif" font-size="48" font-weight="bold" fill="white">J</text>
+	
+	<!-- Letter F -->
+	<text x="125" y="75" font-family="serif" font-size="48" font-weight="bold" fill="#2c3e50">F</text>
+	
+	<!-- Underline decoration -->
+	<rect x="35" y="85" width="120" height="3" fill="#e74c3c"/>
+	
+	<!-- Company name -->
+	<text x="35" y="105" font-family="sans-serif" font-size="12" font-weight="normal" fill="#7f8c8d">JEAN FENDI</text>
+</g>
+</svg>

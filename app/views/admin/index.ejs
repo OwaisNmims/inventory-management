@@ -1,0 +1,1048 @@
+<%- include ('./partials/head') %>
+
+  <!--  BEGIN NAVBAR  -->
+  <%- include ('./partials/header') %>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+      <div class="overlay"></div>
+      <div class="search-overlay"></div>
+
+      <!--  BEGIN SIDEBAR  -->
+      <%- include ('./partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+          <div class="layout-px-spacing">
+
+            <div class="middle-content container-xxl p-0">
+
+              <!--  BEGIN BREADCRUMBS  -->
+              <div class="secondary-nav">
+                <div class="breadcrumbs-container" data-page-heading="Analytics">
+                  <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-menu">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                      </svg>
+                    </a>
+                    <div class="d-flex breadcrumb-content">
+                      <div class="page-header">
+
+                        <div class="page-title">
+                        </div>
+
+                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                          <ol class="breadcrumb">
+                            <li class="breadcrumb-item active"><a href="/admin/cost-sheet">Cost
+                                Sheet
+                                Generator</a></li>
+                            <!-- <li class="breadcrumb-item active" aria-current="page">Analytics</li> -->
+                          </ol>
+                        </nav>
+
+                      </div>
+                    </div>
+
+                  </header>
+                </div>
+              </div>
+              <!--  END BREADCRUMBS  -->
+
+              <div class="layout-top-spacing">
+                <div class="py-2">
+                  <!-- <h2 class="fw-bold text-black">Registration details :</h2> -->
+                  <h2 class="fw-bold mb-4 text-black">Tour Details :</h2>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="tour-details">
+
+                    <thead>
+                      <th class="text-center">Tour Name</th>
+                      <th class="text-center">Tour Nights</th>
+                      <th class="text-center">Tour Days</th>
+                    </thead>
+
+                    <tbody>
+                      <tr class="bg-dark">
+                        <td class="tour-name text-center">
+                          <%= tourDetails.name %>
+                        </td>
+                        <td class="tour-nights text-center">
+                          <%= tourDetails.duration_nights %>
+                        </td>
+                        <td class="tour-days text-center">
+                          <%= tourDetails.duration_days %>
+                        </td>
+                      </tr>
+                    </tbody>
+
+                  </table>
+                </div>
+
+                <div id="regForm" class="bg-white p-4">
+                  <!-- <h1>Register:</h1> -->
+                  <div class="regForm-head mb-4 pb-3 border-bottom">
+                    <span class="step pb-1 fw-bold">Passenger</span>
+                    <!-- <button type="button" class="step btn btn-light bg-white">Passenger</button> -->
+                    <span class="step pb-1 fw-bold">Hotel & Transport</span>
+                    <!-- <button type="button" class="step btn btn-light bg-white pb-1 fw-bold">Transport</button> -->
+                    <span class="step pb-1 fw-bold">Other Expenses</span>
+                    <!-- <button type="button" class="step btn btn-light bg-white">Hotel</button>/ -->
+
+                  </div>
+
+
+                  <div class="nav-content">
+                    <!-- Tour Details Start -->
+
+
+                    <!-- Passenger tabel START -->
+                    <!-- <div class="selected-fields">
+                                                <h4 class="fw-bold text-black">Passenger details Table :</h4>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered" id="add-tour-table">
+
+                                                        <thead>
+                                                            <th>Sr No.</th>
+                                                            <th>Tour Name</th>
+                                                            <th>Tour Days</th>
+                                                            <th>Tour Nights</th>
+                                                            <th>Action</th>
+                                                        </thead>
+
+                                                        <tbody>
+                                                        </tbody>
+
+                                                    </table>
+                                                </div>
+                                            </div> -->
+                    <!-- Passenger tabel END -->
+
+                    <!-- Tour Details End -->
+
+                    <!-- Passenger content START -->
+                    <div class="tab">
+                      <h2 class="fw-bold mb-4">Passenger Details</h2>
+                      <div class="row border-bottom mb-4 pb-3">
+                        <div class="col-lg-3 col-md-6 pax-type-wrapper">
+                          <div class="input-group mb-3 d-flex flex-column">
+                            <label>Passenger Type :</label>
+                            <select class="input" id="passenger-type">
+                              <option></option>
+                              <% for(let type of passenger){ %>
+                                <option data-id="<%= type.id %>" value="<%= type.name %>">
+                                  <%= type.name %>
+                                </option>
+                                <% }%>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                          <div class="form-group">
+                            <label for="no-passengers">Pax Count</label>
+                            <input type="number" name="room-type" class="form-control" id="no-passengers"
+                              placeholder="Pax count">
+                          </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                          <div class="form-group">
+                            <label for="no-passengers">Occupancy preference</label>
+                            <input type="number" name="occupancy" class="form-control" id="occupancy"
+                              placeholder="Occupancy preference">
+                          </div>
+                        </div>
+
+                        <div class="col-lg-3 col-md-6">
+                            <div class="input-group mb-3 w-60">
+                              <label for="is-payable" class="w-100">Is Payable? :</label>
+                              <div class="text-start col-lg-2 mt-2">
+                                <input type="checkbox" class="largerCheckbox cursor-pointer" id="is-payable"
+                                  onclick="payebleFunction()" name="checkBox2">
+                              </div>
+                            </div>
+
+                            <div id="payable-div" class="payablediv hidden">
+                              <input id="payable-amount" class="p-2 m-2" type="number" placeholder="Enter amount...">
+                              <h6 class="text-center">OR</h6>
+                              <input id="payable-percentage" class="p-2 m-2" type="number"
+                                placeholder="Enter Percentage...">
+                            </div>
+
+                        </div>
+                      </div>
+
+                      <div class="d-flex justify-content-end">
+                        <button class="add-passenger btn text-light btn-info">+ADD</button>
+                      </div>
+
+                      <!-- Passenger tabel START -->
+                      <div class="selected-fields">
+                        <h4 class="fw-bold text-black">Passenger details Table :</h4>
+                        <div class="table-responsive">
+                          <table class="table table-bordered" id="add-passenger-table">
+
+                            <thead>
+                              <th>Sr No.</th>
+                              <th>Passenger Type</th>
+                              <th>No. of Passengers</th>
+                              <th>Occupancy Preference</th>
+                              <th>Payable</th>
+                              <th>Payable Amount</th>
+                              <th>Payable Percentage</th>
+                              <th>Action</th>
+                            </thead>
+
+                            <tbody>
+
+                            </tbody>
+
+                          </table>
+                        </div>
+                      </div>
+                      <!-- Passenger tabel END -->
+                    </div>
+                    <!-- Passenger content END -->
+
+                    <!-- Transport content START -->
+                    <div class="tab ">
+                      <div class="border-bottom pb-3 mb-4">
+                        <div id="contain" class="">
+
+                          <div class="dynamic-element">
+                            <h2 class="fw-bold">Transport & Hotel details</h2>
+
+                            <!-- ADD Transport modal button START -->
+                            <div class="d-flex justify-content-end">
+                              <button class="btn text-light add-transport btn-info mx-2" data-bs-toggle="modal"
+                                data-bs-target="#transportModal">+ ADD
+                                Transport</button>
+                              <button class="btn text-light add-transport btn-info mx-2" data-bs-toggle="modal"
+                                data-bs-target="#hotelModal">+
+                                ADD
+                                Hotel</button>
+                            </div>
+                            <!-- ADD Transport modal button END -->
+
+
+                            <div class="d-flex justify-content-center">
+
+                              <!-- ========== TIMELINE SECTION START ========== -->
+                              <div class="timeline">
+
+                                <!-- Transport tab START -->
+                                <div class="timeline-container left">
+                                  <div class="place-name">Home</div>
+                                  <div class="icon" style="font-size: 13px;">
+                                    <i class="fa-solid fa-house"></i>
+                                  </div>
+                                  <div class="timeline-content border" style="position: relative;"
+                                    data-bs-toggle="modal" data-bs-target="#transportModal">
+
+                                    <div class="d-flex flex-wrap" style="border-radius: 5px;">
+                                      <h2 class="fw-bold m-1">START LOCATION</h2>
+                                      <P class="m-1">TO</P>
+                                      <h2 class="fw-bold m-1">MUMBAI</h2>
+                                    </div>
+                                    <p class="m-1">
+                                      Flight
+                                    </p>
+
+                                    <button type="button" class="button-close-left btn-close text-danger"></button>
+
+                                  </div>
+                                </div>
+                                <!-- Transport tab END -->
+
+                                <!-- hotel tab START -->
+                                <div class="timeline-container right">
+                                  <div class="place-name"></div>
+                                  <div class="icon" style="font-size: 13px;">
+                                    <i class="fa-solid fa-hotel"></i>
+                                  </div>
+
+                                  <div class="timeline-content border" data-bs-toggle="modal"
+                                    data-bs-target="#hotelModal">
+                                    <h2 class="fw-bold">Lorem ipsum Hotel</h2>
+                                    <p>
+                                      Lorem ipsum location.
+                                    </p>
+                                    <button type="button" class="button-close-right btn-close text-danger"></button>
+                                  </div>
+                                </div>
+                                <!-- hotel tab END -->
+
+                                <!-- Transport tab START -->
+                                <div class="timeline-container left">
+                                  <div class="place-name">Home</div>
+                                  <div class="icon" style="font-size: 13px;">
+                                    <i class="fa-solid fa-house"></i>
+                                  </div>
+                                  <div class="timeline-content border" style="position: relative;"
+                                    data-bs-toggle="modal" data-bs-target="#transportModal">
+
+                                    <div class="d-flex flex-wrap" style="border-radius: 5px;">
+                                      <h2 class="fw-bold m-1">START LOCATION</h2>
+                                      <P class="m-1">TO</P>
+                                      <h2 class="fw-bold m-1">MUMBAI</h2>
+                                    </div>
+                                    <p class="m-1">
+                                      Flight
+                                    </p>
+
+                                    <button type="button" class="button-close-left btn-close text-danger"></button>
+
+                                  </div>
+                                </div>
+                                <!-- Transport tab END -->
+
+                                <!-- hotel tab START -->
+                                <div class="timeline-container right">
+                                  <div class="place-name"></div>
+                                  <div class="icon" style="font-size: 13px;">
+                                    <i class="fa-solid fa-hotel"></i>
+                                  </div>
+
+                                  <div class="timeline-content border" data-bs-toggle="modal"
+                                    data-bs-target="#hotelModal">
+                                    <h2 class="fw-bold">Lorem ipsum Hotel</h2>
+                                    <p>
+                                      Lorem ipsum location.
+                                    </p>
+                                    <button type="button" class="button-close-right btn-close text-danger"></button>
+                                  </div>
+                                </div>
+                                <!-- hotel tab END -->
+
+                                <!-- Transport tab START -->
+                                <div class="timeline-container left">
+                                  <div class="place-name">Pune</div>
+                                  <!-- <i class="icon"></i> -->
+                                  <div class="icon" style="font-size: 13px;">
+                                    <i class="fa-solid fa-location-dot"></i>
+                                  </div>
+                                  <div class="timeline-content border" data-bs-toggle="modal"
+                                    data-bs-target="#exampleModal">
+
+                                    <div class="d-flex flex-wrap">
+                                      <h2 class="fw-bold m-1">PUNE</h2>
+                                      <P class="m-1">TO</P>
+                                      <h2 class="fw-bold m-1">GOA</h2>
+                                    </div>
+                                    <p class="m-1">
+                                      Flight
+                                    </p>
+
+                                  </div>
+                                </div>
+                                <!-- Transport tab END -->
+
+                              </div>
+                            </div>
+
+
+                            <!-- ========== Timeline modal start ========== -->
+                            <!-- Transport Modal START -->
+                            <div class="fade modal modal-xl" id="transportModal" tabindex="-1"
+                              aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                      Transport Details :</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                      aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body border-bottom">
+
+                                    <!-- Location-input START -->
+                                    <div class="row mb-3">
+                                      <div class="col-lg-4 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">From</label>
+                                          <input type="text" name="from-one" id="from-one" placeholder="Enter location"
+                                            class="w-100">
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-4 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">To</label>
+                                          <input type="text" name="to-one" id="to-one" placeholder="Enter location"
+                                            class="w-100">
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-4 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>Transport Type</label>
+                                          <select class="input" id="transport-type">
+                                            <option value="">Select
+                                              Transport
+                                              Type...</option>
+                                            <option value="Transfer">
+                                              Transfer
+                                            </option>
+                                            <option value="Local">Local
+                                            </option>
+                                          </select>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <!-- Location-input END -->
+
+
+                                    <!-- Passenger-input START -->
+                                    <div class="border-bottom mb-4 transport-modal-card">
+
+                                      <div id="divContainer" class=" mb-2">
+                                        <div class="row mb-1 py-2">
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label>Passenger
+                                                Type</label>
+                                              <select class="input" id="passenger-type">
+                                                <option value="">Select
+                                                  Passenger Type...
+                                                </option>
+                                                <option value="Student">
+                                                  Student</option>
+                                                <option value="Teacher">
+                                                  Teacher</option>
+                                                <option value="Manager">
+                                                  Manager</option>
+                                              </select>
+                                            </div>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label>Mode of
+                                                Transport</label>
+                                              <select class="input" id="student-mode">
+                                                <option value="">Select
+                                                  mode
+                                                  of
+                                                  transport...
+                                                </option>
+                                                <option value="Flight">
+                                                  Flight
+                                                </option>
+                                                <option value="Train">
+                                                  Train
+                                                </option>
+                                                <option value="Bus">Bus
+                                                </option>
+                                              </select>
+                                            </div>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label>Carrier</label>
+                                              <select class="input" id="student-carrier">
+                                                <option value="">Select
+                                                  Carrier...
+                                                </option>
+                                                <option value="Indigo">
+                                                  Indigo
+                                                </option>
+                                              </select>
+                                            </div>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label>Fare Class</label>
+                                              <select class="input" id="student-fare-class">
+                                                <option value="">Select
+                                                  Fare
+                                                  Class...</option>
+                                                <option value="Economy">
+                                                  Economy
+                                                </option>
+                                                <option value="Business">
+                                                  Business
+                                                </option>
+                                              </select>
+                                            </div>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label>No. of
+                                                Students</label>
+                                              <input type="text" name="no-of-students" id="no-of-students"
+                                                placeholder="Enter No. of passengers" class="w-100" value="100">
+                                            </div>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <label class="form-label">Currency</label>
+                                            <select id="select-currency" autocomplete="off" style="line-height: 30px;">
+                                              <option value="">Select a
+                                                Currency...</option>
+                                              <option value="INR">INR
+                                              </option>
+                                              <option value="USD">USD
+                                              </option>
+                                              <option value="EUR">EUR
+                                              </option>
+                                            </select>
+                                          </div>
+
+                                          <div class="col-lg-4 col-md-6">
+                                            <div class="input-group mb-3 d-flex flex-column">
+                                              <label class="form-label">Fare</label>
+                                              <input type="number" name="student-fare" id="student-fare" placeholder=""
+                                                value="3050" class="w-100" readonly>
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                      </div>
+
+                                    </div>
+
+                                    <!-- Add transport detail in tabel button START-->
+                                    <div class="text-end border-bottom mb-4 pb-3">
+                                      <button class="btn text-light btn-info mx-2">+
+                                        ADD
+                                      </button>
+                                    </div>
+                                    <!-- Add transport detail in tabel button END-->
+
+                                    <!-- Passenger-input END -->
+
+                                    <!-- Passenger-input tabel start -->
+                                    <div class="selected-fields">
+                                      <h5 class="fw-bold">
+                                        Transport Details:</h5>
+                                      <div class="table-responsive">
+                                        <table class="table table-bordered" id="">
+
+                                          <thead>
+                                            <th>Sr No.</th>
+                                            <th>Passenger Type</th>
+                                            <th>Mode of Transport</th>
+                                            <th>Carrier</th>
+                                            <th>Fare Class</th>
+                                            <th>No. of Passengers</th>
+                                            <th>Currency</th>
+                                            <th>Fare</th>
+                                            <th>Action</th>
+                                          </thead>
+
+                                          <tbody>
+                                            <tr class="bg-white">
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                              <td>-</td>
+                                          </tbody>
+
+                                        </table>
+                                      </div>
+                                    </div>
+                                    <!-- Passenger-input tabel END -->
+
+
+                                  </div>
+
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                      data-bs-dismiss="modal">Edit</button>
+                                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Save
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- Transport Modal END -->
+
+                            <!-- Hotel Modal START -->
+                            <div class="fade modal modal-xl" id="hotelModal" tabindex="-1"
+                              aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">
+                                      Hotel Details :</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                      aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+
+                                    <!-- hotel content START -->
+                                    <!-- Add data -->
+                                    <div class="row m-3 p-3 hotel-modal-card">
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>Country</label>
+                                          <select class="input" id="hotel-country">
+                                            <option value="">Select
+                                              Country...
+                                            </option>
+                                            <option value="India">India
+                                            </option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>State</label>
+                                          <select class="input" id="hotel-state">
+                                            <option value="">Select State...
+                                            </option>
+                                            <option value="Maharashtra">
+                                              Maharashtra</option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>City</label>
+                                          <select class="input" id="hotel-city">
+                                            <option value="">Select City...
+                                            </option>
+                                            <option value="Mumbai">Mumbai
+                                            </option>
+                                            <option value="Thane">Thane
+                                            </option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">Stay</label>
+                                          <div class="d-flex">
+                                            <input type="number" name="room-type" id="stay-day" placeholder="3"
+                                              class="">Day
+                                            <input type="number" name="room-type" id="stay-night" placeholder="4"
+                                              class="">Night
+                                          </div>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>Passenger Type</label>
+                                          <select class="input" id="hotel-passenger-type">
+                                            <option value="">Select
+                                              Passenger
+                                              Type...</option>
+                                            <option value="Student">Student
+                                            </option>
+                                            <option value="Teacher">Teacher
+                                            </option>
+                                            <option value="Manager">Manager
+                                            </option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">No. of
+                                            Passengers</label>
+                                          <input type="number" name="room-type" id="hotel-no-passengers"
+                                            placeholder="Enter no. of passenger" class="w-100">
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">Occupancy
+                                            Preference</label>
+                                          <input type="number" name="room-type" id="hotel-occupancy"
+                                            placeholder="Enter occupancy preference" class="w-100">
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>Hotel Name</label>
+                                          <select class="input" id="hotel-name">
+                                            <option value="">Select Hotel
+                                              Name...</option>
+                                            <option value="lorem ipsum Hotel">
+                                              lorem ipsum Hotel</option>
+                                            <option value="lorem ipsum Hotel">
+                                              lorem ipsum Hotel</option>
+                                            <option value="lorem ipsum Hotel">
+                                              lorem ipsum Hotel</option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label>Room Type</label>
+                                          <select class="input" id="hotel-room-type">
+                                            <option value="">Select Room
+                                              Type...
+                                            </option>
+                                            <option value="Single Room">
+                                              Single
+                                              Room</option>
+                                            <option value="Standard Room">
+                                              Standard Room</option>
+                                            <option value="Deluxe Room">
+                                              Deluxe
+                                              Room</option>
+                                          </select>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">Room
+                                            Capacity
+                                          </label>
+                                          <input type="number" name="room-type" id="room-capacity" class="w-100"
+                                            value="2" readonly>
+                                        </div>
+                                      </div>
+
+                                      <div class="col-lg-3 col-md-6">
+                                        <div class="input-group mb-3 d-flex flex-column">
+                                          <label class="form-label">Max
+                                            Capacity
+                                          </label>
+                                          <input type="number" name="max-capacity" id="max-capacity" value="4"
+                                            class="w-100" readonly>
+                                        </div>
+                                      </div>
+
+                                    </div>
+
+                                    <!-- ADD data in table button START-->
+                                    <div
+                                      class="col-lg- border-bottom mb-4 pb-3 d-flex justify-content-end align-items-end">
+                                      <button class="add-hotel btn text-light btn-info">+ADD</button>
+                                    </div>
+                                    <!-- ADD data in table button END-->
+
+                                    <!-- Hotel table start -->
+                                    <div class="selected-fields">
+                                      <h4 class="fw-bold text-black">Hotel details
+                                        Table :</h4>
+                                      <div class="table-responsive">
+                                        <table class="table table-bordered" id="add-hotel-table">
+
+                                          <thead>
+                                            <th>Sr No.</th>
+                                            <th>Country</th>
+                                            <th>State</th>
+                                            <th>City</th>
+                                            <th>Stay</th>
+                                            <th>Passenger Type</th>
+                                            <th>No. of Passengers</th>
+                                            <th>Occupancy Preference</th>
+                                            <th>Hotel Name</th>
+                                            <th>Room Type</th>
+                                            <th>Room Capacity</th>
+                                            <th>Max Capacity</th>
+                                            <th>Action</th>
+                                          </thead>
+
+                                          <tbody>
+                                          </tbody>
+
+                                        </table>
+                                      </div>
+                                    </div>
+                                    <!-- Hotel table END -->
+
+                                    <!-- Add data -->
+                                    <!-- hotel content END -->
+
+                                  </div>
+
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                      data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save
+                                      changes</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <!-- Hotel Modal END -->
+                            <!-- ========== Timeline modal start ========== -->
+
+
+                            <!-- ========== ADD transport modal start ========== -->
+                            <!-- <div class="modal fade" id="add-modal-transport" tabindex="-1"
+                                                            aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                            <div class="modal-dialog">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h1 class="modal-title fs-5"
+                                                                            id="exampleModalLabel">
+                                                                            ADD Transport </h1>
+                                                                        <button type="button" class="btn-close"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body row">
+                                                                        <div class="col-lg-6 col-md-6">
+                                                                            <div
+                                                                                class="input-group mb-3 d-flex flex-column">
+                                                                                <label class="form-label">From</label>
+                                                                                <input type="text" name="from-one"
+                                                                                    id="from-one"
+                                                                                    placeholder="Enter location"
+                                                                                    class="w-100">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-6 col-md-6">
+                                                                            <div
+                                                                                class="input-group mb-3 d-flex flex-column">
+                                                                                <label class="form-label">To</label>
+                                                                                <input type="text" name="to-one"
+                                                                                    id="to-one"
+                                                                                    placeholder="Enter location"
+                                                                                    class="w-100">
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="col-lg-12 col-md-6">
+                                                                            <div
+                                                                                class="input-group mb-3 d-flex flex-column">
+                                                                                <label>Transport Type</label>
+                                                                                <select class="input"
+                                                                                    id="transport-type">
+                                                                                    <option value="">Select Transport
+                                                                                        Type...</option>
+                                                                                    <option value="Transfer">Transfer
+                                                                                    </option>
+                                                                                    <option value="Local">Local</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary"
+                                                                            data-bs-dismiss="modal">Close</button>
+                                                                        <button type="button"
+                                                                            class="btn btn-primary">+add</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div> -->
+                            <!-- ========== ADD transport modal start ========== -->
+
+                            <!-- ========== TIMELINE SECTION END ========== -->
+
+                          </div>
+
+
+
+                        </div>
+
+
+                      </div>
+
+                    </div>
+
+
+                  </div>
+                  <!-- Transport content END -->
+
+
+                  <!-- Expenses content START -->
+
+                  <div class="tab">
+                    <h2 class="fw-bold mb-4">Other Expenses Details</h2>
+
+                    <div class="row border-bottom mb-4 pb-3">
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3 d-flex flex-column">
+                          <label class="form-label">Expenses Type :</label>
+                          <input type="text" name="room-type" id="expenses-type" placeholder="Enter Expenses Type..."
+                            class="w-100">
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3 d-flex flex-column">
+                          <label>Passenger Type :</label>
+                          <select class="input" id="expenses-passenger-type">
+                            <option value="">Select Passenger Type...</option>
+                            <option value="Student">Student</option>
+                            <option value="Teacher">Teacher</option>
+                            <option value="Manager">Manager</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3 d-flex flex-column">
+                          <label class="form-label">Quantity :</label>
+                          <input type="number" name="room-type" id="quantity" placeholder="Enter Quantity..."
+                            class="w-100">
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <label class="form-label">Currency :</label>
+                        <select id="currency" autocomplete="off" style="line-height: 30px;">
+                          <option value="">Select a
+                            Currency...</option>
+                          <option value="INR">INR
+                          </option>
+                          <option value="USD">USD
+                          </option>
+                          <option value="EUR">EUR
+                          </option>
+                        </select>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3 d-flex flex-column">
+                          <label class="form-label">Unit Price :</label>
+                          <input type="number" name="room-type" id="unit-price" placeholder="Enter unit price..."
+                            class="w-100">
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3 d-flex flex-column">
+                          <label class="form-label">Total Amount :</label>
+                          <input type="number" name="room-type" id="total-amount" placeholder="Enter Total Amount"
+                            class="w-100">
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-6">
+                        <div class="input-group mb-3">
+                          <label for="is-payable" class="w-100">Daily Expenses :</label>
+                          <div class="text-start col-lg-2">
+                            <input type="checkbox" class="largerCheckbox" id="daily-expenses" name="checkBox2">
+                          </div>
+
+                        </div>
+                      </div>
+
+                    </div>
+
+                    <!-- Add Expenses button START -->
+                    <div class="d-flex justify-content-end">
+                      <button class="add-expenses btn text-light btn-info">+ADD</button>
+                    </div>
+                    <!-- Add Expenses button END -->
+
+                    <!-- Expenses tabel START -->
+                    <div class="selected-fields">
+                      <h4 class="fw-bold text-black">Expenses details Table :</h4>
+                      <div class="table-responsive">
+                        <table class="table table-bordered" id="add-expenses-table">
+
+                          <thead>
+                            <th>Sr No.</th>
+                            <th>Name of Expenses</th>
+                            <th>Expenses Type</th>
+                            <th>Quantity</th>
+                            <th>Currency</th>
+                            <th>Unit Price</th>
+                            <th>Daily Expenses</th>
+                            <th>Total amount</th>
+                            <th>Action</th>
+                          </thead>
+
+                          <tbody>
+
+                          </tbody>
+
+                        </table>
+                      </div>
+                    </div>
+                    <!-- Expenses tabel END -->
+
+
+                  </div>
+
+                  <!-- Expenses content END -->
+
+                </div>
+
+              </div>
+              <!-- Button START -->
+              <div class="bg-white my-4 px-4" style="overflow:auto;">
+                <div class="my-3" style="float:right;">
+                  <button type="button" id="prevBtn" class="btn text-light" onclick="nextPrev(-1)">Previous</button>
+                  <button type="button" id="nextBtn" class="btn text-light btn-info" onclick="nextPrev(1)">Next</button>
+                </div>
+              </div>
+              <!-- Button END -->
+
+            </div>
+
+          </div>
+
+        </div>
+        <!--  BEGIN FOOTER  -->
+
+        <div class="footer-wrapper">
+          <div class="footer-section f-section-1">
+            <p class="">Copyright © <span class="dynamic-year">2023</span> <a target="_blank" href="">Autoriders
+                International Ltd</a>, All rights reserved.</p>
+          </div>
+        </div>
+        <!--  END FOOTER  -->
+    </div>
+    <!--  END CONTENT AREA  -->
+
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+    <%- include ('./partials/footer') %>
+
+
+      <script>
+        //  HOTEL STEP FORM START
+        $(document).ready(function () {
+
+          $("#passenger-type").select2({
+            placeholder: "Select Passenger Type",
+            allowClear: true
+          });
+
+
+
+
+          $("#smartwizard").smartWizard({
+            selected: 0,
+            theme: "arrows",
+            autoAdjustHeight: true,
+            transitionEffect: "fade",
+            showStepURLhash: false,
+          });
+        });
+  //  HOTEL STEP FORM END
+      </script>
+      <script src="/js/indexScript.js"></script>
+      <%- include ('./partials/footer-end') %>

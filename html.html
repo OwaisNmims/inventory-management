@@ -1,0 +1,435 @@
+<%- include ('./partials/head') %>
+
+  <!--  BEGIN NAVBAR  -->
+  <%- include ('./partials/header') %>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+      <div class="overlay"></div>
+      <div class="search-overlay"></div>
+
+      <!--  BEGIN SIDEBAR  -->
+      <%- include ('./partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+          <div class="layout-px-spacing">
+            <div class="middle-content container-xxl p-0">
+              <!--  BEGIN BREADCRUMBS  -->
+              <div class="secondary-nav">
+                <div class="breadcrumbs-container" data-page-heading="Analytics">
+                  <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-menu">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                      </svg>
+                    </a>
+                    <div class="d-flex breadcrumb-content">
+                      <div class="page-header">
+
+                        <div class="page-title">
+                        </div>
+
+                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                          <ol class="breadcrumb">
+                            <li class="breadcrumb-item active"><a href="/admin/cost-sheet">Cost Sheet Generator</a></li>
+                          </ol>
+                        </nav>
+
+                      </div>
+                    </div>
+
+                  </header>
+                </div>
+              </div>
+              <!--  END BREADCRUMBS  -->
+
+              <div class="layout-top-spacing">
+                <!-- Tour Basic Information Section -->
+                <div class="tour-section-wrapper" id="tour-details-wrapper" data-tour-lid="<%= tourDetails?.id %>"
+                  data-tour-name="<%= tourDetails?.name %>" data-tour-nights="<%= tourDetails?.duration_nights %>"
+                  data-tour-days="<%= tourDetails?.duration_days %>">
+                  <h5 class="fw-bold mb-2 text-black">Basic Tour Information:</h5>
+                  <hr>
+                  <div class="d-flex justify-content-between">
+                    <div class="item">
+                      <p class="item-header">Tour Name:</p>
+                      <p class="item-value tour-name"><%- tourDetails?.name ?? 'NA' %></p>
+                    </div>
+                    <div class="item">
+                      <p class="item-header">Tour Nights:</p>
+                      <p class="item-value tour-nights"><%- tourDetails?.duration_nights ?? 'NA' %></p>
+                    </div>
+                    <div class="item">
+                      <p class="item-header">Tour Days:</p>
+                      <p class="item-value tour-days"><%- tourDetails?.duration_days ?? 'NA' %></p>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-sm btn-dark d-block mt-3 mx-auto add-btn" data-bs-toggle="modal"
+                    data-bs-target="#tour-details-modal">
+                    <% if(tourDetails) { %>
+                      <i class="fa-solid fa-pen-to-square"></i>
+                      <span>Edit</span>
+                      <% } else { %>
+                        <i class="fa-solid fa-plus"></i>
+                        <span>Add</span>
+                        <% } %>
+                  </button>
+                </div>
+                <!-- Tour Basic Information Section // -->
+
+                <!-- Tour Pax Section -->
+                <div class="mt-5 tour-section-wrapper" id="tour-pax-wrapper">
+                  <h5 class="fw-bold mb-2 text-black">Passenger Details:</h5>
+                  <hr>
+
+                  <div class="row pax-item item">
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Sl. No.:</p>
+                      <p class="item-value sl-no">1</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Pax Type:</p>
+                      <p class="item-value pax-type">Student</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Pax Count:</p>
+                      <p class="item-value pax-count">100</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Occupancy Preference:</p>
+                      <p class="item-value occupancy-preference">2</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Is Payable?:</p>
+                      <p class="item-value is-payable">Yes</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Payable Amount:</p>
+                      <p class="item-value payable-amount">NA</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Payable Percentage:</p>
+                      <p class="item-value payable-percentage">100%</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Action:</p>
+                      <p class="item-value action">
+                        <i class="fa-regular fa-pen-to-square cursor-pointer btn-edit"></i>
+                        <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2"></i>
+                      </p>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-sm btn-dark d-block mt-3 mx-auto" data-bs-toggle="modal"
+                    data-bs-target="#tour-pax-modal">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>Add Pax</span>
+                  </button>
+                </div>
+                <!-- Tour Pax Section //-->
+
+                <!-- Tour Expense Section -->
+                <div class="mt-5 tour-section-wrapper" id="tour-expense-wrapper">
+                  <h5 class="fw-bold mb-2 text-black">Tour Expenses:</h5>
+                  <hr>
+
+                  <div class="row pax-item item">
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Sl. No.:</p>
+                      <p class="item-value sl-no">1</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Expense Type:</p>
+                      <p class="item-value expense-type">Flight</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Pax Type:</p>
+                      <p class="item-value pax-type">Student</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Pax Count:</p>
+                      <p class="item-value pax-count">100</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Currency:</p>
+                      <p class="item-value currency">INR</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Unit Price:</p>
+                      <p class="item-value unit-price">10000 INR</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Nightly Recurring Expenses:</p>
+                      <p class="item-value nightly-recurring">No</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Daily Recurring Expenses:</p>
+                      <p class="item-value daily-recurring">No</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Total Price:</p>
+                      <p class="item-value toal-price">1000000 INR</p>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                      <p class="item-header">Action:</p>
+                      <p class="item-value action">
+                        <i class="fa-regular fa-pen-to-square cursor-pointer btn-edit"></i>
+                        <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2"></i>
+                      </p>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-sm btn-dark d-block mt-3 mx-auto" data-bs-toggle="modal"
+                    data-bs-target="#tour-details-modal">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <span><%- tourDetails ? 'Edit' : 'Add' %></span>
+                  </button>
+                </div>
+                <!-- Tour Expense Section //-->
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <!--  END CONTENT AREA  -->
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+    <!-- Tour Details Modal -->
+    <div class="modal fade" id="tour-details-modal" tabindex="-1" role="dialog" aria-labelledby="tour-details-modal"
+      aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content modal-inputform">
+          <div class="modal-header modal-inputform-header">
+            <h5 class="modal-title text-dark" id="">Tour Details</h5>
+            <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-4">
+              <div class="col-lg-4 col-md-4 col-sm-12 mb-2 mt-2">
+                <label>Tour Name:</label>
+                <input type="text" class="form-control" placeholder="Tour name" id="tour-name">
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+                <label>Tour Nights:</label>
+                <input type="text" class="form-control" placeholder="No. of nights" id="tour-nights">
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+                <label>Tour Days:</label>
+                <input type="text" class="form-control" placeholder="No. of days" id="tour-days" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn add-btn btn-success m-auto">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Tour Details Modal //-->
+
+    <!-- Pax Modal -->
+    <div class="modal fade" id="tour-pax-modal" tabindex="-1" role="dialog" aria-labelledby="tour-pax-modal"
+      aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content modal-inputform">
+          <div class="modal-header modal-inputform-header">
+            <h5 class="modal-title text-dark" id="">Tour Pax Details</h5>
+            <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-4">
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <input type="text" class="form-control" placeholder="Tour name" id="">
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <input type="text" class="form-control" placeholder="No. of nights" id="">
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-12">
+                <input type="text" class="form-control" placeholder="No. of days" id="" disabled>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn add-btn btn-success m-auto">
+              Create
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Pax Modal //-->
+
+    <%- include ('./partials/footer') %>
+
+
+      <script>
+
+        //GLOBAL VAR
+        let TOUR_DETAILS_WRAPPER = $('#tour-details-wrapper');
+        let TOUR_PAX_WRAPPER = $('#tour-pax-wrapper');
+        let TOUR_EXPENSE_WRAPPER = $('#tour-expense-wrapper');
+        let TOUR_LID = '<%= tourDetails?.id %>';
+
+        console.log('TOUR_LID>>>>> ', TOUR_LID);
+
+
+        //BASIC TOUR INFORMATION
+        $('#tour-details-wrapper .add-btn').on('click', function () {
+          if (TOUR_LID) {
+            let tourName = TOUR_DETAILS_WRAPPER.attr('data-tour-name');
+            let tourNights = TOUR_DETAILS_WRAPPER.attr('data-tour-nights');
+            let tourDays = Number(tourNights) + 1;
+
+            $('#tour-details-modal .add-btn').text('Update');
+            $('#tour-name').val(tourName);
+            $('#tour-nights').val(tourNights);
+            $('#tour-days').val(tourDays);
+          } else {
+            $('#tour-details-modal .add-btn').text('Add');
+          }
+        })
+
+        $('#tour-details-modal .add-btn').on('click', function () {
+          const tourName = $('#tour-name').val();
+          const tourNights = $('#tour-nights').val();
+
+          if (!tourName || !tourNights) {
+            createAlert({
+              title: 'Incorrect input!',
+              msg: 'Please enter a tour name and tour nights.',
+              type: 'negative',
+            });
+            return false;
+          }
+
+
+          if (!TOUR_LID) {
+            //add new tour
+            $.ajax({
+              method: "POST",
+              url: "/admin/tour/create",
+              data: {
+                tourName: tourName,
+                tourNights: tourNights
+              },
+              success: function (response) {
+                if (response.status == 'success') {
+                  console.log('data>>>>>>>> ', response);
+                  TOUR_LID = response.tourDetails.id;
+                  createAlert({
+                    title: "SUCCESS",
+                    msg: response.message,
+                    type: "positive",
+                  });
+
+                  //update the tour info
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-lid', response.tourDetails.name.id);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-name', response.tourDetails.name);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-nights', response.tourDetails.duration_nights);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-days', response.tourDetails.duration_days);
+
+                  TOUR_DETAILS_WRAPPER.find('.add-btn').html(`<i class="fa-solid fa-pen-to-square"></i><span>Edit</span>`);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-name').text(response.tourDetails.name);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-nights').text(response.tourDetails.duration_nights);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-days').text(response.tourDetails.duration_days);
+
+                  //remove modal
+                  $('.modal-backdrop').remove();
+                  $("#tour-details-modal").modal("hide");
+                  setTimeout(function () {
+                    $('body').attr('style', '');
+                  }, 500)
+
+                } else {
+                  createAlert({
+                    title: "ERROR",
+                    msg: response.message,
+                    type: "negative",
+                  });
+                }
+              },
+              error: function (error) {
+                createAlert({
+                  title: "ERROR",
+                  msg: response.message,
+                  type: "negative",
+                });
+              },
+            });
+
+          } else {
+            //update existing tour
+            $.ajax({
+              method: "POST",
+              url: "/admin/tour/update",
+              data: {
+                tourLid: TOUR_LID,
+                tourName: tourName,
+                tourNights: tourNights
+              },
+              success: function (response) {
+                if (response.status == 'success') {
+                  console.log('data>>>>>>>> ', response);
+                  createAlert({
+                    title: "SUCCESS",
+                    msg: response.message,
+                    type: "positive",
+                  });
+
+                  //update the tour info
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-lid', response.tourDetails.name.id);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-name', response.tourDetails.name);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-nights', response.tourDetails.duration_nights);
+                  TOUR_DETAILS_WRAPPER.attr('data-tour-days', response.tourDetails.duration_days);
+
+                  TOUR_DETAILS_WRAPPER.find('.add-btn').html(`<i class="fa-solid fa-pen-to-square"></i><span>Edit</span>`);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-name').text(response.tourDetails.name);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-nights').text(response.tourDetails.duration_nights);
+                  TOUR_DETAILS_WRAPPER.find('.item-value.tour-days').text(response.tourDetails.duration_days);
+
+                  //remove modal
+                  $('.modal-backdrop').remove();
+                  $("#tour-details-modal").modal("hide");
+                  setTimeout(function () {
+                    $('body').attr('style', '');
+                  }, 500)
+                } else {
+                  createAlert({
+                    title: "ERROR",
+                    msg: response.message,
+                    type: "negative",
+                  });
+                }
+              },
+              error: function (error) {
+                createAlert({
+                  title: "ERROR",
+                  msg: response.message,
+                  type: "negative",
+                });
+              },
+            });
+
+          }
+        })
+
+      </script>
+      <!-- <script src="/js/indexScript.js"></script> -->
+      <%- include ('./partials/footer-end') %>

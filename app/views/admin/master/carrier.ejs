@@ -1,0 +1,434 @@
+<%- include ('../partials/head') %>
+
+      <!--  BEGIN NAVBAR  -->
+      <%- include ('../partials/header') %>
+      <!--  END NAVBAR  -->
+  
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+        <div class="overlay"></div>
+        <div class="search-overlay"></div>
+
+        <!--  BEGIN SIDEBAR  -->
+        <%- include ('../partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+            <div class="layout-px-spacing">
+
+                <div class="middle-content container-xxl p-0">
+
+                    <!--  BEGIN BREADCRUMBS  -->
+                    <div class="secondary-nav">
+                        <div class="breadcrumbs-container" data-page-heading="Analytics">
+                            <header class="header navbar navbar-expand-sm">
+                                <a href="javascript:void(0);" class="btn-toggle sidebarCollapse"
+                                    data-placement="bottom">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-menu">
+                                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                                    </svg>
+                                </a>
+                                <div class="d-flex breadcrumb-content">
+                                    <div class="page-header">
+
+                                        <div class="page-title">
+                                        </div>
+
+                                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                                            <ol class="breadcrumb">
+                                                <li class="breadcrumb-item active"><a href="./masters">Master</a></li>
+                                                <li class="breadcrumb-item active" aria-current="page">Carrier</li>
+                                            </ol>
+                                        </nav>
+
+                                    </div>
+                                </div>
+
+                            </header>
+                        </div>
+                    </div>
+                    <!--  END BREADCRUMBS  -->
+
+                    <div class="main-content">
+
+                        <div class="table-template">
+                            <div class="table-header">
+                                <div class="table-title">
+                                    <h3>Carrier</h3>
+                                </div>
+                                <div class="table-actions">
+                                    <button style="background: none; border: none;" data-bs-toggle="modal"
+                                        data-bs-target="#add-carrier-modal"><i
+                                            class="fa-regular fa-square-plus"></i> </button>
+                                </div>
+                            </div>
+
+                            <div class="table-content">
+                                <div class="table-filter-container"></div>
+                                <div class="table-content">
+
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered" id="table-content">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Sr No.</th>
+                                                    <th scope="col">Mode of Transport</th>
+                                                    <th scope="col">Carrier</th>
+                                                    <th class="text-center" scope="col"> Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% carriers.forEach((carrier, idx)=>{%>
+                                                      <tr>
+                                                        <td><%- ++idx %></td>
+                                                        <td class="mode-name"><%-carrier.mode_of_transport %></td>
+                                                        <td class="carrier-name"><%-carrier.name %></td>
+                                                        <td class="text-center">
+                                                          <div class="action-btns">
+                                                            <a href="javascript:void(0);" class="action-btn btn-edit bs-tooltip me-2"
+                                                              data-toggle="tooltip" data-placement="top" title="Edit"
+                                                              data-carrier-id="<%-carrier.id%>">
+                                                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round" class="feather feather-edit-2">
+                                                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z">
+                                                                </path>
+                                                              </svg>
+                                                            </a>
+                                                            <a href="javascript:void(0);" class="action-btn btn-delete bs-tooltip"
+                                                              data-toggle="tooltip" data-placement="top" title="Delete"
+                                                              data-carrier-id="<%-carrier.id%>">
+                                                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                                stroke-linejoin="round" class="feather feather-trash-2">
+                                                                <polyline points="3 6 5 6 21 6"></polyline>
+                                                                <path
+                                                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                </path>
+                                                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                                                              </svg>
+                                                            </a>
+                                                          </div>
+                                                        </td>
+                                                      </tr>
+                                                    <%})%>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+           
+        </div>
+        <!--  END CONTENT AREA  -->
+
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+     <!--ADD Modal -->
+     <div class="modal fade" id="add-carrier-modal" tabindex="-1" role="dialog" aria-labelledby="add-carrier-modal"
+     aria-hidden="true">
+         <div class="modal-dialog modal-xl" role="document">
+             <div class="modal-content modal-inputform">
+                 <div class="modal-header  modal-inputform-header">
+                     <h5 class="modal-title text-dark" id="">ADD CARRIER</h5>
+                     <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close"><i
+                             class="fas fa-times"></i></button>
+ 
+                 </div>
+                 <div class="modal-body">
+                     <div class="row info-container">
+                         <div class="col-md-3 select-fields">
+                            
+                             <div class="input-group mb-3 d-flex flex-column">
+                                 <label class="form-label">Mode of Transport</label>
+                                 <select id="select-mode" autocomplete="off" style="line-height: 30px;">
+                                     <option value="" selected disabled>Select a Mode of Transport...</option>
+                                     <% modes.forEach((mode, idx)=> { %>
+                                        <option value="<%- mode.id %>" data-mode-name="<%- mode.name %>"><%- mode.name %>
+                                        </option>
+                                        <% }) %>
+                                 </select>
+                            </div>       
+
+                             <div class="input-group mb-3 d-flex flex-column">
+                                <label class="form-label">Carrier</label>
+                                <input type="text" name="carrier-name" id="carrier-name">
+                            </div>       
+
+                             <div class="mb-3 d-grid gap-2">
+                                 <button class="btn text-light add-carrier btn-info">ADD</button>
+                             </div>
+                             
+                         </div>
+                         <div class="col-md-9 selected-fields"> 
+                             <div class="table-responsive">
+                                 <table class="table table-bordered" id="add-more-carrier-table">
+                                     <thead>
+                                         <th>Sr No.</th>
+                                         <th>Mode of Transport</th>
+                                         <th>Carrier</th>
+                                         <th>Action</th>
+                                     </thead>
+                                     <tbody>
+                                        
+                                     </tbody>
+                                 </table>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="modal-footer">
+                     <button type="button" class="btn create-carrier btn-primary">CREATE</button>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Edit Mode Modal -->
+    <div class="modal fade" id="edit-carrier-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+    aria-labelledby="edit-carrier-modal" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content modal-inputform">
+        <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">EDIT CARRIER</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+        </div>
+        <div class="modal-body">
+        <div class="select-fields">
+            <div class="mb-3">
+            <label class="form-label" for="edit-carrier-input">Carrier Name</label>
+            <input type="text" class="form-control" id="edit-carrier-input" />
+            </div>
+            
+        </div>
+        </div>
+        <div class="modal-footer">
+        <button type="button" id="save-edited-data" class="btn btn-primary">SAVE</button>
+        </div>
+    </div>
+    </div>
+    </div>
+
+
+     <%- include ('../partials/footer') %>
+
+
+    <!-- CUSTOM JS SCRIPT -->
+    <script>
+        $(document).ready( function() {
+            // GLOBAL VARIABLES
+            let carrierLid;
+            let newCarriers = [];
+
+             // INIT Select2
+            $('#select-mode').select2({
+                dropdownParent: $('#add-carrier-modal')
+            });
+
+            //Insert CARRIER
+            $('#add-carrier-modal .add-carrier').on('click', function () {
+                
+                const carrierName = $('#carrier-name').val().trim().toUpperCase();
+                const transportModeLid = $('#select-mode').val();
+                const transportMode = $('#select-mode option:selected').attr('data-mode-name');
+
+                if (!isAlphabet(carrierName)) {
+                createAlert({
+                    title: "Incorrect input!",
+                    msg: "Incorrect input, please check and try again.",
+                    type: "negative",
+                });
+
+                return false;
+                }
+
+                // Check for duplicate before pushing
+                const isDuplicate = newCarriers.some(rowData => (
+                    rowData.carrierName === carrierName &&
+                    rowData.transportModeLid === transportModeLid
+                ));
+
+                if (isDuplicate) {
+                createAlert({
+                    title: "Duplicate Data!",
+                    msg: "Duplicate entries detected.",
+                    type: "negative",
+                });
+                return false;
+                }
+
+                newCarriers.push({carrierName, transportModeLid});
+
+                const newTr = $('<tr>');
+                let rowCount = $('#add-more-carrier-table tbody tr').length + 1;
+
+                
+                newTr.data('transport-mode-lid', transportModeLid);
+                newTr.data('carrier-name', carrierName);
+
+                newTr.append($('<td>').text(rowCount));
+                newTr.append($('<td>').text(transportMode));
+                newTr.append($('<td>').text(carrierName));
+                newTr.append($('<td>').html(`<i class="fa-regular fa-trash-can delete-row-btn cursor-pointer"></i>`));
+
+                $('#add-more-carrier-table tbody').append(newTr);
+            })
+
+            // Delete row button click handler
+            $(document).on('click', '.delete-row-btn', function () {
+                const tr = $(this).closest('tr');
+                const carrier = tr.data('carrier-name');
+                const transportModeLid = tr.data('transport-mode-lid');
+
+                // Remove row data from the array
+                newCarriers.splice(newCarriers.findIndex(carrier => (
+                    carrier.carrierName === carrier &&
+                    carrier.transportModeLid === transportModeLid
+                )), 1);
+
+                tr.remove();
+                updateSerialNumbers('#add-more-carrier-table tbody tr');
+            });
+
+            //INSERT API CALL
+            $(document).on('click', '.create-carrier', function(){
+                console.log('FINAL ARRAY', newCarriers)    
+                $.ajax({
+                    method: "POST",
+                    url: "/admin/carrier/add",
+                    data: {
+                        carrierData: newCarriers
+                    },
+                    success: function (response) {
+                    
+                    if (response.status == 200) {
+                        alert(`${response.data.message}`);
+                        location.reload(true);
+                    } else {
+                        createAlert({
+                        title: "ERROR",
+                        msg: response.data.message,
+                        type: "negative",
+                        });
+                        $("#add-carrier-modal").modal("hide");
+                    }
+                    $("#add-carrier-modal").modal("hide");
+                    },
+                    error: function (error) {
+                    
+                    createAlert({
+                        title: "ERROR",
+                        msg: "not done",
+                        type: "negative",
+                    });
+
+                    $("#add-carrier-modal").modal("hide");
+                    },
+                });
+
+                $('#add-carrier-modal').modal('hide');
+            })
+
+            // EDIT CARRIER 
+            $(document).on('click', '.btn-edit', function () {
+                carrierLid = $(this).attr('data-carrier-id');
+                const thisTr = this.closest('tr');
+                const modeName = $(thisTr).find('.carrier-name').text();
+
+                $('#edit-carrier-input').val(modeName);
+                $('#edit-carrier-modal').modal('show');
+                })
+
+            // Save Edited CARRIER
+            $(document).on('click', '#save-edited-data', function () {
+                let newCarrierName = $('#edit-carrier-input').val().trim().toUpperCase();
+
+                $.ajax({
+                    method: "POST",
+                    url: "/admin/carrier/update",
+                    data: {
+                        carrierData: { carrierLid, newCarrierName }
+                    },
+                    success: function (response) {
+                    if (response.status == 200) {
+                        alert(`${response.data.message}`);
+                        location.reload(true);
+                    } else {
+                        createAlert({
+                        title: "ERROR",
+                        msg: response.data.message,
+                        type: "negative",
+                        });
+                        $("#edit-carrier-modal").modal("hide");
+                    }
+                    $("#edit-carrier-modal").modal("hide");
+                    },
+                    error: function (error) {
+                    createAlert({
+                        title: "ERROR",
+                        msg: "not done",
+                        type: "negative",
+                    });
+                    $("#edit-carrier-modal").modal("hide");
+                    },
+                });
+
+                $('#edit-carrier-modal').modal('hide');
+                })
+            
+             // DELETE CARRIER
+            $(document).on('click', '.btn-delete', function () {
+                carrierLid = $(this).attr('data-carrier-id');
+                const isConfirmed = confirm('Are you sure you want to remove the Carrier?');
+
+                if (!isConfirmed) {
+                    return false;
+                }
+
+                $.ajax({
+                    method: "POST",
+                    url: "/admin/carrier/delete",
+                    data: {
+                        carrierData: { carrierLid }
+                    },
+                    success: function (response) {
+                    if (response.status == 200) {
+                        alert("SUCCESS - Successfully Deleted!");
+                        location.reload(true);
+                    } else {
+                        createAlert({
+                        title: "ERROR",
+                        msg: response.message,
+                        type: "negative",
+                        });
+                    }
+                    },
+                    error: function (error) {
+                    createAlert({
+                        title: "ERROR",
+                        msg: error.message,
+                        type: "negative",
+                    });
+                    },
+                });
+                })
+        })
+     
+    </script>
+     <!--END CUSTOM JS SCRIPT -->
+
+     <%- include ('../partials/footer-end') %>

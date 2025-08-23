@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>invoice</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <body class="bg-body-secondary">
+    <div class="container">
+      <div class="invoice bg-white p-5 m-4 border rounded-3">
+        <header
+          class="invoice-head border-dark border-bottom pb-4 mb-4 d-flex justify-content-between flex-wrap"
+        >
+          <h1>V<sppan class="text-primary fw-bold">-</sppan>Explore</h1>
+          <div class="text-end">
+            <h2 class="mb-4">invoice</h2>
+
+            <!-- <p class="m-0">Invoice Number - #290823</p> -->
+            <p id="currentDate" class=""></p>
+          </div>
+        </header>
+
+        <div class="invoice-body border-dark border-bottom mb-4 pb-4">
+          <div class="row mx-0">
+            <div class="col-lg-12 px-0">
+              <!-- CONVERSION DETAILS START -->
+              <h5 class="fw-medium bg-primary text-dark bg-opacity-25 p-2 m-0">
+                Conversion Details
+              </h5>
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Sr. no.</th>
+                    <th scope="col">Currency</th>
+                    <th scope="col">Currency Symbol</th>
+                    <th scope="col">Currency Code</th>
+                    <th scope="col">Price with ROE(1.5)</th>
+                    <th scope="col">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let k = 0; for (let currency of tourCurrencyRates) {%>
+                  <tr>
+                    <th scope="row"><%= ++k %></th>
+                    <td><%= currency.name %></td>
+                    <td><%= currency.symbol %></td>
+                    <td class="text-end"><%= currency.code %></td>
+                    <td class="text-end"><%= currency.price %></td>
+                    <td class="text-end"><%= currency.actual_price %></td>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+              <!-- CONVERSION DETAILS ENd -->
+            </div>
+
+
+
+
+            <div class="col-lg-12 px-0">
+              <!-- Passenger total START -->
+              <h5 class="fw-medium bg-primary text-dark bg-opacity-25 p-2 m-0">
+                Passenger Details
+              </h5>
+              <table class="table table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th scope="col">Sr. no.</th>
+                    <th scope="col">Passenger Type</th>
+                    <th scope="col">Payable</th>
+                    <th scope="col">No. of Passengers</th>
+                    <th scope="col">Payment Percentage</th>
+                    <th scope="col">Payment Amount</th>
+                    <th scope="col">Occupancy Preference</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% let i = 0; for (let pax of tourPasenger) {%>
+                    <% let payable =   pax.is_payable == true ? 'Yes' : 'No'  %>
+                  <tr>
+                    <th scope="row"><%= ++i %></th>
+                    <td><%= pax.pax_type %></td>
+                    <td><%= payable%></td>
+                    <td class="text-end"><%= pax.no_of_passengers %></td>
+                    <td class="text-end"><%= pax.payment_percentage %></td>
+                    <td class="text-end"><%= pax.payment_amount %></td>
+                    <td class="text-end"><%= pax.occupancy_preference %></td>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+              <!-- Passenger total ENd -->
+            </div>
+
+          <!-- Other Expenses START -->
+          <h5 class="fw-medium bg-primary text-dark bg-opacity-25 p-2 m-0">
+            Expenses
+          </h5>
+          <table class="table table-bordered mb-4">
+            <thead class="table-light">
+              <tr>
+                <th scope="col">Sr no.</th>
+                <th scope="col">Expenses</th>
+                <th scope="col">Passenger Type</th>
+                <th scope="col">Unit Price</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Nightly Recurring</th>
+                <th scope="col">Daily Recurring</th>
+                <th scope="col">Currency</th>
+                <th scope="col">Total</th>
+                <th scope="col">Total in INR</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% let j = 0; for (let exp of tourExpense) {%>
+              <tr>
+                <th scope="row"><%= ++j %></th>
+                <td class="text-end"><%= exp.expense_type %></td>
+                <td class="text-end"><%= exp.pax_type %></td>
+                <td class="text-end"><%= exp.unit_price %></td>
+                <td class="text-end"><%= exp.pax_count %></td>
+                <td class="text-end"><%= exp.nightly_recurring %></td>
+                <td class="text-end"><%= exp.daily_recurring %></td>
+                <td class="text-end"><%= exp.currency %></td>
+                <td class="text-end"><%= exp.total_price %></td>
+                <td class="text-end"><%=exp.total_price_inr%></td>
+              </tr>
+              <% } %>
+              <tr class="table-light text-end">
+                <th class="" colspan="9">Total :</th>
+                <td id="otherExpensesTotal" class="fw-bold"><%=sum_amt%></td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Other Expenses END -->
+
+          <div class="row">
+            <% tour_quote.forEach((quote, idx) => {%>
+            <div class="col-lg-4 col-md-6 col-sm-12 mt-4">
+              <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Quote For <%- quote.name%></h5>
+                  <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
+                  <table id="myTable" class="table">
+                    <!-- bg-primary bg-opacity-25 -->
+                    <tbody class="px-4">
+                      <tr class="table-light">
+                        <th scope="row">Total cost</th>
+                        <td  class="text-end"><%- quote.total_without_margin_tax%></td>
+                      </tr>
+                      <tr class="table-light">
+                        <th scope="row">Margin </th>
+                        <td  class="text-end"><%- quote.margin%>%</td>
+                      </tr>
+                      <tr class="table-light">
+                        <th scope="row">Total Quote before Tax</th>
+                        <td  class="text-end"><%- quote.total_without_tax%></td>
+                      </tr>
+                      <tr class="table-light">
+                        <th scope="row">Total Tax</th>
+                        <td  class="text-end"><%- quote.tax_cost %></td>
+                      </tr>
+   
+                      <tr class="table-light">
+                        <!-- class="fw-medium bg-primary text-dark bg-opacity-25 p-2 m-0" -->
+                        <th scope="row" class="bg-primary text-dark bg-opacity-25">
+                          Grand Total : 
+                        </th>
+                        <td class="text-end"><%- quote.per_person_quote %></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+            <% })%>
+            </div>
+
+          </div>
+          <div class="row">
+            <div class="col-lg-8">
+            </div>
+            <div class="col-lg-4 ">
+              
+
+            </div>
+          </div>
+        </div>
+
+        <p class="text-center">
+          <strong>NOTE :</strong> This is computer generated receipt and does
+          not require physical signature.
+        </p>
+        <div class="text-center">
+          <a
+            href="javascript:window.print()"
+            class="btn btn-light border text-black-50 fw-bold fw-bold"
+          >
+            <i class="fa fa-print"></i>
+            Print
+          </a>
+          <a href="" class="btn btn-light border text-black-50 fw-bold">
+            <i class="fa fa-download"></i>
+            Download
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // ===== Date script START ===== //
+
+      let currentDateElement = document.getElementById("currentDate");
+      let currentDate = new Date();
+      let options = { year: "numeric", month: "long", day: "numeric" };
+      let formattedDate = currentDate.toLocaleDateString("en-US", options);
+      currentDateElement.textContent = "Date: " + formattedDate;
+      // ===== Date script END ===== //
+
+      // ===== Total cost before GST script START ===== //
+  
+
+      // ===== Total cost before GST script END ===== //
+
+      ///////////////////////////////////////////////////////////////////////////
+      
+
+       // margin calculation
+
+
+      // add tax
+      document.addEventListener("click", function (e) {      
+        if(e.target.id == 'select-tax') {
+          e.target.addEventListener('change',function() {
+            let taxPercentage = Number(e.target.value);  
+            calculatedTax = ((beforeTaxTotal / 100) * taxPercentage).toFixed(2);
+            totalTax += Number(calculatedTax);
+            // console.log("total tax in tax ", totalTax);
+            let secondTD = e.target.parentElement.nextElementSibling;
+            secondTD.innerHTML = `<span>${calculatedTax}</span>`;
+            grandTotal = beforeTaxTotal - totalTax - margin;
+            document.querySelector("#grandTotal").innerHTML = grandTotal.toFixed(2);
+          })
+        }
+      });
+
+      function deleteRow(button) {
+        let row = button.parentNode.parentNode;
+        deductValue = Number(button.parentElement.nextElementSibling.innerText);
+        row.parentNode.removeChild(row);
+        let grnad = Number(document.querySelector("#grandTotal").innerText);
+        totalTax -= deductValue;
+        // console.log("total tax when delete", totalTax);
+        document.querySelector("#grandTotal").innerHTML = (
+          grnad + deductValue
+        ).toFixed(2);
+        i = --i;
+      }
+
+     
+    </script>
+  </body>
+</html>

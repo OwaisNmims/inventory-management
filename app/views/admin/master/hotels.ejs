@@ -1,0 +1,335 @@
+<%- include ('../partials/head') %>
+
+  <!--  BEGIN NAVBAR  -->
+  <%- include ('../partials/header') %>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+      <div class="overlay"></div>
+      <div class="search-overlay"></div>
+
+      <!--  BEGIN SIDEBAR  -->
+      <%- include ('../partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+          <div class="layout-px-spacing">
+
+            <div class="middle-content container-xxl p-0">
+
+              <!--  BEGIN BREADCRUMBS  -->
+              <div class="secondary-nav">
+                <div class="breadcrumbs-container" data-page-heading="Analytics">
+                  <header class="header navbar navbar-expand-sm">
+                    <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="feather feather-menu">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                      </svg>
+                    </a>
+                    <div class="d-flex breadcrumb-content">
+                      <div class="page-header">
+
+                        <div class="page-title">
+                        </div>
+
+                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                          <ol class="breadcrumb">
+                            <li class="breadcrumb-item active"><a href="./masters">Master</a>
+                            </li>
+                            <li class="breadcrumb-item active" aria-current="page">Hotels</li>
+                          </ol>
+                        </nav>
+
+                      </div>
+                    </div>
+
+                  </header>
+                </div>
+              </div>
+              <!--  END BREADCRUMBS  -->
+
+              <div class="main-content">
+
+                <div class="table-template">
+                  <div class="table-header">
+                    <div class="table-title">
+                      <h3>Hotel</h3>
+                    </div>
+                    <div class="table-actions">
+                      <button style="background: none; border: none;" data-bs-toggle="modal"
+                        data-bs-target="#add-country-modal"><i class="fa-regular fa-square-plus"></i>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="table-content">
+                    <div class="table-filter-container"></div>
+                    <div class="table-content">
+
+                      <div class="table-responsive">
+                        <table class="table table-bordered" id="table-content">
+                          <thead>
+                            <tr>
+                              <th scope="col">Sr No.</th>
+                              <th scope="col">Hotel name</th>
+                              <th scope="col">Room Types</th>
+                              <th scope="col">City</th>
+                              <th scope="col">State</th>
+                              <th scope="col">Country</th>
+                              <th class="text-center" scope="col">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <% hotels.forEach((item, idx)=> { %>
+                              <tr>
+                                <td><%- ++idx %></td>
+                                <td class="item-name"><%- item.name %></td>
+                                <td class="item-room-types">
+                                  <% item.room_types.forEach((item, idx)=> { %>
+                                    <span class="badge badge-dark mb-1 me-1"><%- item %></span>
+                                    <br>
+                                  <% }) %>
+                                </td>
+                                <td class="item-city"><%- item.city_name %></td>
+                                <td class="item-state"><%- item.state_name %></td>
+                                <td class="item-country"><%- item.country_name %></td>
+                                <td>
+                                  <i data-id="<%- item.id %>"
+                                    class="fa-regular fa-pen-to-square cursor-pointer btn-edit"></i>
+                                  <i data-id="<%- item.id %>"
+                                    class="fa-regular fa-trash-can text-danger btn-delete cursor-pointer"></i>
+                                </td>
+                                <% }) %>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+        <!--  END CONTENT AREA  -->
+
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+    <!--ADD Modal -->
+    <div class="modal fade" id="add-country-modal" tabindex="-1" role="dialog" aria-labelledby="add-country-modal"
+      aria-hidden="true">
+      <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content modal-inputform">
+          <div class="modal-header  modal-inputform-header">
+            <h5 class="modal-title text-dark" id="">ADD Hotel</h5>
+            <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close"><i
+                class="fas fa-times"></i></button>
+
+          </div>
+          <div class="modal-body">
+            <div class="row info-container">
+              <div class="col-md-3 select-fields">
+
+                <div class="input-group mb-3 d-flex flex-column">
+                  <label class="form-label">Country</label>
+                  <select id="select-country" autocomplete="off" style="line-height: 30px;">
+                    <option value="">Select a Country...</option>
+                    <option value="India">India</option>
+                    <!-- <option value="Thane">Thane</option> -->
+                  </select>
+                </div>
+
+                <div class="input-group mb-3 d-flex flex-column">
+                  <label class="form-label">State</label>
+                  <select id="select-state" autocomplete="off" style="line-height: 30px;">
+                    <option value="">Select a State...</option>
+                    <option value="Mahahrashtra">Mahahrashtra</option>
+                    <!-- <option value="Thane">Thane</option> -->
+                  </select>
+                </div>
+
+                <div class="input-group mb-3 d-flex flex-column">
+                  <label class="form-label">City</label>
+                  <select id="select-city" autocomplete="off" style="line-height: 30px;">
+                    <option value="">Select a City...</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Thane">Thane</option>
+                  </select>
+                </div>
+
+
+                <div class="input-group mb-3 d-flex flex-column">
+                  <label class="form-label">Hotel Name</label>
+                  <input type="text" name="country" id="hotel-name" class="form-control w-100">
+                </div>
+
+
+
+                <div class="mb-3 d-grid gap-2">
+                  <button class="btn text-light add-country btn-info">ADD</button>
+                </div>
+
+              </div>
+              <div class="col-md-9 selected-fields">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="add-more-country-table">
+                    <thead>
+                      <th>Sr No.</th>
+                      <th>Country</th>
+                      <th>State</th>
+                      <th>City</th>
+                      <th>Hotel name</th>
+                      <th>Action</th>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn create-country btn-primary">CREATE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%- include ('../partials/footer') %>
+
+      <!-- CUSTOM JS SCRIPT -->
+      <script>
+        $(document).ready(function () {
+          new TomSelect("#select-country", {
+            create: true,
+            sortField: {
+              field: "text",
+              direction: "asc"
+            }
+          });
+
+          new TomSelect("#select-state", {
+            create: true,
+            sortField: {
+              field: "text",
+              direction: "asc"
+            }
+          });
+
+          new TomSelect("#select-city", {
+            create: true,
+            sortField: {
+              field: "text",
+              direction: "asc"
+            }
+          });
+          let addCountry = document.querySelector('.add-country');
+          let country;
+          let state;
+          let city;
+          let hotelName;
+          let addTable = document.querySelector('#add-more-country-table tbody');
+          let tableRow = ``;
+          let count = 0;
+
+          addCountry.addEventListener('click', function () {
+
+            country = document.querySelector('#select-country').value;
+            state = document.querySelector('#select-state').value;
+            city = document.querySelector('#select-city').value;
+            hotelName = document.querySelector('#hotel-name').value;
+
+            tableRow = `<tr>
+                            <td>${++count}</td>
+                            <td>${country}</td>
+                            <td>${state}</td>
+                            <td>${city}</td>
+                            <td>${hotelName}</td>
+                            <td><button class = 'delete-row'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                                </button></td>
+                        </tr>`
+
+            addTable.insertAdjacentHTML('beforeend', tableRow)
+            console.log("add table >>>>>>>", addTable);
+            console.log('clicked!!', hotelName)
+
+          })
+
+          document.addEventListener('click', function (ele) {
+
+            console.log('Delete Clicked', ele.target)
+            if (ele.target.classList.contains('delete-row') || ele.target.classList.contains('feather-trash-2')) {
+              ele.target.closest('tr').remove();
+            }
+          })
+
+
+          const createCountry = document.querySelector('.create-country');
+          const addRow = document.querySelector('#table-content tbody');
+          console.log(addRow);
+
+          let row = ``;
+          let countRow = 0;
+
+          createCountry.addEventListener('click', function () {
+            row = `  <tr>
+                        <td> ${++countRow}</td>
+                        <td>${country}</td>
+                        <td>${state}</td>
+                        <td>${city}</td>
+                        <td>${hotelName}</td>
+                        <td class="text-center">
+                        <div class="action-btns">
+                            <a href="javascript:void(0);"
+                                class="action-btn btn-edit bs-tooltip me-2"
+                                data-toggle="tooltip" data-placement="top" title="Edit">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-edit-2">
+                                    <path
+                                        d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z">
+                                    </path>
+                                </svg>
+                            </a>
+                            <a href="javascript:void(0);"
+                                class="action-btn btn-delete bs-tooltip"
+                                data-toggle="tooltip" data-placement="top"
+                                title="Delete">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
+                                    height="24" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-trash-2">
+                                    <polyline points="3 6 5 6 21 6"></polyline>
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                    </path>
+                                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                                </svg>
+                            </a>
+                        </div>
+                    </td>
+                </tr>`
+
+            addRow.insertAdjacentHTML('beforeend', row)
+
+          })
+        })
+      </script>
+      <!--END CUSTOM JS SCRIPT -->
+
+      <%- include ('../partials/footer-end') %>

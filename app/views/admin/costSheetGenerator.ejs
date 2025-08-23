@@ -1,0 +1,1728 @@
+<%- include ('./partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('./partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('./partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+
+                  <div class="page-title">
+                  </div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active"><a href="/admin/cost-sheet">Cost Sheet Generator</a></li>
+                    </ol>
+                  </nav>
+
+                </div>
+              </div>
+
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="layout-top-spacing">
+          <!-- Tour Basic Information Section -->
+          <div class="tour-section-wrapper" id="tour-details-wrapper" data-tour-lid="<%= tourDetails?.id %>"
+            data-tour-name="<%= tourDetails?.name %>" data-tour-nights="<%= tourDetails?.duration_nights %>"
+            data-tour-days="<%= tourDetails?.duration_days %>">
+            <h5 class="fw-bold mb-2 text-black">Basic Tour Information:</h5>
+            <hr>
+            <div class="d-flex justify-content-between">
+              <div class="item">
+                <p class="item-header">Tour Name:</p>
+                <p class="item-value tour-name"><%- tourDetails?.name ?? 'NA' %></p>
+              </div>
+              <div class="item">
+                <p class="item-header">Tour Nights:</p>
+                <p class="item-value tour-nights"><%- tourDetails?.duration_nights ?? 'NA' %></p>
+              </div>
+              <div class="item">
+                <p class="item-header">Tour Days:</p>
+                <p class="item-value tour-days"><%- tourDetails?.duration_days ?? 'NA' %></p>
+              </div>
+            </div>
+
+            <button class="btn btn-sm btn-dark d-block mt-3 mx-auto add-btn" data-bs-toggle="modal"
+              data-bs-target="#tour-details-modal">
+              <% if(tourDetails) { %>
+              <i class="fa-solid fa-pen-to-square"></i>
+              <span>Edit</span>
+              <% } else { %>
+              <i class="fa-solid fa-plus"></i>
+              <span>Add</span>
+              <% } %>
+            </button>
+          </div>
+          <!-- Tour Basic Information Section // -->
+
+          <!-- Tour Pax Section -->
+          <div class="mt-5 tour-section-wrapper" id="tour-pax-wrapper">
+            <h5 class="fw-bold mb-2 text-black">Passenger Details:</h5>
+            <hr>
+            <div class="pax-details-list">
+              <% tourPaxDetails.forEach((tourPax, idx)=> { %>
+              <div class="row pax-item item">
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Sl. No.:</p>
+                  <p class="item-value sl-no">
+                    <%= ++idx %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Pax Type:</p>
+                  <p class="item-value pax-type" data-pax-type-lid="<%= tourPax.pax_type_lid %>">
+                    <%= tourPax.pax_type %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Pax Count:</p>
+                  <p class="item-value pax-count" data-pax-count="<%= tourPax.no_of_passengers %>">
+                    <%= tourPax.no_of_passengers %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Occupancy Preference:</p>
+                  <p class="item-value occupancy-preference"
+                    data-occupancy-preference="<%= tourPax.occupancy_preference %>">
+                    <%= tourPax.occupancy_preference %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Is Payable?:</p>
+                  <p class="item-value is-payable" data-is-payable="<%= tourPax.is_payable %>">
+                    <%= tourPax.is_payable==true ? 'Yes' : 'No' %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Payable Amount:</p>
+                  <p class="item-value payable-amount" data-payable-amount="<%= tourPax.payment_amount %>">
+                    <%= tourPax.payment_amount %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Payable Percentage:</p>
+                  <p class="item-value payable-percentage" data-payable-percentage="<%= tourPax.payment_percentage %>">
+                    <%= tourPax.payment_percentage %>%
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Action:</p>
+                  <p class="item-value action">
+                    <i data-tour-pax-lid="<%= tourPax.id %>"
+                      class="fa-regular fa-pen-to-square cursor-pointer btn-edit"></i>
+                    <i data-tour-pax-lid="<%= tourPax.id %>"
+                      class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2"></i>
+                  </p>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+            <button class="btn btn-sm btn-dark d-block mt-3 mx-auto add-btn">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add Pax</span>
+            </button>
+          </div>
+          <!-- Tour Pax Section //-->
+
+          <!-- Tour Expense Section -->
+          <div class="mt-5 tour-section-wrapper" id="tour-expense-wrapper">
+            <h5 class="fw-bold mb-2 text-black">Tour Expenses:</h5>
+            <hr>
+            <div class="tour-expense-list">
+              <% tourExpenseList.forEach((expense, idx)=> { %>
+              <div class="row expense-item item">
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Sl. No.:</p>
+                  <p class="item-value sl-no">
+                    <%= ++idx %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Expense Type:</p>
+                  <p class="item-value expense-type" data-expense-lid="<%= expense.expense_lid %>">
+                    <%= expense.expense_type %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Pax Type:</p>
+                  <p class="item-value pax-type" data-pax-lid="<%= expense.pax_lid %>">
+                    <%= expense.pax_type %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Pax Count:</p>
+                  <p class="item-value pax-count" data-pax-count="<%= expense.pax_count %>">
+                    <%= expense.pax_count %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Currency:</p>
+                  <p class="item-value currency" data-currency-lid="<%= expense.currency_lid %>">
+                    <%= expense.currency %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Unit Price(<%= expense.currency %>):</p>
+                  <p class="item-value unit-price" data-unit-price="<%= expense.unit_price %>">
+                    <%= expense.unit_price %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Nightly Recurring Expenses:</p>
+                  <p class="item-value nightly-recurring" data-nightly-recurring="<%= expense.nightly_recurring %>">
+                    <%= expense.nightly_recurring==true ? 'Yes' : 'No' %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Daily Recurring Expenses:</p>
+                  <p class="item-value daily-recurring" data-daily-recurring="<%= expense.daily_recurring %>">
+                    <%= expense.daily_recurring==true ? 'Yes' : 'No' %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Total Price(<%= expense.currency %>):</p>
+                  <p class="item-value total-price" data-total-price="<%= expense.total_price %>">
+                    <%= expense.total_price %>
+                  </p>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                  <p class="item-header">Action:</p>
+                  <p class="item-value action">
+                    <i class="fa-regular fa-pen-to-square cursor-pointer btn-edit"
+                      data-expense-lid="<%= expense.id %>"></i>
+                    <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2"
+                      data-expense-lid="<%= expense.id %>"></i>
+                  </p>
+                </div>
+              </div>
+              <% }) %>
+            </div>
+
+            <button class="btn btn-sm btn-dark d-block mt-3 mx-auto add-btn">
+              <i class="fa-solid fa-plus"></i>
+              <span>Add</span>
+            </button>
+          </div>
+          <!-- Tour Expense Section //-->
+
+          <div class="mt-5 tour-section-wrapper">
+            <h5 class="fw-bold mb-2 text-black">Tour Taxes:</h5>
+            <hr>
+            <div class="row mx-0">
+              <div class="col-lg-8 col-md-8 col-sm-8 col-8">
+                <select class="form-select tax-select" id="select-tax">
+                  <option value="-1">SELECT TAX</option>
+                  <% tax.forEach((tax, idx) => { %>
+                  <option class="border-0" value="<%- tax.name %>" data-tax-percentage="<%- tax.percentage %>"
+                    data-tax-lid="<%- tax.id %>" data-tour-lid="<%= tourDetails?.id %>"> <%- tax.name %><em
+                      class="opacity-50" style="font-size: 12px">
+                      (<%- tax.percentage %>%)
+                    </em>
+                  </option>
+                  <% }) %>
+
+                </select>
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-4">
+
+                <button class="btn btn-success" id="add-tax">Add</button>
+              </div>
+            </div>
+            <div class="container-fluid mt-4">
+              <table class="table table-bordered" id="tour-tax">
+                <thead class="table-light">
+                  <tr>
+                    <th>Sr no.</th>
+                    <th>Tax</th>
+                    <th>Percentage</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% tourTaxes.forEach((tourTax, idx)=> {%>
+
+                  <tr data-id="<%= tourTax.id %>" data-tax-id="<%= tourTax.tax_lid %>">
+                    <td>
+                      <%- ++idx %>
+                    </td>
+                    <td class="tour-tax-name" data-tax-id="<%= tourTax.tax_lid %>">
+                      <%= tourTax.name %>
+                    </td>
+                    <td class="tour-tax-percentage">
+                      <%= tourTax.tax_percentage %>
+                    </td>
+                    <td class="text-center">
+
+                      <a data-tax-id="<%= tourTax.tax_lid %>" class="delete-tax"
+                        data-tax-percentage="<%= tourTax.tax_percentage %>" data-id="<%= tourTax.id %>">
+                        <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete"></i>
+                      </a>
+            </div>
+            </td>
+            </tr>
+            <% }) %>
+            </tbody>
+            </table>
+          </div>
+          <div class="mt-5 tour-section-wrapper">
+            <h5 class="fw-bold mb-2 text-black">Margin:</h5>
+            <hr>
+            <div class="row mx-0">
+              <div class="col-lg-8 col-md-8 col-sm-8 col-8">
+                <input type="text" placeholder="Enter Your Margin" id="input_margin" class="form-control"
+                  value="<%-margin%>">
+              </div>
+              <div class="col-lg-4 col-md-4 col-sm-4 col-4">
+                <button class="btn btn-success" id="add-margin">Add</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Generate Cost sheet -->
+          <div class="my-5" id="tour-generate-wrapper">
+            <a data-href="/admin/tour/generate/<%= tourDetails?.id %>" class="btn btn-success d-block m-auto px-5"
+              id="generate-cost-sheet"> Submit</a>
+          </div>
+          <!-- Generate Cost sheet //-->
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!-- Tour Details Modal -->
+<div class="modal fade" id="tour-details-modal" tabindex="-1" role="dialog" aria-labelledby="tour-details-modal"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">Tour Details</h5>
+        <button type="button" class="btn fs-4 text-dark close-modal" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-4">
+          <div class="col-lg-4 col-md-4 col-sm-12 mb-2 mt-2">
+            <label>Tour Name:</label>
+            <input type="text" class="form-control" placeholder="Tour name" id="tour-name">
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+            <label>Tour Nights:</label>
+            <input type="text" class="form-control" placeholder="No. of nights" id="tour-nights">
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12  mb-2 mt-2">
+            <label>Tour Days:</label>
+            <input type="text" class="form-control" placeholder="No. of days" id="tour-days" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn add-btn btn-success m-auto">
+          Create
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Tour Details Modal //-->
+
+<!-- Pax Modal -->
+<div class="modal fade" id="tour-pax-modal" tabindex="-1" role="dialog" aria-labelledby="tour-pax-modal"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">Tour Pax Details</h5>
+        <button type="button" class="btn fs-4 text-dark close-modal" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label d-block">Pax Type</label>
+            <select class="pax-type form-control w-100" autocomplete="off">
+              <option value="-1 " disabled selected>
+                Select Pax Type...
+              </option>
+              <% paxTypes.forEach(paxType=> { %>
+              <option value="<%= paxType.id %>" data-pax-type="<%= paxType.name %>">
+                <%= paxType.name %>
+              </option>
+              <% }) %>
+
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Pax Count</label>
+            <input type="number" class="form-control pax-count" placeholder="Pax Count" min="0">
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Occupancy Preference</label>
+            <input type="number" class="form-control occupancy-preference" placeholder="Occupancy Preference" min="1">
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Is Payable?</label>
+            <div class="switch form-switch-custom form-switch-primary">
+              <input class="switch-input is-payable" type="checkbox" role="switch">
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Payable Amount</label>
+            <input type="number" class="form-control payable-amount" placeholder="Payable Amount" min="0" value="0"
+              disabled>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Payable %</label>
+            <input type="number" class="form-control payable-percentage" placeholder="Payable %" min="0" max="100"
+              value="0" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn add-btn btn-success m-auto">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Pax Modal //-->
+
+<!-- Expenses Modal -->
+<div class="modal fade" id="tour-expense-modal" tabindex="-1" role="dialog" aria-labelledby="tour-expense-modal"
+  aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">Tour Expense</h5>
+        <button type="button" class="btn fs-4 text-dark close-modal" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row mb-4">
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label d-block">Expense Type</label>
+            <select class="expense-type form-control w-100" autocomplete="off">
+              <option value="-1" disabled selected>
+                Select Expense Type...
+              </option>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label d-block">Pax Type</label>
+            <select class="pax-type form-control w-100" autocomplete="off">
+              <option value="" disabled selected>
+                Select Pax Type...
+              </option>
+            </select>
+          </div>
+
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Pax Count</label>
+            <input type="number" class="form-control pax-count" placeholder="Pax Count" min="0">
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Currency</label>
+            <select class="currency form-control w-100" autocomplete="off">
+              <option value="-1" disabled selected>
+                Select Currency...
+              </option>
+              <% currencyList.forEach(currency=> { %>
+              <option value="<%= currency.id %>" data-currency="<%= currency.name %>" data-code="<%= currency.code %>">
+                <%= currency.name %>(<%= currency.code %>)
+              </option>
+              <% }) %>
+            </select>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Unit Price</label>
+            <input type="number" class="form-control unit-price" placeholder="Unit Price" step="0.01" min="0.00">
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Nightly Recurring?</label>
+            <div class="switch form-switch-custom form-switch-primary">
+              <input class="switch-input nightly-recurring" type="checkbox" role="switch">
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Daily Recurring?</label>
+            <div class="switch form-switch-custom form-switch-primary">
+              <input class="switch-input daily-recurring" type="checkbox" role="switch">
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 col-sm-12 mb-3">
+            <label class="form-label">Total Price</label>
+            <input type="number" class="form-control total-price" placeholder="Total Price" step="0.01" min="0.00">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn add-btn btn-success m-auto">
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Pax Modal //-->
+
+<%- include ('./partials/footer') %>
+
+
+<script>
+  //GLOBAL VAR
+  let TOUR_DETAILS_WRAPPER = $('#tour-details-wrapper');
+  let TOUR_PAX_WRAPPER = $('#tour-pax-wrapper');
+  let TOUR_EXPENSE_WRAPPER = $('#tour-expense-wrapper');
+  let TOUR_PAX_MODAL = $('#tour-pax-modal');
+  let TOUR_EXPENSE_MODAL = $('#tour-expense-modal');
+
+  let TOUR_LID = '<%= tourDetails?.id %>';
+  let TOUR_PAX_LID, TOUR_EXPENSE_LID, ACTIVE_PAX_ITEM, ACTIVE_EXPENSE_ITEM;
+  $("#add-tax").on("click", function () {
+    // tour-tax
+    if ($('#select-tax').val() == -1) {
+      alert('Select Tax')
+      return;
+    }
+    let tourLid = $('#select-tax option:selected').attr('data-tour-lid');
+    let taxPercentage = $('#select-tax option:selected').attr('data-tax-percentage')
+    let taxLid = $('#select-tax option:selected').attr('data-tax-lid')
+    let taxName = $('#select-tax option:selected').val()
+
+    // Check for duplicate data-tax-id
+    let isDuplicate = false;
+    $('#tour-tax tbody tr').each(function () {
+      if ($(this).data('tax-id') == taxLid) {
+        isDuplicate = true;
+        return false; 
+      }
+    });
+
+    if (isDuplicate) {
+      alert('Tax already exists.');
+      return;
+    }
+
+    let data = {
+      tour_lid: tourLid,
+      tax_percentage: taxPercentage,
+      tax_lid: taxLid
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/tour-tax/add",
+      data: {
+        tourTax: data
+      },
+      success: function (response) {
+        if (response.status == 'success') {
+          console.log('data>>>>>>>> ', response);
+          let rowNum = $('#tour-tax tbody tr').length + 1
+          // TOUR_LID = response.tourDetails.id;
+          let tdata = `<tr data-id="${response.tourTaxLid}" data-tax-id="${taxLid}">
+                      <td>
+                        ${rowNum}
+                      </td>
+                      <td class="tour-tax-name" data-tax-id="${taxLid}">
+                        ${taxName}
+                      </td>
+                      <td class="tour-tax-percentage">
+                        ${taxPercentage}
+                      </td>
+                      <td class="text-center">
+                        <a data-tax-id="${taxLid}" class="delete-tax" data-tax-percentage="${taxPercentage}" data-id="${response.tourTaxLid}">
+                          <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>`;
+          $('#tour-tax tbody').append(tdata)
+          createAlert({
+            title: "SUCCESS",
+            msg: response.message,
+            type: "positive",
+          });
+
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.message,
+            type: "negative",
+          });
+        }
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+  });
+
+
+  //DELETE 
+  $("#tour-tax").on('click', '.delete-tax', function () {
+    let current_row = $(this)
+    console.log('CLICK ON DELETE BTN::::::::>', $(this).attr('data-id'))
+    $.ajax({
+      method: "POST",
+      url: "/admin/tour-taxes/delete",
+      data: {
+        id: $(this).attr('data-id')
+      },
+      success: function (response) {
+        if (response.status == 'success') {
+          current_row.closest('tr').remove()
+          console.log('data>>>>>>>> ', response);
+          createAlert({
+            title: "SUCCESS",
+            msg: response.message,
+            type: "positive",
+          });
+
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.message,
+            type: "negative",
+          });
+        }
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+  })
+
+  // Add margin
+  $("#add-margin").on('click', function () {
+    let input_margin = $("#input_margin").val()
+    if (input_margin !== "") {
+      console.log('ADD MARGIN:::::::::', input_margin)
+      $.ajax({
+        method: "POST",
+        url: "/admin/cost-sheet/margin",
+        data: {
+          margin: input_margin,
+          tour_lid: TOUR_LID
+        },
+        success: function (response) {
+          console.log('data>>>>>>>> ', response.data);
+          if (response.data.status == 'success') {
+            $("#input_margin").val(input_margin)
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            });
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    }
+  })
+
+
+  $("#generate-cost-sheet").on('click', function(){
+    let expense_item =  $("#tour-expense-wrapper .expense-item").length;
+    let passenger  = $(".pax-details-list .pax-item .item-header").length;
+    let tour_tax = $("#tour-tax tbody tr").length
+    let input_margin = $("#input_margin").val()
+    console.log(typeof(input_margin))
+    if(expense_item && passenger && tour_tax && input_margin !== null){
+      console.log('expense_item:::::::', expense_item)
+      location.href = $(this).attr('data-href')
+    }else{
+      alert('All field requireds')
+    }
+    
+  })
+
+
+
+
+
+  //BASIC TOUR INFORMATION
+  $('#tour-details-wrapper .add-btn').on('click', function () {
+    if (TOUR_LID) {
+      let tourName = TOUR_DETAILS_WRAPPER.attr('data-tour-name');
+      let tourNights = TOUR_DETAILS_WRAPPER.attr('data-tour-nights');
+      let tourDays = Number(tourNights) + 1;
+
+      $('#tour-details-modal .add-btn').text('Update');
+      $('#tour-name').val(tourName);
+      $('#tour-nights').val(tourNights);
+      $('#tour-days').val(tourDays);
+    } else {
+      $('#tour-details-modal .add-btn').text('Add');
+    }
+  })
+
+  $('#tour-details-modal .add-btn').on('click', function () {
+    const tourName = $('#tour-name').val();
+    const tourNights = $('#tour-nights').val();
+
+    if (!tourName || !tourNights) {
+      createAlert({
+        title: 'Incorrect input!',
+        msg: 'Please enter a tour name and tour nights.',
+        type: 'negative',
+      });
+      return false;
+    }
+
+
+    if (!TOUR_LID) {
+      //add new tour
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour/create",
+        data: {
+          tourName: tourName,
+          tourNights: tourNights
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            console.log('data>>>>>>>> ', response);
+            TOUR_LID = response.tourDetails.id;
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            });
+
+            //update the tour info
+            TOUR_DETAILS_WRAPPER.attr('data-tour-lid', response.tourDetails.name.id);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-name', response.tourDetails.name);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-nights', response.tourDetails.duration_nights);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-days', response.tourDetails.duration_days);
+
+            TOUR_DETAILS_WRAPPER.find('.add-btn').html(
+              `<i class="fa-solid fa-pen-to-square"></i><span>Edit</span>`);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-name').text(response.tourDetails.name);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-nights').text(response.tourDetails.duration_nights);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-days').text(response.tourDetails.duration_days);
+
+            //remove modal
+            $('#tour-details-modal .close-modal').trigger('click');
+
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+
+    } else {
+      //update existing tour
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour/update",
+        data: {
+          tourLid: TOUR_LID,
+          tourName: tourName,
+          tourNights: tourNights
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            console.log('data>>>>>>>> ', response);
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            });
+
+            //update the tour info
+            TOUR_DETAILS_WRAPPER.attr('data-tour-lid', response.tourDetails.name.id);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-name', response.tourDetails.name);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-nights', response.tourDetails.duration_nights);
+            TOUR_DETAILS_WRAPPER.attr('data-tour-days', response.tourDetails.duration_days);
+
+            TOUR_DETAILS_WRAPPER.find('.add-btn').html(
+              `<i class="fa-solid fa-pen-to-square"></i><span>Edit</span>`);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-name').text(response.tourDetails.name);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-nights').text(response.tourDetails.duration_nights);
+            TOUR_DETAILS_WRAPPER.find('.item-value.tour-days').text(response.tourDetails.duration_days);
+
+            //remove modal
+            $('#tour-details-modal .close-modal').trigger('click');
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+
+    }
+  })
+
+  //PASSENGER DETAILS
+  // INIT Select2
+  TOUR_PAX_MODAL.find('.pax-type').select2({
+    dropdownParent: $('#tour-pax-modal')
+  });
+
+  TOUR_PAX_MODAL.find('.pax-count').on('input', function () {
+    $(this).val(parsePositiveNumber($(this).val()));
+  })
+
+  TOUR_PAX_MODAL.find('.occupancy-preference').on('input', function () {
+    $(this).val(parseNumberGreaterThanZero($(this).val()));
+  })
+
+  TOUR_PAX_MODAL.find('.payable-amount').on('input', function () {
+    $(this).val(parsePositiveNumber($(this).val()));
+
+    if (Number($(this).val()) > 0) {
+      TOUR_PAX_MODAL.find('.payable-percentage').val('')
+    }
+  })
+
+  TOUR_PAX_MODAL.find('.occupancy-preference').on('input', function () {
+    $(this).val(parseNumberGreaterThanZero($(this).val()));
+  })
+
+  TOUR_PAX_MODAL.find('.payable-percentage').on('input', function () {
+    $(this).val(parseNumberZeroToHundred($(this).val()));
+
+    if (Number($(this).val()) > 0) {
+      TOUR_PAX_MODAL.find('.payable-amount').val('')
+    }
+  })
+
+  TOUR_PAX_MODAL.find('.is-payable').on('change', function () {
+    let isPayable = $(this).is(':checked');
+
+    if (isPayable == true) {
+      TOUR_PAX_MODAL.find('.payable-amount').attr('disabled', false);
+      TOUR_PAX_MODAL.find('.payable-percentage').attr('disabled', false);
+      return false;
+    }
+
+    TOUR_PAX_MODAL.find('.payable-amount').attr('disabled', true);
+    TOUR_PAX_MODAL.find('.payable-amount').val(0);
+    TOUR_PAX_MODAL.find('.payable-percentage').attr('disabled', true);
+    TOUR_PAX_MODAL.find('.payable-percentage').val(0);
+
+  })
+
+
+  TOUR_PAX_WRAPPER.find('.add-btn').on('click', function () {
+    if (!TOUR_LID) {
+      createAlert({
+        title: 'Please wait...!',
+        msg: 'Add basic tour information first.',
+        type: 'negative',
+      });
+      return false;
+    }
+
+    TOUR_PAX_LID = null;
+    TOUR_PAX_MODAL.find('.pax-type').val('').trigger('change').attr('disabled', false);;
+    TOUR_PAX_MODAL.find('.pax-count').val('');
+    TOUR_PAX_MODAL.find('.occupancy-preference').val('');
+    TOUR_PAX_MODAL.find('.payable-amount').val('');
+    TOUR_PAX_MODAL.find('.payable-percentage').val('');
+    TOUR_PAX_MODAL.find('.is-payable').prop('checked', false);
+    TOUR_PAX_MODAL.find('.payable-amount').attr('disabled', true);
+    TOUR_PAX_MODAL.find('.payable-percentage').attr('disabled', true);
+
+    TOUR_PAX_MODAL.find('.add-btn').text('Add');
+    $('#tour-pax-modal').modal('show');
+  })
+
+  $('#tour-pax-modal .add-btn').on('click', function () {
+    const paxTypeLid = TOUR_PAX_MODAL.find('.pax-type').val();
+    const paxType = TOUR_PAX_MODAL.find('.pax-type option:selected').attr('data-pax-type');
+    const paxCount = TOUR_PAX_MODAL.find('.pax-count').val();
+    const occupancyPreference = TOUR_PAX_MODAL.find('.occupancy-preference').val();
+    const isPayable = TOUR_PAX_MODAL.find('.is-payable').is(':checked');
+    const payableAmount = TOUR_PAX_MODAL.find('.payable-amount').val() || 0;
+    const payablePercentage = TOUR_PAX_MODAL.find('.payable-percentage').val() || 0;
+
+    if (!isNumber(paxTypeLid) || !isNumber(paxCount) || !isNumber(occupancyPreference)) {
+      createAlert({
+        title: "Incorrect input!",
+        msg: "Incorrect input, please check and try again.",
+        type: "negative",
+      });
+
+      return false;
+    }
+
+    const tourPaxDetails = {
+      TOUR_PAX_LID,
+      TOUR_LID,
+      paxTypeLid,
+      paxType,
+      paxCount,
+      occupancyPreference,
+      isPayable,
+      payableAmount,
+      payablePercentage
+    }
+
+    if (!TOUR_PAX_LID) {
+      //add new tour
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour-pax/add",
+        data: {
+          tourPaxDetails
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            console.log('data>>>>>>>> ', response);
+            let tourPaxLid = response.tourPaxLid;
+
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            });
+
+            //append tour pax
+
+            let slNo = TOUR_PAX_WRAPPER.find('.pax-item').length + 1;
+
+            let paxDetailsRow = `<div class="row pax-item item">
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Sl. No.:</p>
+                          <p class="item-value sl-no">
+                            ${slNo}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Pax Type:</p>
+                          <p class="item-value pax-type" data-pax-type-lid="${paxTypeLid}">
+                            ${paxType}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Pax Count:</p>
+                          <p class="item-value pax-count" data-pax-count="${paxCount}">
+                            ${paxCount}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Occupancy Preference:</p>
+                          <p class="item-value occupancy-preference"
+                            data-occupancy-preference="${occupancyPreference}">
+                            ${occupancyPreference}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Is Payable?:</p>
+                          <p class="item-value is-payable" data-is-payable="${isPayable}">
+                            ${isPayable == true ? 'Yes' : 'No'}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Payable Amount:</p>
+                          <p class="item-value payable-amount" data-payable-amount="${payableAmount}">
+                            ${payableAmount}
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Payable Percentage:</p>
+                          <p class="item-value payable-percentage"
+                            data-payable-percentage="${payablePercentage}">
+                            ${payablePercentage}%
+                          </p>
+                        </div>
+                        <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                          <p class="item-header">Action:</p>
+                          <p class="item-value action">
+                            <i data-tour-pax-lid="${tourPaxLid}"
+                              class="fa-regular fa-pen-to-square cursor-pointer btn-edit"></i>
+                            <i data-tour-pax-lid="${tourPaxLid}"
+                              class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2"></i>
+                          </p>
+                        </div>
+                      </div>`
+
+            TOUR_PAX_WRAPPER.find('.pax-details-list').append(paxDetailsRow);
+
+            //remove modal
+            // $('#tour-pax-modal .close-modal').trigger('click');
+
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    } else {
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour-pax/update",
+        data: {
+          tourPaxDetails
+        },
+        success: function (response) {
+          if (response.status == 'success') {
+            console.log('data>>>>>>>> ', response);
+            let tourPaxLid = response.tourPaxLid;
+
+            createAlert({
+              title: "SUCCESS",
+              msg: response.message,
+              type: "positive",
+            });
+
+            ACTIVE_PAX_ITEM.find('.item-value.pax-count').attr('data-pax-count', paxCount);
+            ACTIVE_PAX_ITEM.find('.item-value.occupancy-preference').attr('data-occupancy-preference',
+              occupancyPreference);
+            ACTIVE_PAX_ITEM.find('.item-value.is-payable').attr('data-is-payable', isPayable);
+            ACTIVE_PAX_ITEM.find('.item-value.payable-amount').attr('data-payable-amount', payableAmount);
+            ACTIVE_PAX_ITEM.find('.item-value.payable-percentage').attr('data-payable-percentage',
+              payablePercentage);
+
+            ACTIVE_PAX_ITEM.find('.item-value.pax-count').text(paxCount);
+            ACTIVE_PAX_ITEM.find('.item-value.occupancy-preference').text(occupancyPreference);
+            ACTIVE_PAX_ITEM.find('.item-value.is-payable').text(isPayable == true ? 'Yes' : 'No');
+            ACTIVE_PAX_ITEM.find('.item-value.payable-amount').text(payableAmount);
+            ACTIVE_PAX_ITEM.find('.item-value.payable-percentage').text(payablePercentage);
+
+            //remove modal
+            $('#tour-pax-modal .close-modal').trigger('click');
+
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    }
+
+  })
+
+  $(document).on('click', '#tour-pax-wrapper .btn-edit', function () {
+    ACTIVE_PAX_ITEM = $(this).closest('.pax-item');
+    TOUR_PAX_LID = $(this).attr('data-tour-pax-lid');
+    let paxTypeLid = ACTIVE_PAX_ITEM.find('.item-value.pax-type').attr('data-pax-type-lid');
+    let paxCount = ACTIVE_PAX_ITEM.find('.item-value.pax-count').attr('data-pax-count');
+    let occupancyPreference = ACTIVE_PAX_ITEM.find('.item-value.occupancy-preference').attr(
+      'data-occupancy-preference');
+    let isPayable = ACTIVE_PAX_ITEM.find('.item-value.is-payable').attr('data-is-payable');
+    let payableAmount = ACTIVE_PAX_ITEM.find('.item-value.payable-amount').attr('data-payable-amount');
+    let payablePercentage = ACTIVE_PAX_ITEM.find('.item-value.payable-percentage').attr('data-payable-percentage');
+
+    TOUR_PAX_MODAL.find('.pax-type').val(paxTypeLid).trigger('change').attr('disabled', true);
+    TOUR_PAX_MODAL.find('.pax-count').val(paxCount);
+    TOUR_PAX_MODAL.find('.occupancy-preference').val(occupancyPreference);
+    TOUR_PAX_MODAL.find('.payable-amount').val(payableAmount);
+    TOUR_PAX_MODAL.find('.payable-percentage').val(payablePercentage);
+
+    if (isPayable == 'true') {
+      TOUR_PAX_MODAL.find('.is-payable').prop('checked', true);
+      TOUR_PAX_MODAL.find('.payable-amount').attr('disabled', false);
+      TOUR_PAX_MODAL.find('.payable-percentage').attr('disabled', false);
+    } else {
+      TOUR_PAX_MODAL.find('.is-payable').prop('checked', false);
+      TOUR_PAX_MODAL.find('.payable-amount').attr('disabled', true);
+      TOUR_PAX_MODAL.find('.payable-percentage').attr('disabled', true);
+    }
+
+    TOUR_PAX_MODAL.find('.add-btn').text('Update');
+    TOUR_PAX_MODAL.modal('show');
+
+  })
+
+  $(document).on('click', '#tour-pax-wrapper .btn-delete', function () {
+    console.log('DELETE')
+    let tourPaxLid = $(this).attr('data-tour-pax-lid');
+    ACTIVE_PAX_ITEM = $(this).closest('.pax-item');
+
+    let isConfirmed = confirm('Do you really want to delete the pax details?');
+    if (!isConfirmed) {
+      return false;
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/tour-pax/delete",
+      data: {
+        tourPaxLid
+      },
+      success: function (response) {
+        if (response.status == 'success') {
+          console.log('data>>>>>>>> ', response);
+          createAlert({
+            title: "SUCCESS",
+            msg: response.message,
+            type: "positive",
+          });
+
+          ACTIVE_PAX_ITEM.remove();
+          //remove modal
+          $('#tour-pax-modal .close-modal').trigger('click');
+
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.message,
+            type: "negative",
+          });
+        }
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+
+  })
+
+
+  //TOUR EXPENSES
+  TOUR_EXPENSE_MODAL.find('.pax-count').on('input', function () {
+    $(this).val(parsePositiveNumber($(this).val()));
+    let maxPaxCount = TOUR_EXPENSE_MODAL.find('.pax-type option:selected').attr('data-pax-count');
+    if (Number($(this).val()) > Number(maxPaxCount)) {
+      $(this).val(maxPaxCount);
+    }
+    calculateTotalPrice();
+  })
+
+  TOUR_EXPENSE_MODAL.find('.unit-price').on('input', function () {
+    $(this).val(parsePositiveNumber($(this).val()));
+
+    calculateTotalPrice();
+  })
+
+  TOUR_EXPENSE_MODAL.find('.total-price').on('input', function () {
+    $(this).val(parsePositiveNumber($(this).val()));
+    if (Number($(this).val()) >= 0) {
+      TOUR_EXPENSE_MODAL.find('.unit-price').val('');
+      TOUR_EXPENSE_MODAL.find('.daily-recurring').prop('checked', false);
+      TOUR_EXPENSE_MODAL.find('.nightly-recurring').prop('checked', false);
+    }
+  })
+
+  TOUR_EXPENSE_MODAL.find('.daily-recurring').on('change', function () {
+    let isChecekd = $(this).is(':checked');
+    calculateTotalPrice();
+  })
+
+  TOUR_EXPENSE_MODAL.find('.nightly-recurring').on('change', function () {
+    let isChecekd = $(this).is(':checked');
+    calculateTotalPrice();
+  })
+
+  TOUR_EXPENSE_MODAL.find('.expense-type').select2({
+    dropdownParent: $('#tour-expense-modal'),
+    tags: true
+  }).on('select2:select', function (e) {
+
+    // This event will trigger when a selection is made, including newly created tags.
+    let selectedData = e.params.data;
+
+    if (!isNaN(selectedData.id)) {
+      return;
+    }
+    // Check if the selectedData is a newly created tag
+    let tagName = selectedData.text;
+    console.log('New tag created:', tagName);
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/expenses/add-single",
+      data: {
+        expenseName: tagName
+      },
+      success: function (response) {
+        createAlert({
+          title: "SUCCESS",
+          msg: response.message,
+          type: "positive",
+        });
+        console.log('response>>> ', response);
+        $(e.currentTarget).find('option:selected').val(response.expenseDetail.id);
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Error while fetching expenses!',
+          type: "negative",
+        });
+      },
+    });
+
+  });
+
+  TOUR_EXPENSE_MODAL.find('.pax-type').select2({
+    dropdownParent: $('#tour-expense-modal')
+  });
+
+  TOUR_EXPENSE_MODAL.find('.currency').select2({
+    dropdownParent: $('#tour-expense-modal')
+  });
+
+  TOUR_EXPENSE_MODAL.find('.pax-type').on('change', function () {
+    let paxCount = $(this).find('option:selected').attr('data-pax-count');
+    TOUR_EXPENSE_MODAL.find('.pax-count').val(paxCount);
+    calculateTotalPrice();
+  })
+
+  TOUR_EXPENSE_WRAPPER.find('.add-btn').on('click', function () {
+
+    if (!TOUR_LID) {
+      createAlert({
+        title: 'Please wait...!',
+        msg: 'Add basic tour information first.',
+        type: 'negative',
+      });
+      return false;
+    }
+
+    let tourPaxCount = Number(TOUR_PAX_WRAPPER.find('.pax-item').length);
+
+    if (tourPaxCount == 0) {
+      createAlert({
+        title: 'Please wait...!',
+        msg: 'Add tour pax first.',
+        type: 'negative',
+      });
+      return false;
+    }
+
+    //Update Expense Type
+    $.ajax({
+      method: "GET",
+      url: "/admin/expenses/getAll",
+      success: function (response) {
+        console.log('response>>> ', response)
+
+        let expenseTypeOptions = `<option value="-1" disabled selected>Select Expense Type...</option>`;
+        response.expenseList.forEach((expense, idx) => {
+          let expenseLid = expense.id;
+          let expenseType = expense.name;
+          expenseTypeOptions += `<option value="${expenseLid}">${expenseType}</option>`;
+        })
+        TOUR_EXPENSE_MODAL.find('.expense-type').select2('destroy');
+        TOUR_EXPENSE_MODAL.find('.expense-type').html(expenseTypeOptions);
+        TOUR_EXPENSE_MODAL.find('.expense-type').select2({
+          dropdownParent: $('#tour-expense-modal'),
+          tags: true
+        });
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Error while fetching expenses!',
+          type: "negative",
+        });
+      },
+    });
+
+    //Update Pax Type
+    let paxTypeOption = `<option value="" disabled selected>Select Pax Type...</option>`;
+    $('.pax-details-list .item-value.pax-type').each((idx, item) => {
+      let paxType = $(item).text().trim();
+      let paxTypeLid = $(item).attr('data-pax-type-lid');
+      let paxCount = $(item).closest('.pax-item').find('.pax-count').attr('data-pax-count')
+      paxTypeOption += `<option value="${paxTypeLid}" data-pax-count="${paxCount}">${paxType}</option>`;
+    })
+    TOUR_EXPENSE_MODAL.find('.pax-type').select2('destroy');
+    TOUR_EXPENSE_MODAL.find('.pax-type').html(paxTypeOption);
+    TOUR_EXPENSE_MODAL.find('.pax-type').select2({
+      dropdownParent: $('#tour-expense-modal')
+    });
+
+
+    TOUR_EXPENSE_MODAL.modal('show');
+  })
+
+  TOUR_EXPENSE_MODAL.find('.add-btn').on('click', function () {
+
+ 
+
+    let expenseType = TOUR_EXPENSE_MODAL.find('.expense-type option:selected').text().trim();
+    let expenseLid = TOUR_EXPENSE_MODAL.find('.expense-type').val();
+    let paxType = TOUR_EXPENSE_MODAL.find('.pax-type option:selected').text().trim();
+    let paxCount = TOUR_EXPENSE_MODAL.find('.pax-count').val();
+    let paxLid = TOUR_EXPENSE_MODAL.find('.pax-type').val();
+    let currency = TOUR_EXPENSE_MODAL.find('.currency option:selected').attr('data-code');
+    let currencyLid = TOUR_EXPENSE_MODAL.find('.currency').val();
+    let unitPrice = TOUR_EXPENSE_MODAL.find('.unit-price').val();
+    let nightlyRecurring = TOUR_EXPENSE_MODAL.find('.nightly-recurring').is(':checked');
+    let dailyRecurring = TOUR_EXPENSE_MODAL.find('.daily-recurring').is(':checked');
+    let totalPrice = TOUR_EXPENSE_MODAL.find('.total-price').val();
+
+    if(!expenseLid){
+      createAlert({
+            title: "ERROR",
+            msg: 'Please Select The Expense',
+            type: "negative",
+          });
+          return;
+    }
+    if(!paxLid){
+      createAlert({
+            title: "ERROR",
+            msg: 'Please Select The Passenger',
+            type: "negative",
+          });
+          return;
+    }
+    if(!currencyLid){
+      createAlert({
+            title: "ERROR",
+            msg: 'Please Select The Currency',
+            type: "negative",
+          });
+          return;
+    }
+    unitPrice = !unitPrice ? 0 : unitPrice;
+    let tourExpense = {
+      TOUR_LID,
+      TOUR_EXPENSE_LID,
+      expenseType,
+      expenseLid,
+      paxType,
+      paxLid,
+      paxCount,
+      currency,
+      currencyLid,
+      unitPrice,
+      nightlyRecurring,
+      dailyRecurring,
+      totalPrice
+    }
+
+    if (!TOUR_EXPENSE_LID) {
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour-expense/add",
+        data: {
+          tourExpense
+        },
+        success: function (response) {
+          console.log('response hello>>> ', response);
+
+          //APPEND TOUR EXPENSE
+          let tourExpenseLid = response.tourExpenseLid;
+          let slNo = TOUR_EXPENSE_WRAPPER.find('.expense-item').length + 1;
+
+          let expenseItem = `<div class="row expense-item item">
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Sl. No.:</p>
+                                    <p class="item-value sl-no">
+                                      ${slNo}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Expense Type:</p>
+                                    <p class="item-value expense-type" data-expense-lid="${expenseLid}">
+                                      ${expenseType}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Pax Type:</p>
+                                    <p class="item-value pax-type" data-pax-lid="${paxLid}">
+                                      ${paxType}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Pax Count:</p>
+                                    <p class="item-value pax-count" data-pax-count="${paxCount}">
+                                      ${paxCount}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Currency:</p>
+                                    <p class="item-value currency" data-currency-lid="${currencyLid}">
+                                      ${currency}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Unit Price(${currency}):</p>
+                                    <p class="item-value unit-price" data-unit-price="${unitPrice}">
+                                      ${unitPrice}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Nightly Recurring Expenses:</p>
+                                    <p class="item-value nightly-recurring" data-nightly-recurring="${nightlyRecurring}">
+                                      ${nightlyRecurring == true ? 'Yes' : 'No'}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Daily Recurring Expenses:</p>
+                                    <p class="item-value daily-recurring" data-daily-recurring="${dailyRecurring}">
+                                      ${dailyRecurring == true ? 'Yes' : 'No'}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Total Price(${currency}):</p>
+                                    <p class="item-value toal-price" data-total-price="${totalPrice}">
+                                      ${totalPrice}
+                                    </p>
+                                  </div>
+                                  <div class="col-lg-3 col-md-3 col-sm-6 col-12">
+                                    <p class="item-header">Action:</p>
+                                    <p class="item-value action">
+                                      <i class="fa-regular fa-pen-to-square cursor-pointer btn-edit" data-expense-lid="${tourExpenseLid}"></i>
+                                      <i class="fa-solid fa-trash-can text-danger cursor-pointer btn-delete me-2" data-expense-lid="${tourExpenseLid}"></i>
+                                    </p>
+                                  </div>
+                                </div>`;
+
+          TOUR_EXPENSE_WRAPPER.find('.tour-expense-list').append(expenseItem);
+
+          //remove modal
+          // $('#tour-expense-modal .close-modal').trigger('click');
+
+          createAlert({
+            title: "ALERT",
+            msg: response.message,
+            type: "positive",
+          });
+          resetExpenseModal()
+
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Error while Adding expenses!',
+            type: "negative",
+          });
+        },
+      });
+    } else {
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/tour-expense/update",
+        data: {
+          tourExpense
+        },
+        success: function (response) {
+          console.log('response>>> ', response);
+
+          ACTIVE_EXPENSE_ITEM.find('.item-value.expense-type').attr('data-expense-lid', TOUR_EXPENSE_LID);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.expense-type').text(expenseType);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.pax-type').attr('data-pax-lid', paxLid);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.pax-type').text(paxType);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.pax-count').attr('data-pax-count', paxCount);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.pax-count').text(paxCount);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.currency').attr('data-currency-lid', currencyLid);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.currency').text(currency);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.unit-price').attr('data-unit-price', unitPrice);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.unit-price').text(unitPrice);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.nightly-recurring').attr('data-nightly-recurring',
+            nightlyRecurring);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.nightly-recurring').text(nightlyRecurring == true ? 'Yes' :
+            'No');
+          ACTIVE_EXPENSE_ITEM.find('.item-value.daily-recurring').attr('data-daily-recurring',
+          dailyRecurring);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.daily-recurring').text(dailyRecurring == true ? 'Yes' : 'No');
+          ACTIVE_EXPENSE_ITEM.find('.item-value.total-price').attr('data-total-price', totalPrice);
+          ACTIVE_EXPENSE_ITEM.find('.item-value.total-price').text(totalPrice);
+
+          resetExpenseModal();
+          //remove modal
+          $('#tour-expense-modal .close-modal').trigger('click');
+          createAlert({
+            title: "SUCCESS",
+            msg: response.message,
+            type: "positive",
+          });
+
+        },
+        error: function (error) {
+          createAlert({
+            title: "ERROR",
+            msg: 'Error while Updating expenses!',
+            type: "negative",
+          });
+        },
+      });
+
+    }
+  })
+
+  function resetExpenseModal() {
+    $('#tour-expense-modal .expense-type').val(-1).trigger('change');
+    $('#tour-expense-modal .currency').val(-1).trigger('change');
+    $('#tour-expense-modal .pax-count').val(0)
+    $('#tour-expense-modal .daily-recurring').prop('checked', false)
+    $('#tour-expense-modal .nightly-recurring').prop('checked', false)
+    $('#tour-expense-modal .unit-price').val(0)
+    $('#tour-expense-modal .total-price').val(0)
+
+  }
+
+  $(document).on('click', '#tour-expense-wrapper .btn-edit', function () {
+    ACTIVE_EXPENSE_ITEM = $(this).closest('.expense-item');
+    TOUR_EXPENSE_LID = $(this).attr('data-expense-lid');
+    let expenseLid = ACTIVE_EXPENSE_ITEM.find('.item-value.expense-type').attr('data-expense-lid');
+    let paxTypeLid = ACTIVE_EXPENSE_ITEM.find('.item-value.pax-type').attr('data-pax-lid');
+    let paxCount = ACTIVE_EXPENSE_ITEM.find('.item-value.pax-count').attr('data-pax-count');
+    let currencyLid = ACTIVE_EXPENSE_ITEM.find('.item-value.currency').attr('data-currency-lid');
+    let unitPrice = ACTIVE_EXPENSE_ITEM.find('.item-value.unit-price').attr('data-unit-price');
+    let nightlyRecurring = ACTIVE_EXPENSE_ITEM.find('.item-value.nightly-recurring').attr('data-nightly-recurring');
+    let dailyRecurring = ACTIVE_EXPENSE_ITEM.find('.item-value.daily-recurring').attr('data-daily-recurring');
+    let totalPrice = ACTIVE_EXPENSE_ITEM.find('.item-value.total-price').attr('data-total-price');
+
+    //Update Expense Type
+    $.ajax({
+      method: "GET",
+      url: "/admin/expenses/getAll",
+      success: function (response) {
+        console.log('response>>> ', response)
+
+        let expenseTypeOptions = `<option value="-1" disabled selected>Select Expense Type...</option>`;
+        response.expenseList.forEach((expense, idx) => {
+          let expenseLid = expense.id;
+          let expenseType = expense.name;
+          expenseTypeOptions += `<option value="${expenseLid}">${expenseType}</option>`;
+        })
+        TOUR_EXPENSE_MODAL.find('.expense-type').select2('destroy');
+        TOUR_EXPENSE_MODAL.find('.expense-type').html(expenseTypeOptions);
+        TOUR_EXPENSE_MODAL.find('.expense-type').select2({
+          dropdownParent: $('#tour-expense-modal'),
+          tags: true
+        });
+        TOUR_EXPENSE_MODAL.find('.expense-type').val(expenseLid).trigger('change');
+      },
+      error: function (error) {
+        console.log('error::::::::::', error)
+        createAlert({
+          title: "ERROR",
+          msg: 'Error while fetching expenses!',
+          type: "negative",
+        });
+      },
+    });
+
+    //Update Pax Type
+    let paxTypeOption = `<option value="" disabled selected>Select Pax Type...</option>`;
+    $('.pax-details-list .item-value.pax-type').each((idx, item) => {
+      let paxType = $(item).text().trim();
+      let paxTypeLid = $(item).attr('data-pax-type-lid');
+      let paxCount = $(item).closest('.pax-item').find('.pax-count').attr('data-pax-count')
+      paxTypeOption += `<option value="${paxTypeLid}" data-pax-count="${paxCount}">${paxType}</option>`;
+    })
+    TOUR_EXPENSE_MODAL.find('.pax-type').select2('destroy');
+    TOUR_EXPENSE_MODAL.find('.pax-type').html(paxTypeOption);
+    TOUR_EXPENSE_MODAL.find('.pax-type').select2({
+      dropdownParent: $('#tour-expense-modal')
+    });
+
+
+    TOUR_EXPENSE_MODAL.find('.pax-type').val(paxTypeLid).trigger('change');
+    TOUR_EXPENSE_MODAL.find('.pax-count').val(paxCount);
+    TOUR_EXPENSE_MODAL.find('.currency').val(currencyLid).trigger('change');
+    TOUR_EXPENSE_MODAL.find('.unit-price').val(unitPrice);
+    TOUR_EXPENSE_MODAL.find('.total-price').val(totalPrice);
+
+    if (nightlyRecurring == 'true') {
+      TOUR_EXPENSE_MODAL.find('.nightly-recurring').prop('checked', true);
+    } else {
+      TOUR_EXPENSE_MODAL.find('.nightly-recurring').prop('checked', false);
+    }
+
+    if (dailyRecurring == 'true') {
+      TOUR_EXPENSE_MODAL.find('.daily-recurring').prop('checked', true);
+    } else {
+      TOUR_EXPENSE_MODAL.find('.daily-recurring').prop('checked', false);
+    }
+
+    TOUR_EXPENSE_MODAL.find('.add-btn').text('Update');
+    TOUR_EXPENSE_MODAL.modal('show');
+  })
+
+  $(document).on('click', '#tour-expense-wrapper .btn-delete', function () {
+    console.log('DELETE')
+    let tourExpenseLid = $(this).attr('data-expense-lid');
+    ACTIVE_EXPENSE_ITEM = $(this).closest('.expense-item');
+
+    let isConfirmed = confirm('Do you really want to delete the expense details?');
+    if (!isConfirmed) {
+      return false;
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/tour-expense/delete",
+      data: {
+        tourExpenseLid
+      },
+      success: function (response) {
+        if (response.status == 'success') {
+          console.log('data>>>>>>>> ', response);
+          createAlert({
+            title: "SUCCESS",
+            msg: response.message,
+            type: "positive",
+          });
+
+          ACTIVE_EXPENSE_ITEM.remove();
+          //remove modal
+          $('#tour-expense-modal .close-modal').trigger('click');
+
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.message,
+            type: "negative",
+          });
+        }
+      },
+      error: function (error) {
+        createAlert({
+          title: "ERROR",
+          msg: 'Something went wrong!',
+          type: "negative",
+        });
+      },
+    });
+
+  })
+
+  function calculateTotalPrice() {
+    let unitPrice = Number(TOUR_EXPENSE_MODAL.find('.unit-price').val()) || 0;
+    let paxCount = Number(TOUR_EXPENSE_MODAL.find('.pax-count').val()) || 0;
+    let tourNights = Number($('#tour-details-wrapper').attr('data-tour-nights')) || 0;
+    let tourDays = tourNights + 1;
+
+    let nightlyRecurring = TOUR_EXPENSE_MODAL.find('.nightly-recurring').is(':checked');
+    let dailyRecurring = TOUR_EXPENSE_MODAL.find('.daily-recurring').is(':checked');
+    let totalPrice, nightCharge = 0,
+      dayCharge = 0;
+
+    if (nightlyRecurring) {
+      nightCharge = paxCount * unitPrice * tourNights;
+    } else {
+      nightCharge = 0;
+    }
+
+    if (dailyRecurring) {
+      dayCharge = paxCount * unitPrice * tourDays;
+    } else {
+      dayCharge = 0;
+    }
+
+    if(!nightlyRecurring && dailyRecurring) {
+      totalPrice = paxCount * unitPrice * tourDays;
+    } else if (nightlyRecurring && !dailyRecurring) {
+      totalPrice = paxCount * unitPrice * tourNights;
+    } else if(nightlyRecurring && dailyRecurring) {
+      totalPrice = (unitPrice * paxCount)*(tourNights + tourDays) ;
+    } else {
+      totalPrice = unitPrice * paxCount
+    }
+    console.log('::::::::::::::: nightCharge', nightCharge);
+
+    console.log('::::::::::::::: dayCharge', dayCharge);
+
+
+    console.log('::::::::::: totalPrice', totalPrice)
+
+    TOUR_EXPENSE_MODAL.find('.total-price').val(totalPrice);
+  }
+</script>
+<!-- <script src="/js/indexScript.js"></script> -->
+<%- include ('./partials/footer-end') %>

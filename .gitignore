@@ -1,0 +1,4 @@
+node_modules
+# the redis file is for personal use
+redis.js
+.env

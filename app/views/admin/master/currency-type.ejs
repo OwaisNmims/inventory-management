@@ -1,0 +1,499 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a
+                href="javascript:void(0);"
+                class="btn-toggle sidebarCollapse"
+                data-placement="bottom"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="feather feather-menu"
+                >
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Currency
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Currency</h3>
+              </div>
+              <div class="table-actions">
+                <button
+                  style="background: none; border: none"
+                  data-bs-toggle="modal"
+                  data-bs-target="#add-currency-modal"
+                >
+                  <i class="fa-regular fa-square-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <div class="table-filter-container"></div>
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="table-content">
+                    <thead>
+                      <tr>
+                        <th scope="col">Sr No.</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Symbol</th>
+                        <th scope="col">code</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% currencies.forEach((currency, idx) => { %>
+                      <tr>
+                        <td><%- ++idx %></td>
+                        <td class="currency-name"><%- currency.name %></td>
+                        <td class="currency-name"><%- currency.symbol %></td>
+                        <td class="currency-name"><%- currency.code %></td>
+                        <td class="text-center">
+                          <div class="action-btns">
+                            <a
+                              href="javascript:void(0);"
+                              class="action-btn btn-edit bs-tooltip me-2"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title="Edit"
+                              data-currency-id="<%- currency.id %>"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="feather feather-edit-2"
+                              >
+                                <path
+                                  d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
+                                ></path>
+                              </svg>
+                            </a>
+                            <a
+                              href="javascript:void(0);"
+                              class="action-btn btn-delete bs-tooltip"
+                              data-toggle="tooltip"
+                              data-placement="top"
+                              title="Delete"
+                              data-currency-id="<%- currency.id %>"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="feather feather-trash-2"
+                              >
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path
+                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                ></path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                        <% }) %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!--ADD Modal -->
+<div
+  class="modal fade"
+  id="add-currency-modal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="add-currency-modal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">ADD Currency</h5>
+        <button
+          type="button"
+          class="btn fs-4 text-dark"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row info-container">
+          <div class="col-md-3 select-fields">
+            <div class="input-group mb-3 d-flex flex-column">
+              <label class="form-label">Add Country</label>
+              <select
+                id="select-country"
+                autocomplete="off"
+                style="line-height: 30px"
+              >
+                <option value="none">Select a Country...</option>
+                <% countries.forEach((country, idx) => { %>
+                <option
+                  value="<%- country.id %>"
+                  data-country-name="<%- country.name %>"
+                >
+                  <%- country.name %>
+                </option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="input-group mb-3 d-flex flex-column">
+              <label class="form-label">Currency</label>
+              <input type="text" id="currency" name="Currency" placeholder="Type Currency name" />
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+              <button class="btn text-light add-currency btn-info">ADD</button>
+            </div>
+          </div>
+          <div class="col-md-9 selected-fields">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="add-more-currency-table">
+                <thead>
+                  <th>Sr No.</th>
+                  <th>Country</th>
+                  <th>Currency</th>
+                  <th>Action</th>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn create-currency btn-primary">
+          CREATE
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+ <!-- Edit Currency Modal -->
+ <div class="modal fade" id="edit-currency-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false"
+ aria-labelledby="edit-currency-modal" aria-hidden="true">
+ <div class="modal-dialog modal-sm" role="document">
+   <div class="modal-content modal-inputform">
+     <div class="modal-header modal-inputform-header">
+       <h5 class="modal-title text-dark" id="">EDIT CURRENCY</h5>
+       <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+         <i class="fas fa-times"></i>
+       </button>
+     </div>
+     <div class="modal-body">
+       <div class="select-fields">
+         <div class="mb-3">
+           <label class="form-label" for="edit-currency-input">Currency Name</label>
+           <input type="text" class="form-control" id="edit-currency-input" />
+         </div>
+       </div>
+     </div>
+     <div class="modal-footer">
+       <button type="button" id="save-edited-data" class="btn btn-primary">
+         SAVE
+       </button>
+     </div>
+   </div>
+ </div>
+
+
+<%- include ('../partials/footer') %>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+  $(document).ready(function () {
+
+    // GLOBAL VARIABLES
+    let currencyLid;
+    let newCurrency = [];
+
+    // INIT Select2
+    $('#select-country').select2({
+      dropdownParent: $('#add-currency-modal')
+    });
+    
+    // ADD CURRENCY
+    $('#add-currency-modal .add-currency').on('click', function () {
+      const countryLid = $('#select-country').val();
+      const countryName = $('#select-country option:selected').attr('data-country-name');
+      const currency = $('#currency').val();
+      console.log("countryLid:::::>", countryLid);
+      console.log("countryName:::::>", countryName);
+      console.log("currency:::::>", currency);
+   
+      if (!isNumber(countryLid) || !isAlphabetWords(currency) ) {
+        createAlert({
+          title: "Incorrect input!",
+          msg: "Incorrect input, please check and try again.",
+          type: "negative",
+        });
+
+        return false;
+      }
+
+      // Check for duplicate before pushing
+      const isDuplicate = newCurrency.some(rowData => (
+        rowData.countryLid === countryLid 
+      ));
+
+      if (isDuplicate) {
+        createAlert({
+          title: "Duplicate Data!",
+          msg: "Duplicate entries detected.",
+          type: "negative",
+        });
+      return false;
+      }
+
+      newCurrency.push({ countryLid, currency });
+
+      const newTr = $('<tr>');
+      let rowCount = $('#add-more-currency-table tbody tr').length + 1;
+
+      newTr.data('country-lid', countryLid);
+      newTr.data('currency', currency);
+
+      newTr.append($('<td>').text(rowCount));
+      newTr.append($('<td>').text(countryName));
+      newTr.append($('<td>').text(currency));
+      newTr.append($('<td>').html(`<i class="fa-regular fa-trash-can delete-row-btn cursor-pointer"></i>`));
+
+      $('#add-more-currency-table tbody').append(newTr);
+    }) 
+    
+    // Delete row button click handler
+    $(document).on('click', '.delete-row-btn', function () {
+      const tr = $(this).closest('tr');
+      const countryLid = tr.data('country-lid');
+      const currency = tr.data('currency');
+
+      // Remove row data from the array
+      newCurrency.splice(newCurrency.findIndex(currency => (
+        currency.countryLid === countryLid &&
+        currency.currency === currency
+      )), 1);
+
+      tr.remove();
+      updateSerialNumbers('#add-more-currency-table tbody tr');
+    });
+
+    // CREATE CURRENCY
+    $('#add-currency-modal .create-currency').on('click', function () {
+              console.log('new currency>>>> ', newCurrency)
+              if (newCurrency.length <= 0) {
+                createAlert({
+                  title: "Empty Currency List!",
+                  msg: "Cannot create empty currency.",
+                  type: "negative",
+                });
+                return;
+              }
+
+              $.ajax({
+                method: "POST",
+                url: "/admin/currency/add",
+                data: {
+                  currencyList: newCurrency
+                },
+                success: function (response) {
+                  if (response.data.status == 'success') {
+                    alert(response.data.message);
+                    location.reload(true);
+                  } else {
+                    createAlert({
+                      title: "ERROR",
+                      msg: response.data.message,
+                      type: "negative",
+                    });
+                    $("#edit-currency-modal").modal("hide");
+                  }
+                  $("#edit-currency-modal").modal("hide");
+                },
+                error: function (error) {
+                  createAlert({
+                    title: "ERROR",
+                    msg: response.data.message,
+                    type: "negative",
+                  });
+                  $("#edit-currency-modal").modal("hide");
+                },
+              });
+
+
+
+            })
+            // EDIT CURRENCY
+            $(document).on('click', '.btn-edit', function () {
+              currencyLid = $(this).attr('data-currency-id');
+              const thisTr = this.closest('tr');
+              const currencyName = $(thisTr).find('.currency-name').text();
+              $('#edit-currency-input').val(currencyName);
+              $('#edit-currency-modal').modal('show');
+            })
+
+            // Save Edited Currency
+            $(document).on('click', '#save-edited-data', function () {
+              let currencyName = $('#edit-currency-input').val();
+
+              $.ajax({
+                method: "POST",
+                url: "/admin/currency/update",
+                data: {
+                  currencyData: { currencyLid, currencyName }
+                },
+                success: function (response) {
+                  console.log("response in update currency",response);
+                  // console.log("response in update currency",response.message);
+                  if (response.message == 'Success') {
+                    alert("SUCCESS - Successfully Updated Currency");
+                    location.reload(true);
+                  } else {
+                    createAlert({
+                      title: "ERROR",
+                      msg: response.data.message,
+                      type: "negative",
+                    });
+                    $("#edit-currency-modal").modal("hide");
+                  }
+                  $("#edit-currency-modal").modal("hide");
+                },
+                error: function (error) {
+                  createAlert({
+                    title: "ERROR",
+                    msg: "not done",
+                    type: "negative",
+                  });
+                  $("#edit-currency-modal").modal("hide");
+                },
+              });
+
+              $('#edit-currency-modal').modal('hide');
+            })
+
+             // DELETE CURRENCY
+             $(document).on('click', '.btn-delete', function () {
+              currencyLid = $(this).attr('data-currency-id');
+
+              const isConfirmed = confirm('Are you sure you want to remove the city?');
+
+              if (!isConfirmed) {
+                return false;
+              }
+
+              $.ajax({
+                method: "POST",
+                url: "/admin/currency/delete",
+                data: {
+                  currencyData: { currencyLid }
+                },
+                success: function (response) {
+                  if (response.message == 'Success') {
+                    alert("SUCCESS - Successfully Deleted!");
+                    location.reload(true);
+                  } else {
+                    createAlert({
+                      title: "ERROR",
+                      msg: response.message,
+                      type: "negative",
+                    });
+                  }
+                },
+                error: function (error) {
+                  createAlert({
+                    title: "ERROR",
+                    msg: response.message,
+                    type: "negative",
+                  });
+                },
+              });
+            });
+
+    
+  }); 
+</script>
+<!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %>

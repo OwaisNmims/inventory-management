@@ -1,0 +1,1847 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Product Company Mapping
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Product Company Mapping</h3>
+              </div>
+              <div class="table-actions">
+                <button style="background: none; border: none" class="create-mapping-modal me-2" title="Single Product Mapping">
+                  <i class="fa-regular fa-square-plus"></i>
+                </button>
+                <button style="background: none; border: none" class="bulk-mapping-modal me-2" title="Bulk Product Mapping">
+                  <i class="fa-solid fa-layer-group"></i>
+                </button>
+                <button style="background: none; border: none" class="receipts-modal me-2" title="View Mapping Receipts">
+                  <i class="fa-solid fa-receipt"></i>
+                </button>
+                <a href="/admin/receipts" style="background: none; border: none" class="me-2" title="Go to Receipts Page">
+                  <i class="fa-solid fa-external-link"></i>
+                </a>
+              </div>
+            </div>
+
+            <!-- FILTERS SECTION -->
+            <div class="filters-section mb-4">
+              <div class="row">
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-company">Filter by Company</label>
+                  <select class="form-select filter-select" id="filter-company" multiple>
+                    <% companies.forEach((company) => { %>
+                      <option value="<%= company.name %>"><%= company.name %> (<%= company.company_code %>)</option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-product">Filter by Product</label>
+                  <select class="form-select filter-select" id="filter-product" multiple>
+                    <% products.forEach((product) => { %>
+                      <option value="<%= product.name %>"><%= product.name %> (<%= product.product_code %>)</option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" for="filter-label">Filter by Label</label>
+                  <select class="form-select filter-select" id="filter-label" multiple>
+                    <% labels.forEach((label) => { %>
+                      <option value="<%= label.name %>"><%= label.name %></option>
+                    <% }) %>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" style="visibility: hidden;">Actions</label>
+                  <div class="d-flex gap-2 mb-2">
+                    <button class="btn btn-secondary" id="apply-filters">Apply Filters</button>
+                    <button class="btn btn-outline-secondary" id="clear-filters">Clear All</button>
+                  </div>
+                  <div>
+                    <small class="text-muted" id="filter-status"></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <div class="table-filter-container"></div>
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="table-content">
+                    <thead>
+                      <tr>
+                        <th scope="col">Sr No.</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Product Code</th>
+                        <th scope="col">Company</th>
+                        <th scope="col">Company Code</th>
+                        <th scope="col">Label</th>
+                        <th scope="col">Receipt #</th>
+                        <th scope="col">Mapping Date</th>
+                        <th scope="col">Notes</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% let i=1; for(let data of mappings) { %>
+
+                      <tr data-id="<%= data.mapping_id %>">
+                        <td>
+                          <%= i %>
+                        </td>
+
+                        <td class="product-name">
+                          <%= data.product_name %>
+                        </td>
+                        <td class="product-code">
+                          <%= data.product_code %>
+                        </td>
+                        <td class="company-name">
+                          <%= data.company_name %>
+                        </td>
+                        <td class="company-code">
+                          <%= data.company_code %>
+                        </td>
+                        <td class="label-name">
+                          <span class="badge bg-<%= data.label_name === 'NEW' ? 'success' : data.label_name === 'OLD' ? 'warning' : 'info' %>">
+                            <%= data.label_name %>
+                          </span>
+                        </td>
+                        <td class="receipt-number">
+                          <% if (data.receipt_number) { %>
+                            <span class="badge bg-primary" title="Bulk mapping receipt"><%= data.receipt_number %></span>
+                          <% } else { %>
+                            <span class="text-muted">-</span>
+                          <% } %>
+                        </td>
+                        <td class="mapping-date">
+                          <%= new Date(data.mapping_date).toLocaleDateString() %>
+                        </td>
+                        <td class="notes">
+                          <%= data.notes || '-' %>
+                        </td>
+                        <td class="text-center">
+                          <div class="action-btns">
+                            <a href="javascript:void(0);" class="action-btn btn-transfer bs-tooltip me-2" data-id="<%= data.mapping_id %>" data-company-id="<%= data.company_id %>" data-toggle="tooltip" data-placement="top" title="Transfer to Another Company">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shuffle">
+                                <polyline points="16 3 21 3 21 8"></polyline>
+                                <line x1="4" y1="20" x2="21" y2="3"></line>
+                                <polyline points="21 16 21 21 16 21"></polyline>
+                                <line x1="15" y1="15" x2="21" y2="21"></line>
+                                <line x1="4" y1="4" x2="9" y2="9"></line>
+                              </svg>
+                            </a>
+                            <a href="javascript:void(0);" class="action-btn btn-edit-label bs-tooltip me-2" data-id="<%= data.mapping_id %>" data-label-id="<%= data.label_id %>" data-toggle="tooltip" data-placement="top" title="Edit Label">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                              </svg>
+                            </a>
+                            <a href="javascript:void(0);" class="action-btn btn-delete bs-tooltip" data-id="<%= data.mapping_id %>" data-toggle="tooltip" data-placement="top" title="Delete">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
+                                <line x1="10" y1="11" x2="10" y2="17"></line>
+                                <line x1="14" y1="11" x2="14" y2="17"></line>
+                              </svg>
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <% i++ %>
+                      <% } %>
+
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- TOTAL ROW COUNT -->
+                <div class="table-footer mt-3">
+                  <div class="row-count-info">
+                    <span class="text-muted">
+                      Showing <span id="visible-rows"><%= mappings.length %></span> of <span id="total-rows"><%= mappings.length %></span> entries
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!--ADD MAPPING Modal -->
+<div class="modal fade" id="add-mapping-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="add-mapping-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">MAP PRODUCT TO COMPANY</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <strong>Note:</strong> When you map a product to a company, it will be labeled as "NEW". Any existing "NEW" products for this company will automatically become "OLD".
+        </div>
+        <div class="row select-fields">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="add-product-select">Product</label>
+              <select class="form-control" id="add-product-select">
+                <option value="" disabled selected>Select Product...</option>
+                <% products.forEach((product) => { %>
+                  <option value="<%= product.id %>"><%= product.name %> (<%= product.product_code %>)</option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="add-company-select">Company</label>
+              <select class="form-control" id="add-company-select">
+                <option value="" disabled selected>Select Company...</option>
+                <% companies.forEach((company) => { %>
+                  <option value="<%= company.id %>" data-company-type-id="<%= company.company_type_lid %>" data-company-type-name="<%= company.company_type_name || '' %>"><%= company.name %> (<%= company.company_code %>)</option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="add-mapping-notes">Notes</label>
+              <textarea class="form-control" id="add-mapping-notes" rows="4" placeholder="Optional notes about this mapping..."></textarea>
+            </div>
+            <div class="mb-3">
+              <div class="alert alert-info" id="product-availability-info" style="display: none;">
+                <strong>Product Availability:</strong>
+                <div id="availability-details"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn create-mapping btn-primary">CREATE MAPPING</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Label modal -->
+<div class="modal fade" id="edit-label-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="edit-label-modal" aria-hidden="true">
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">UPDATE LABEL</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row select-fields">
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label class="form-label" for="edit-label-select">Label</label>
+              <select class="form-control" id="edit-label-select">
+                <% labels.forEach((label) => { %>
+                  <option value="<%= label.id %>"><%= label.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn save-label btn-primary">UPDATE LABEL</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Product modal -->
+<div class="modal fade" id="transfer-product-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="transfer-product-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">TRANSFER PRODUCT TO COMPANY</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <strong>Transfer Logic:</strong> 
+          <ul class="mb-0 mt-2">
+            <li>Product will be moved to the new company with "NEW" label</li>
+            <li>All existing "NEW" products in the target company will become "OLD"</li>
+            <li>Current mapping will be removed</li>
+          </ul>
+        </div>
+        <div class="row select-fields">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="transfer-company-select">Transfer to Company</label>
+              <select class="form-control" id="transfer-company-select">
+                <option value="" disabled selected>Select Company...</option>
+                <% companies.forEach((company) => { %>
+                  <option value="<%= company.id %>" data-company-type-id="<%= company.company_type_lid %>" data-company-type-name="<%= company.company_type_name || '' %>"><%= company.name %> (<%= company.company_code %>)</option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label" for="transfer-notes">Transfer Notes</label>
+              <textarea class="form-control" id="transfer-notes" rows="3" placeholder="Optional notes about this transfer..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn transfer-product btn-warning">TRANSFER PRODUCT</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk Mapping Modal -->
+<div class="modal fade" id="bulk-mapping-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="bulk-mapping-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">BULK MAP PRODUCTS TO COMPANY</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <strong>Bulk Mapping:</strong> Select multiple products to map to one company. This will create a unique receipt number for tracking this batch mapping.
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="bulk-company-select">Select Company</label>
+              <select class="form-control" id="bulk-company-select">
+                <option value="" disabled selected>Select Company...</option>
+                <% companies.forEach((company) => { %>
+                  <option value="<%= company.id %>" data-company-type-id="<%= company.company_type_lid %>" data-company-type-name="<%= company.company_type_name || '' %>"><%= company.name %> (<%= company.company_code %>)</option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="bulk-mapping-notes">Notes for this batch</label>
+              <textarea class="form-control" id="bulk-mapping-notes" rows="3" placeholder="Notes for this bulk mapping batch..."></textarea>
+            </div>
+            <!-- Removed: Add Selected Product to Batch button -->
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="bulk-product-select">Issue New Products</label>
+              <div class="input-group">
+                <select class="form-control" id="bulk-product-select">
+                  <option value="" disabled selected>Select Product...</option>
+                  <% products.forEach((product) => { %>
+                    <option value="<%= product.id %>" data-name="<%= product.name %>" data-code="<%= product.product_code %>" data-price="<%= product.price || 0 %>">
+                      <%= product.name %> (<%= product.product_code %>)
+                    </option>
+                  <% }) %>
+                </select>
+                <input type="number" min="1" value="1" class="form-control" id="issue-qty" style="max-width:120px" />
+                <button type="button" class="btn btn-success" id="add-to-issue">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+              <small class="text-muted">Only available units will be issued.</small>
+            </div>
+            <div class="mb-3">
+              <div class="alert alert-warning d-none" id="bulk-product-availability">
+                <strong>Product Info:</strong>
+                <div id="bulk-availability-details"></div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="sold-product-select">Mark Sold (from Company Holdings)</label>
+              <div class="input-group">
+                <select class="form-control" id="sold-product-select" disabled>
+                  <option value="" disabled selected>Select Product...</option>
+                </select>
+                <input type="number" min="1" value="1" class="form-control" id="sold-qty" style="max-width:120px" />
+                <button type="button" class="btn btn-outline-danger" id="add-to-sold" disabled title="Sold">
+                  <i class="fas fa-minus"></i>
+                </button>
+              </div>
+              <small class="text-muted">Sold quantity cannot exceed company's current holdings.</small>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="return-product-select">Return to Self (from Company Holdings)</label>
+              <div class="input-group">
+                <select class="form-control" id="return-product-select" disabled>
+                  <option value="" disabled selected>Select Product...</option>
+                </select>
+                <input type="number" min="1" value="1" class="form-control" id="return-qty" style="max-width:120px" />
+                <button type="button" class="btn btn-outline-primary" id="add-to-return" disabled title="Return to Self">
+                  <i class="fas fa-rotate-left"></i>
+                </button>
+              </div>
+              <small class="text-muted">Return quantity cannot exceed remaining in-hand after sold/other returns.</small>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label class="form-label">Issue List</label>
+            <div class="table-responsive border rounded">
+              <table class="table table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="text-end" style="width:100px;">Qty</th>
+                    <th class="text-end" style="width:120px;">Amount</th>
+                    <th class="text-center" style="width:70px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="issue-list">
+                  <tr id="issue-empty"><td colspan="4" class="text-center text-muted">No products to issue</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Sold List</label>
+            <div class="table-responsive border rounded">
+              <table class="table table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="text-end" style="width:100px;">Qty</th>
+                    <th class="text-end" style="width:120px;">Amount</th>
+                    <th class="text-center" style="width:70px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="sold-list">
+                  <tr id="sold-empty"><td colspan="4" class="text-center text-muted">No products marked sold</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="col-md-6 mt-3">
+            <label class="form-label">Returns to Self</label>
+            <div class="table-responsive border rounded">
+              <table class="table table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th class="text-end" style="width:100px;">Qty</th>
+                    <th class="text-end" style="width:120px;">Amount</th>
+                    <th class="text-center" style="width:70px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="return-list">
+                  <tr id="return-empty"><td colspan="4" class="text-center text-muted">No products returned</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="row mt-3">
+          <div class="col-12">
+            <div class="table-responsive">
+              <table class="table table-bordered mb-0" id="receipt-summary-table">
+                <thead>
+                  <tr>
+                    <th>Summary</th>
+                    <th class="text-end">Quantity</th>
+                    <th class="text-end">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Company Current Holdings</td>
+                    <td class="text-end"><span id="current-holdings-qty">0</span></td>
+                    <td class="text-end">₹ <span id="current-holdings-amt">0.00</span></td>
+                  </tr>
+                  <tr>
+                    <td>New Products Issued (this receipt)</td>
+                    <td class="text-end"><span id="issued-qty">0</span></td>
+                    <td class="text-end">₹ <span id="issued-amt">0.00</span></td>
+                  </tr>
+                  <tr>
+                    <td>Products Sold (this receipt)</td>
+                    <td class="text-end"><span id="sold-qty-sum">0</span></td>
+                    <td class="text-end">₹ <span id="sold-amt">0.00</span></td>
+                  </tr>
+                  <tr>
+                    <td>Returned to Self (this receipt)</td>
+                    <td class="text-end"><span id="return-qty-sum">0</span></td>
+                    <td class="text-end">₹ <span id="return-amt">0.00</span></td>
+                  </tr>
+                  <tr class="table-secondary">
+                    <td><strong>Ending Balance</strong></td>
+                    <td class="text-end"><strong><span id="ending-qty">0</span></strong></td>
+                    <td class="text-end"><strong>₹ <span id="ending-amt">0.00</span></strong></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="clear-batch">Clear Batch</button>
+        <button type="button" class="btn create-bulk-mapping btn-primary" disabled>CREATE BULK MAPPING</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Mapping Receipts Modal -->
+<div class="modal fade" id="receipts-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="receipts-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">MAPPING RECEIPTS</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <strong>Receipts:</strong> View all bulk mapping receipts with their details and mapped products.
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered" id="receipts-table">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Company</th>
+                <th>Total Products</th>
+                <th>Mapping Date</th>
+                <th>Notes</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="receipts-tbody">
+              <tr>
+                <td colspan="6" class="text-center">Loading receipts...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include ('../partials/footer') %>
+
+<!-- CUSTOM CSS -->
+<style>
+  .filters-section {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #dee2e6;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .filters-section .form-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 8px;
+  }
+  
+  .filters-section .select2-container {
+    margin-bottom: 0;
+  }
+  
+  .filters-section .select2-selection--multiple {
+    min-height: 45px !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 4px !important;
+    padding: 5px !important;
+  }
+  
+  .filters-section .select2-selection__choice {
+    background-color: #007bff !important;
+    border: 1px solid #007bff !important;
+    color: white !important;
+    border-radius: 3px !important;
+    padding: 2px 8px !important;
+    margin: 2px !important;
+  }
+  
+  .filters-section .select2-selection__choice__remove {
+    color: white !important;
+    margin-right: 5px !important;
+  }
+  
+  .filters-section .select2-selection__choice__remove:hover {
+    color: #f8f9fa !important;
+  }
+  
+  .filters-section .select2-search__field {
+    margin: 0 !important;
+  }
+  
+  .table-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 15px 0;
+    background-color: #f8f9fa;
+  }
+  
+  .row-count-info {
+    text-align: center;
+    font-size: 14px;
+  }
+  
+  #visible-rows, #total-rows {
+    font-weight: 600;
+    color: #007bff;
+  }
+  
+  /* Select2 dropdown styling */
+  .filters-section .select2-dropdown {
+    border-radius: 4px !important;
+    border: 1px solid #ced4da !important;
+  }
+  
+  .filters-section .select2-results__option {
+    padding: 8px 12px !important;
+  }
+  
+  .filters-section .select2-results__option--highlighted {
+    background-color: #007bff !important;
+    color: white !important;
+  }
+  
+  .filters-section .select2-results__option[aria-selected="true"] {
+    background-color: #e9ecef !important;
+    color: #495057 !important;
+  }
+  
+  .filters-section .select2-selection--multiple:focus {
+    border-color: #80bdff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+  }
+  
+  .btn-group-filter {
+    gap: 10px;
+  }
+  
+  .filters-section .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 8px 16px;
+    transition: all 0.2s ease;
+  }
+  
+  .filters-section .btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .filters-section .btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
+    border: none;
+  }
+  
+  .filters-section .btn-outline-secondary {
+    border: 2px solid #6c757d;
+    color: #6c757d;
+    background: transparent;
+  }
+  
+  .filters-section .btn-outline-secondary:hover {
+    background: #6c757d;
+    color: white;
+  }
+</style>
+
+<!-- Data payloads injected safely for JS -->
+<script id="all-products-json" type="application/json"><%- JSON.stringify(allProducts || []) %></script>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+  $(document).ready(function() {
+
+    // console.log('mappings data loaded');
+
+    // Initialize Select2 for filter dropdowns
+    $('#filter-company').select2({
+      placeholder: "🏢 Choose companies to filter...",
+      allowClear: true,
+      closeOnSelect: false,
+      width: '100%',
+      dropdownParent: $('.filters-section')
+    });
+
+    $('#filter-product').select2({
+      placeholder: "📦 Choose products to filter...",
+      allowClear: true,
+      closeOnSelect: false,
+      width: '100%',
+      dropdownParent: $('.filters-section')
+    });
+
+    $('#filter-label').select2({
+      placeholder: "🏷️ Choose labels to filter...",
+      allowClear: true,
+      closeOnSelect: false,
+      width: '100%',
+      dropdownParent: $('.filters-section')
+    });
+
+    // Apply filters function
+    function applyFilters() {
+      const selectedCompanies = $('#filter-company').val() || [];
+      const selectedProducts = $('#filter-product').val() || [];
+      const selectedLabels = $('#filter-label').val() || [];
+      
+      let visibleCount = 0;
+      
+      $('#table-content tbody tr').each(function() {
+        const row = $(this);
+        const companyName = row.find('.company-name').text().trim();
+        const productName = row.find('.product-name').text().trim();
+        const labelName = row.find('.label-name').text().trim();
+        
+        let showRow = true;
+        
+        // Filter by company
+        if (selectedCompanies.length > 0 && !selectedCompanies.includes(companyName)) {
+          showRow = false;
+        }
+        
+        // Filter by product
+        if (selectedProducts.length > 0 && !selectedProducts.includes(productName)) {
+          showRow = false;
+        }
+        
+        // Filter by label
+        if (selectedLabels.length > 0 && !selectedLabels.includes(labelName)) {
+          showRow = false;
+        }
+        
+        if (showRow) {
+          row.show();
+          visibleCount++;
+        } else {
+          row.hide();
+        }
+      });
+      
+      // Update row count
+      $('#visible-rows').text(visibleCount);
+      
+      // Update serial numbers for visible rows
+      let serialNumber = 1;
+      $('#table-content tbody tr:visible').each(function() {
+        $(this).find('td:first').text(serialNumber++);
+      });
+      
+      // Update filter status
+      updateFilterStatus();
+    }
+
+    // Clear all filters
+    function clearFilters() {
+      $('#filter-company, #filter-product, #filter-label').val([]).trigger('change');
+      $('#table-content tbody tr').show();
+      
+      // Reset serial numbers
+      $('#table-content tbody tr').each(function(index) {
+        $(this).find('td:first').text(index + 1);
+      });
+      
+      // Update row count
+      const totalRows = $('#table-content tbody tr').length;
+      $('#visible-rows').text(totalRows);
+      
+      // Update filter status
+      updateFilterStatus();
+    }
+
+    // Update filter status display
+    function updateFilterStatus() {
+      const selectedCompanies = $('#filter-company').val() || [];
+      const selectedProducts = $('#filter-product').val() || [];
+      const selectedLabels = $('#filter-label').val() || [];
+      
+      const totalFilters = selectedCompanies.length + selectedProducts.length + selectedLabels.length;
+      
+      if (totalFilters > 0) {
+        let statusText = `${totalFilters} filter(s) active: `;
+        let filterParts = [];
+        
+        if (selectedCompanies.length > 0) {
+          filterParts.push(`${selectedCompanies.length} company(s)`);
+        }
+        if (selectedProducts.length > 0) {
+          filterParts.push(`${selectedProducts.length} product(s)`);
+        }
+        if (selectedLabels.length > 0) {
+          filterParts.push(`${selectedLabels.length} label(s)`);
+        }
+        
+        $('#filter-status').text(statusText + filterParts.join(', ')).css('color', '#007bff');
+      } else {
+        $('#filter-status').text('No filters applied').css('color', '#6c757d');
+      }
+    }
+
+    // Event handlers
+    $('#apply-filters').on('click', applyFilters);
+    $('#clear-filters').on('click', clearFilters);
+    
+    // Auto-apply filters when selection changes (Select2 events)
+    $('#filter-company, #filter-product, #filter-label').on('select2:select select2:unselect select2:clear', function() {
+      // Small delay to allow for multiple quick selections
+      clearTimeout(window.filterTimeout);
+      window.filterTimeout = setTimeout(applyFilters, 300);
+    });
+
+    // Initialize filter status on page load
+    updateFilterStatus();
+
+    $(".create-mapping-modal").on("click", function() {
+      $("#add-mapping-modal").modal("show");
+    });
+
+    $(".bulk-mapping-modal").on("click", function() {
+      $("#bulk-mapping-modal").modal("show");
+      clearBatch(); // Reset batch when opening
+    });
+
+    $(".receipts-modal").on("click", function() {
+      $("#receipts-modal").modal("show");
+      loadMappingReceipts();
+    });
+
+    // Load product availability when product is selected in single mapping
+    $(document).on("change", "#add-product-select", function() {
+      let productId = $(this).val();
+      if (productId) {
+        loadProductAvailability(productId, '#product-availability-info', '#availability-details');
+      } else {
+        $('#product-availability-info').hide();
+      }
+    });
+
+    // Load product availability when product is selected in bulk mapping
+    $(document).on("change", "#bulk-product-select", function() {
+      let productId = $(this).val();
+      if (productId) {
+        loadProductAvailability(productId, '#bulk-product-availability', '#bulk-availability-details');
+      } else {
+        $('#bulk-product-availability').addClass('d-none');
+        $('#add-to-issue').prop('disabled', true);
+      }
+    });
+
+    // Function to load product availability
+    // Cache latest availability per product for UI checks
+    let availabilityCache = {};
+
+    function loadProductAvailability(productId, containerSelector, detailsSelector) {
+      // Disable add button until data arrives
+      if (containerSelector === '#bulk-product-availability') {
+        $('#add-to-issue').prop('disabled', true);
+      }
+      $.ajax({
+        method: "GET",
+        url: `/admin/product-company-mapping/availability/${productId}`,
+        success: function(response) {
+          if (response.status === 200 && response.data.status === 'success') {
+            let data = response.data.data;
+            // cache for UI validation
+            availabilityCache[productId] = data;
+            let availabilityHtml = `
+              <div class="row">
+                <div class="col-6"><strong>Total Units:</strong> ${data.total_units}</div>
+                <div class="col-6"><strong>Available:</strong> ${data.available_units}</div>
+              </div>
+              <div class="row mt-1">
+                <div class="col-6"><strong>Mapped:</strong> ${data.mapped_units}</div>
+                <div class="col-6"><strong>Can Map:</strong> ${data.can_map_more ? 'Yes' : 'No'}</div>
+              </div>
+            `;
+            
+            if (data.mapped_companies && data.mapped_companies.length > 0) {
+              availabilityHtml += '<div class="mt-2"><strong>Mapped to:</strong><br>';
+              data.mapped_companies.forEach(company => {
+                let receiptInfo = company.receipt_number ? ` (Receipt: ${company.receipt_number})` : '';
+                availabilityHtml += `<small>• ${company.company_name}${receiptInfo}</small><br>`;
+              });
+              availabilityHtml += '</div>';
+            }
+            
+            $(detailsSelector).html(availabilityHtml);
+            if (containerSelector === '#bulk-product-availability') {
+              $(containerSelector).removeClass('d-none');
+              $('#add-to-issue').prop('disabled', data.available_units <= 0);
+            } else {
+              $(containerSelector).show();
+            }
+          }
+        },
+        error: function() {
+          $(detailsSelector).html('<div class="text-danger">Error loading availability</div>');
+          if (containerSelector === '#bulk-product-availability') {
+            $(containerSelector).removeClass('d-none');
+            $('#add-to-issue').prop('disabled', true);
+          } else {
+            $(containerSelector).show();
+          }
+        }
+      });
+    }
+
+    // ===================== RECEIPT UI STATE AND SUMMARY =====================
+    const ALL_PRODUCTS = JSON.parse(document.getElementById('all-products-json').textContent || '[]');
+    let issuedItems = [];
+    let soldItems = [];
+    let returnItems = [];
+    let companyHoldings = { byProduct: {}, totalQty: 0, totalAmt: 0 };
+
+    function formatAmount(n){ return (Number(n||0)).toFixed(2); }
+
+    function updateSummary(){
+      const issuedQty = issuedItems.reduce((s,i)=> s + i.qty, 0);
+      const issuedAmt = issuedItems.reduce((s,i)=> s + (i.qty * (i.price||0)), 0);
+      const soldQty = soldItems.reduce((s,i)=> s + i.qty, 0);
+      const soldAmt = soldItems.reduce((s,i)=> s + (i.qty * (i.price||0)), 0);
+      const returnQty = returnItems.reduce((s,i)=> s + i.qty, 0);
+      const returnAmt = returnItems.reduce((s,i)=> s + (i.qty * (i.price||0)), 0);
+
+      $('#current-holdings-qty').text(companyHoldings.totalQty);
+      $('#current-holdings-amt').text(formatAmount(companyHoldings.totalAmt));
+      $('#issued-qty').text(issuedQty);
+      $('#issued-amt').text(formatAmount(issuedAmt));
+      $('#sold-qty-sum').text(soldQty);
+      $('#sold-amt').text(formatAmount(soldAmt));
+      $('#return-qty-sum').text(returnQty);
+      $('#return-amt').text(formatAmount(returnAmt));
+      const endingQty = companyHoldings.totalQty + issuedQty - soldQty - returnQty;
+      const endingAmt = companyHoldings.totalAmt + issuedAmt - soldAmt - returnAmt;
+      $('#ending-qty').text(endingQty);
+      $('#ending-amt').text(formatAmount(endingAmt));
+
+      // Also update action button state whenever summary updates
+      updateActionButtonState();
+    }
+
+    function updateActionButtonState(){
+      const companyId = $('#bulk-company-select').val();
+      const hasWork = (issuedItems.length > 0) || (soldItems.length > 0) || (returnItems.length > 0);
+      $('.create-bulk-mapping').prop('disabled', !(companyId && hasWork));
+    }
+
+    function renderTableList(tbodyId, emptyRowId, items){
+      const $tbody = $(tbodyId);
+      $tbody.find('tr.data-row').remove();
+      if(items.length === 0){
+        $(emptyRowId).show();
+        return;
+      }
+      $(emptyRowId).hide();
+      let rows = '';
+      items.forEach((i,idx)=>{
+        rows += `
+          <tr class="data-row">
+            <td><strong>${i.name}</strong> <small class="text-muted">${i.code}</small></td>
+            <td class="text-end">${i.qty}</td>
+            <td class="text-end">₹ ${formatAmount((i.price||0)*i.qty)}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-secondary remove-row" data-type="${tbodyId === '#issue-list' ? 'issue':'sold'}" data-index="${idx}">Remove</button>
+            </td>
+          </tr>`;
+      });
+      $tbody.append(rows);
+    }
+
+    $(document).on('click', '#issue-list .remove-row', function(){
+      const idx = parseInt($(this).data('index'),10);
+      if(!isNaN(idx)){
+        issuedItems.splice(idx,1);
+        renderTableList('#issue-list','#issue-empty',issuedItems);
+        updateSummary();
+      }
+    });
+
+    $(document).on('click', '#sold-list .remove-row', function(){
+      const idx = parseInt($(this).data('index'),10);
+      if(!isNaN(idx)){
+        soldItems.splice(idx,1);
+        renderTableList('#sold-list','#sold-empty',soldItems);
+        updateSummary();
+      }
+    });
+
+    // Load holdings when company changes
+    $(document).on('change', '#bulk-company-select', function(){
+      const companyLid = $(this).val();
+      issuedItems = []; soldItems = [];
+      renderTableList('#issue-list','#issue-empty',issuedItems);
+      renderTableList('#sold-list','#sold-empty',soldItems);
+      updateSummary();
+      updateActionButtonState();
+      if(!companyLid){
+        $('#sold-product-select').prop('disabled', true);
+        $('#add-to-sold').prop('disabled', true);
+        return;
+      }
+      $.get(`/admin/product-company-mapping/by-company`, { companyLid }, function(resp){
+        if(resp && resp.status === 200){
+          const rows = resp.data || [];
+          companyHoldings = { byProduct:{}, totalQty:0, totalAmt:0 };
+          rows.forEach(r=>{
+            const pid = r.product_id;
+            companyHoldings.byProduct[pid] = (companyHoldings.byProduct[pid]||0) + 1;
+            companyHoldings.totalQty += 1;
+            const price = Number((ALL_PRODUCTS||[]).find(p=>p.id===pid)?.price||0);
+            companyHoldings.totalAmt += price;
+          });
+          // Populate sold product select with holdings
+          const $soldSelect = $('#sold-product-select');
+          const $returnSelect = $('#return-product-select');
+          $soldSelect.prop('disabled', false).empty().append('<option value="" disabled selected>Select Product...</option>');
+          $returnSelect.prop('disabled', false).empty().append('<option value="" disabled selected>Select Product...</option>');
+          Object.keys(companyHoldings.byProduct).forEach(pid=>{
+            const p = (ALL_PRODUCTS||[]).find(pp=>pp.id==pid);
+            if(p){
+              $soldSelect.append(`<option value="${p.id}" data-name="${p.name}" data-code="${p.product_code}" data-price="${p.price||0}" data-max="${companyHoldings.byProduct[pid]}">${p.name} (${p.product_code}) - In hand: ${companyHoldings.byProduct[pid]}</option>`);
+              $returnSelect.append(`<option value="${p.id}" data-name="${p.name}" data-code="${p.product_code}" data-price="${p.price||0}" data-max="${companyHoldings.byProduct[pid]}">${p.name} (${p.product_code}) - In hand: ${companyHoldings.byProduct[pid]}</option>`);
+            }
+          });
+          $('#add-to-sold').prop('disabled', false);
+          $('#add-to-return').prop('disabled', false);
+          updateSummary();
+        }
+      });
+    });
+
+    // Add to issue list with availability guard
+    $(document).on('click', '#add-to-issue', function(){
+      const $opt = $('#bulk-product-select option:selected');
+      const productId = parseInt($opt.val(),10);
+      const name = $opt.data('name');
+      const code = $opt.data('code');
+      const price = Number($opt.data('price')||0);
+      const qtyRequested = Math.max(1, parseInt($('#issue-qty').val(),10)||1);
+      if(!productId){ return; }
+
+      const avail = availabilityCache[productId];
+      if(!avail){
+        return createAlert({ title:'ERROR', msg:'Availability not loaded yet. Please wait a moment.', type:'negative' });
+      }
+      const inBatchQty = issuedItems.filter(i=> i.id === productId).reduce((s,i)=> s + i.qty, 0);
+      const remaining = Math.max(0, (avail.available_units||0) - inBatchQty);
+      if (remaining <= 0) {
+        return createAlert({ title:'ERROR', msg:'No available units for this product.', type:'negative' });
+      }
+      if (qtyRequested > remaining) {
+        return createAlert({ title:'ERROR', msg:`Only ${remaining} unit(s) available to issue for this product.`, type:'negative' });
+      }
+
+      const idx = issuedItems.findIndex(i=> i.id===productId);
+      if(idx>=0){ issuedItems[idx].qty += qtyRequested; }
+      else { issuedItems.push({ id: productId, name, code, price, qty: qtyRequested }); }
+      renderTableList('#issue-list','#issue-empty',issuedItems);
+      updateSummary();
+      updateActionButtonState();
+    });
+
+    // Add to sold list
+    $(document).on('click', '#add-to-sold', function(){
+      const $opt = $('#sold-product-select option:selected');
+      const productId = parseInt($opt.val(),10);
+      const name = $opt.data('name');
+      const code = $opt.data('code');
+      const price = Number($opt.data('price')||0);
+      const maxQty = Number($opt.data('max')||0);
+      const qty = Math.max(1, parseInt($('#sold-qty').val(),10)||1);
+      if(!productId){ return; }
+      // Validation: if item is marked for return, cannot sell it
+      if (returnItems.some(i => i.id === productId)) {
+        return createAlert({ title:'ERROR', msg:'This product is already marked for Return to Self. Remove it from Returns to mark it Sold.', type:'negative' });
+      }
+      if(qty > maxQty){
+        return createAlert({ title:'ERROR', msg:`Cannot sell more than in-hand (${maxQty})`, type:'negative' });
+      }
+      const idx = soldItems.findIndex(i=> i.id===productId);
+      if(idx>=0){ soldItems[idx].qty = Math.min(maxQty, soldItems[idx].qty + qty); }
+      else { soldItems.push({ id: productId, name, code, price, qty }); }
+      renderTableList('#sold-list','#sold-empty',soldItems);
+      updateSummary();
+      updateActionButtonState();
+    });
+
+    // Add to return list (to Self)
+    $(document).on('click', '#add-to-return', function(){
+      const $opt = $('#return-product-select option:selected');
+      const productId = parseInt($opt.val(),10);
+      const name = $opt.data('name');
+      const code = $opt.data('code');
+      const price = Number($opt.data('price')||0);
+      const maxQty = Number($opt.data('max')||0);
+      const alreadySold = soldItems.filter(i=> i.id===productId).reduce((s,i)=> s+i.qty, 0);
+      const availableToReturn = Math.max(0, maxQty - alreadySold);
+      const qty = Math.max(1, parseInt($('#return-qty').val(),10)||1);
+      if(!productId){ return; }
+      // Validation: if item is marked for sold, cannot return it
+      if (soldItems.some(i => i.id === productId)) {
+        return createAlert({ title:'ERROR', msg:'This product is already marked as Sold. Remove it from Sold to mark it Return to Self.', type:'negative' });
+      }
+      if(qty > availableToReturn){
+        return createAlert({ title:'ERROR', msg:`Cannot return more than in-hand after sold (${availableToReturn})`, type:'negative' });
+      }
+      const idx = returnItems.findIndex(i=> i.id===productId);
+      if(idx>=0){ returnItems[idx].qty = Math.min(availableToReturn, returnItems[idx].qty + qty); }
+      else { returnItems.push({ id: productId, name, code, price, qty }); }
+      renderTableList('#return-list','#return-empty',returnItems);
+      updateSummary();
+      updateActionButtonState();
+    });
+
+    // Bulk mapping functionality
+    let batchProducts = [];
+
+    $(document).on("click", "#add-to-batch", function() {
+      let productId = $("#bulk-product-select").val();
+      let productName = $("#bulk-product-select option:selected").data('name');
+      let productCode = $("#bulk-product-select option:selected").data('code');
+      
+      if (!productId) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Please select a product to add to batch',
+          type: 'negative'
+        });
+        return;
+      }
+
+      // Check if product already in batch
+      if (batchProducts.some(p => p.id === productId)) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Product is already in the batch',
+          type: 'negative'
+        });
+        return;
+      }
+
+      // Add to batch
+      batchProducts.push({
+        id: productId,
+        name: productName,
+        code: productCode
+      });
+
+      updateBatchDisplay();
+      $("#bulk-product-select").val('').trigger('change');
+      $('#bulk-product-availability').hide();
+    });
+
+    function updateBatchDisplay() {
+      let batchHtml = '';
+      if (batchProducts.length === 0) {
+        batchHtml = '<p class="text-muted text-center">No products added yet</p>';
+      } else {
+        batchProducts.forEach((product, index) => {
+          batchHtml += `
+            <div class="batch-product-item border-bottom pb-2 mb-2">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <strong>${product.name}</strong><br>
+                  <small class="text-muted">${product.code}</small>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-danger remove-from-batch" data-index="${index}">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      
+      $("#batch-products-list").html(batchHtml);
+      $("#batch-count").text(batchProducts.length);
+      
+      // Update summary and enable/disable button
+      updateBatchSummary();
+    }
+
+    function updateBatchSummary() {
+      let companyId = $("#bulk-company-select").val();
+      let companyName = $("#bulk-company-select option:selected").text();
+      
+      if (companyId && companyName !== 'Select Company...') {
+        $("#batch-company").text(companyName);
+        $("#batch-summary").show();
+      } else {
+        $("#batch-company").text('Not selected');
+        $("#batch-summary").hide();
+      }
+      
+      // Enable/disable create button
+      if (batchProducts.length > 0 && companyId) {
+        $(".create-bulk-mapping").prop('disabled', false);
+      } else {
+        $(".create-bulk-mapping").prop('disabled', true);
+      }
+    }
+
+    $(document).on("click", ".remove-from-batch", function() {
+      let index = $(this).data('index');
+      batchProducts.splice(index, 1);
+      updateBatchDisplay();
+    });
+
+    $(document).on("change", "#bulk-company-select", function() {
+      updateBatchSummary();
+    });
+
+    // Clear everything
+    $(document).on("click", "#clear-batch", function() {
+      $('#bulk-product-select').val('');
+      $('#sold-product-select').val('');
+      $('#return-product-select').val('');
+      $('#bulk-mapping-notes').val('');
+      issuedItems = []; soldItems = []; returnItems = [];
+      renderTableList('#issue-list','#issue-empty',issuedItems);
+      renderTableList('#sold-list','#sold-empty',soldItems);
+      renderTableList('#return-list','#return-empty',returnItems);
+      $('#bulk-product-availability').addClass('d-none');
+      updateSummary();
+      updateActionButtonState();
+    });
+
+    // CREATE BULK MAPPING using issue/sold lists only
+    $(document).on("click", ".create-bulk-mapping", async function() {
+      const $btn = $(this);
+      const companyLid = $("#bulk-company-select").val();
+      const typeName = ($('#bulk-company-select option:selected').data('company-type-name')||'').toString().toUpperCase();
+      const isSelf = typeName === 'SELF' || typeName === 'SELF COMPANY' || typeName === 'OWNED';
+      const notes = $("#bulk-mapping-notes").val().trim();
+
+      if ((!issuedItems || issuedItems.length===0) && (!soldItems || soldItems.length===0)) {
+        return createAlert({ title:'ERROR', msg:'Nothing to process. Add issues or sold items.', type:'negative' });
+      }
+      if (!companyLid) {
+        return createAlert({ title:'ERROR', msg:'Please select a company', type:'negative' });
+      }
+
+      try{
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+
+        // 1) Issue new products
+        if(issuedItems.length > 0){
+          // Expand into productIds list by quantity
+          const productIds = [];
+          issuedItems.forEach(it=>{ for(let k=0;k<it.qty;k++){ productIds.push(it.id); } });
+          if(isSelf){
+            // No receipt: call createMapping per item
+            for(const pid of productIds){
+              await $.ajax({ method:'POST', url:'/admin/product-company-mapping/create', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ productLid: pid, companyLid, notes }) });
+            }
+          } else {
+            await $.ajax({ method:'POST', url:'/admin/product-company-mapping/bulk-create', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ productIds, companyLid, notes }) });
+          }
+        }
+
+        // 2) Record sales: store sales and deactivate mappings server-side
+        if(soldItems.length > 0){
+          const salesPayload = soldItems.map(s => ({ id: s.id, qty: s.qty }));
+          await $.ajax({ method:'POST', url:'/admin/product-company-mapping/record-sales', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ items: salesPayload, companyLid, notes }) });
+        }
+
+        // 3) Returns to SELF: transfer product mapping back to Self company
+        if(returnItems.length > 0){
+          const resp2 = await $.get('/admin/product-company-mapping/by-company', { companyLid });
+          const rows2 = (resp2 && resp2.status===200) ? (resp2.data||[]) : [];
+          // find SELF company id from companies select options
+          const selfOption = Array.from(document.querySelectorAll('#bulk-company-select option')).find(o => (o.dataset.companyTypeName||'').toUpperCase().includes('SELF'));
+          const selfCompanyId = selfOption ? parseInt(selfOption.value,10) : null;
+          for(const rt of returnItems){
+            let toMove = rt.qty;
+            for(const r of rows2){
+              if(toMove<=0) break;
+              if(r.product_id === rt.id){
+                if(selfCompanyId){
+                  // transfer mapping to SELF
+                  await $.ajax({ method:'POST', url:'/admin/product-company-mapping/transfer', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ mappingId: r.mapping_id, newCompanyLid: selfCompanyId, notes: 'Returned to SELF' }) });
+                } else {
+                  // fallback: delete then create to SELF
+                  await $.ajax({ method:'POST', url:'/admin/product-company-mapping/delete', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ mappingId: r.mapping_id }) });
+                  // recreate mapping to SELF
+                  await $.ajax({ method:'POST', url:'/admin/product-company-mapping/create', headers:{'Content-Type':'application/json'}, data: JSON.stringify({ productLid: r.product_id, companyLid: selfCompanyId, notes: 'Returned to SELF' }) });
+                }
+                toMove--;
+              }
+            }
+          }
+        }
+
+        const affected = [ ...new Set([ ...issuedItems.map(i=>i.id), ...soldItems.map(i=>i.id) ]) ];
+        refreshUnitsForProducts(affected);
+
+        $('#bulk-mapping-modal').modal('hide');
+        createAlert({ title:'SUCCESS', msg:'Receipt processed successfully.', type:'positive' });
+        setTimeout(()=> location.reload(true), 2000);
+      } catch (err) {
+        console.error(err);
+        createAlert({ title:'ERROR', msg:'Failed to process receipt.', type:'negative' });
+      } finally {
+        $btn.prop('disabled', false).html('CREATE BULK MAPPING');
+      }
+    });
+
+    // Load mapping receipts
+    function loadMappingReceipts() {
+      $("#receipts-tbody").html('<tr><td colspan="6" class="text-center">Loading receipts...</td></tr>');
+      
+      $.ajax({
+        method: "GET",
+        url: "/admin/product-company-mapping/receipts",
+        success: function(response) {
+          if (response.status === 200 && response.data) {
+            let receiptsHtml = '';
+            
+            if (response.data.length === 0) {
+              receiptsHtml = '<tr><td colspan="6" class="text-center">No receipts found</td></tr>';
+            } else {
+              response.data.forEach((receipt, index) => {
+                let productsInfo = receipt.products.length > 0 
+                  ? receipt.products.map(p => p.product_name).join(', ')
+                  : 'No products';
+                
+                receiptsHtml += `
+                  <tr>
+                    <td><strong>${receipt.receipt_number}</strong></td>
+                    <td>${receipt.company_name} (${receipt.company_code})</td>
+                    <td><span class="badge bg-info">${receipt.total_products}</span></td>
+                    <td>${new Date(receipt.mapping_date).toLocaleDateString()}</td>
+                    <td>${receipt.notes || '-'}</td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-info view-receipt-details" 
+                              data-receipt='${JSON.stringify(receipt)}' 
+                              title="View Details">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </td>
+                  </tr>
+                `;
+              });
+            }
+            
+            $("#receipts-tbody").html(receiptsHtml);
+          } else {
+            $("#receipts-tbody").html('<tr><td colspan="6" class="text-center text-danger">Error loading receipts</td></tr>');
+          }
+        },
+        error: function() {
+          $("#receipts-tbody").html('<tr><td colspan="6" class="text-center text-danger">Error loading receipts</td></tr>');
+        }
+      });
+    }
+
+    // View receipt details
+    $(document).on("click", ".view-receipt-details", function() {
+      let receipt = JSON.parse($(this).attr('data-receipt'));
+      
+      let detailsHtml = `
+        <div class="modal fade" id="receipt-details-modal" tabindex="-1">
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Receipt Details: ${receipt.receipt_number}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row mb-3">
+                  <div class="col-md-6"><strong>Company:</strong> ${receipt.company_name}</div>
+                  <div class="col-md-6"><strong>Date:</strong> ${new Date(receipt.mapping_date).toLocaleDateString()}</div>
+                </div>
+                <div class="row mb-3">
+                  <div class="col-md-6"><strong>Total Products:</strong> ${receipt.total_products}</div>
+                  <div class="col-md-6"><strong>Notes:</strong> ${receipt.notes || 'None'}</div>
+                </div>
+                <h6>Products in this batch:</h6>
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Product Name</th>
+                        <th>Product Code</th>
+                        <th>Label</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+      `;
+      
+      if (receipt.products && receipt.products.length > 0) {
+        receipt.products.forEach(product => {
+          detailsHtml += `
+            <tr>
+              <td>${product.product_name}</td>
+              <td>${product.product_code}</td>
+              <td><span class="badge bg-success">${product.label}</span></td>
+            </tr>
+          `;
+        });
+      } else {
+        detailsHtml += '<tr><td colspan="3" class="text-center">No products found</td></tr>';
+      }
+      
+      detailsHtml += `
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Remove existing modal if any
+      $('#receipt-details-modal').remove();
+      
+      // Add new modal to body and show
+      $('body').append(detailsHtml);
+      $('#receipt-details-modal').modal('show');
+      
+      // Clean up modal when hidden
+      $('#receipt-details-modal').on('hidden.bs.modal', function() {
+        $(this).remove();
+      });
+    });
+
+    // Load unit availability for existing products on page load
+    // Collect unique product ids present on the page by scanning badges with data-product-id
+    const productIdsSet = new Set();
+    $('#table-content tbody .units-badge').each(function() {
+      const pid = parseInt($(this).data('product-id'), 10);
+      if (!isNaN(pid)) productIdsSet.add(pid);
+      // placeholder while loading
+      $(this).text('-');
+    });
+    Array.from(productIdsSet).forEach(function(pid) {
+      loadProductUnits(pid);
+    });
+
+    function renderUnitsForProduct(productId, data) {
+      // Select ALL badges for this productId
+      const $badges = $(`.units-badge[data-product-id='${productId}']`);
+      if ($badges.length === 0) return;
+
+      $badges
+        .text(`${data.mapped_units}/${data.total_units}`)
+        .removeClass('bg-info bg-warning bg-danger');
+
+      if (data.available_units === 0) {
+        $badges.addClass('bg-danger');
+      } else if (data.available_units < data.total_units / 2) {
+        $badges.addClass('bg-warning');
+      } else {
+        $badges.addClass('bg-info');
+      }
+    }
+
+    function loadProductUnits(productId) {
+      $.ajax({
+        method: "GET",
+        url: `/admin/product-company-mapping/availability/${productId}`,
+        success: function(response) {
+          if (response.status === 200 && response.data.status === 'success') {
+            renderUnitsForProduct(productId, response.data.data);
+          } else {
+            renderUnitsForProduct(productId, { mapped_units: '-', total_units: '-', available_units: 1 });
+          }
+        },
+        error: function() {
+          renderUnitsForProduct(productId, { mapped_units: '-', total_units: '-', available_units: 1 });
+        }
+      });
+    }
+
+    function refreshUnitsForProducts(productIds) {
+      if (!Array.isArray(productIds)) return;
+      const unique = Array.from(new Set(productIds.map(n => parseInt(n, 10)).filter(n => !isNaN(n))));
+      unique.forEach(loadProductUnits);
+    }
+
+    // CREATE MAPPING (single)
+    $(document).on("click", ".create-mapping", function() {
+      let productLid = $("#add-product-select").val();
+      let companyLid = $("#add-company-select").val();
+      let notes = $("#add-mapping-notes").val().trim();
+
+      if (!productLid || !companyLid) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Please select both Product and Company',
+          type: 'negative'
+        });
+        return;
+      }
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/product-company-mapping/create",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          productLid: productLid,
+          companyLid: companyLid,
+          notes: notes
+        }),
+        success: function(response) {
+          $("#add-mapping-modal").modal("hide");
+
+          // Immediately refresh units for this product
+          refreshUnitsForProducts([Number(productLid)]);
+
+          if (response.status === 200) {
+            let data = response.data;
+            
+            if (data.status === 'success') {
+            createAlert({
+              title: "SUCCESS",
+                msg: data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload(true);
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+                msg: data.message,
+                type: "negative",
+              });
+            }
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message || "Something went wrong!",
+              type: "negative",
+            });
+          }
+        },
+        error: function(error) {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+          $("#add-mapping-modal").modal("hide");
+        },
+      });
+    });
+
+    // EDIT LABEL
+    $(document).on("click", ".btn-edit-label", function() {
+      $("#edit-label-modal").modal("show");
+      let currentLabelId = $(this).attr("data-label-id");
+      let mappingId = $(this).attr("data-id");
+      
+      $("#edit-label-select").val(currentLabelId);
+      $(".save-label").attr("data-mapping-id", mappingId);
+    });
+
+    $(document).on("click", ".save-label", function() {
+      let labelLid = $("#edit-label-select").val();
+      let mappingId = $(this).attr("data-mapping-id");
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/product-company-mapping/update-label",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          mappingId: mappingId,
+          labelLid: labelLid
+        }),
+        success: function(response) {
+          $("#edit-label-modal").modal("hide");
+          if (response.status === 200) {
+            createAlert({
+              title: 'Success',
+              msg: response.data.message,
+              type: "positive",
+            });
+
+            // Update the label in the table
+            let row = $('#table-content').find(`tr[data-id="${mappingId}"]`);
+            let labelName = $("#edit-label-select option:selected").text();
+            let badgeClass = labelName === 'NEW' ? 'bg-success' : labelName === 'OLD' ? 'bg-warning' : 'bg-info';
+            row.find('.label-name').html(`<span class="badge ${badgeClass}">${labelName}</span>`);
+            
+            // Reapply filters in case label filter affects this row
+            applyFilters();
+          } else {
+            createAlert({
+              title: 'Error',
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function(error) {
+          createAlert({
+            title: 'Error',
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    });
+
+    // DELETE MAPPING
+    $(document).on('click', '.btn-delete', function() {
+      let mappingId = $(this).attr("data-id");
+      let thisBtn = $(this);
+      const isConfirmed = confirm('Are you sure you want to remove this mapping?');
+
+      if (!isConfirmed) {
+        return false;
+      }
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/product-company-mapping/delete",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          mappingId: mappingId
+        }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: 'Success',
+              msg: 'Mapping deleted successfully!',
+              type: "positive",
+            });
+
+            thisBtn.closest("tr").remove();
+            $('.bs-tooltip-top').remove();
+            
+            // Update total row count
+            const totalRows = $('#table-content tbody tr').length;
+            $('#total-rows').text(totalRows);
+            
+            // Reapply filters to update counts and serial numbers
+            applyFilters();
+          } else {
+            createAlert({
+              title: 'ERROR',
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function(error) {
+          createAlert({
+            title: 'ERROR',
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+        },
+      });
+    });
+
+    // TRANSFER PRODUCT
+    $(document).on("click", ".btn-transfer", function() {
+      $("#transfer-product-modal").modal("show");
+      let mappingId = $(this).attr("data-id");
+      let currentCompanyId = $(this).attr("data-company-id");
+      
+      // Filter out current company from dropdown
+      $("#transfer-company-select option").each(function() {
+        if ($(this).val() == currentCompanyId) {
+          $(this).hide();
+        } else {
+          $(this).show();
+        }
+      });
+      
+      $(".transfer-product").attr("data-mapping-id", mappingId);
+    });
+
+    $(document).on("click", ".transfer-product", function() {
+      let newCompanyLid = $("#transfer-company-select").val();
+      let notes = $("#transfer-notes").val().trim();
+      let mappingId = $(this).attr("data-mapping-id");
+
+      if (!newCompanyLid) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'Please select a company to transfer to',
+          type: 'negative'
+        });
+        return;
+      }
+
+      $.ajax({
+        method: "POST",
+        url: "/admin/product-company-mapping/transfer",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          mappingId: mappingId,
+          newCompanyLid: newCompanyLid,
+          notes: notes
+        }),
+        success: function(response) {
+          $("#transfer-product-modal").modal("hide");
+          if (response.status === 200) {
+            createAlert({
+              title: 'Success',
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload(true);
+            }, 2000);
+          } else {
+            createAlert({
+              title: 'Error',
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function(error) {
+          createAlert({
+            title: 'Error',
+            msg: 'Something went wrong!',
+            type: "negative",
+          });
+          $("#transfer-product-modal").modal("hide");
+        },
+      });
+    });
+
+    // Clear form when modal is hidden
+    $('#add-mapping-modal').on('hidden.bs.modal', function () {
+      $("#add-product-select, #add-company-select").val('');
+      $("#add-mapping-notes").val('');
+    });
+
+    $('#transfer-product-modal').on('hidden.bs.modal', function () {
+      $("#transfer-company-select").val('');
+      $("#transfer-notes").val('');
+      $("#transfer-company-select option").show(); // Show all options again
+    });
+
+    function renderTableList(tbodyId, emptyRowId, items){
+      const $tbody = $(tbodyId);
+      $tbody.find('tr.data-row').remove();
+      if(items.length === 0){
+        $(emptyRowId).show();
+        return;
+      }
+      $(emptyRowId).hide();
+      let rows = '';
+      items.forEach((i,idx)=>{
+        rows += `
+          <tr class="data-row">
+            <td><strong>${i.name}</strong> <small class="text-muted">${i.code}</small></td>
+            <td class="text-end">${i.qty}</td>
+            <td class="text-end">₹ ${formatAmount((i.price||0)*i.qty)}</td>
+            <td class="text-center">
+              <button class="btn btn-sm btn-outline-secondary remove-row" data-type="${tbodyId === '#issue-list' ? 'issue':'sold'}" data-index="${idx}">Remove</button>
+            </td>
+          </tr>`;
+      });
+      $tbody.append(rows);
+    }
+
+    $(document).on('click', '#issue-list .remove-row', function(){
+      const idx = parseInt($(this).data('index'),10);
+      if(!isNaN(idx)){
+        issuedItems.splice(idx,1);
+        renderTableList('#issue-list','#issue-empty',issuedItems);
+        updateSummary();
+      }
+    });
+
+    $(document).on('click', '#sold-list .remove-row', function(){
+      const idx = parseInt($(this).data('index'),10);
+      if(!isNaN(idx)){
+        soldItems.splice(idx,1);
+        renderTableList('#sold-list','#sold-empty',soldItems);
+        updateSummary();
+      }
+    });
+  });
+</script>
+<!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %> 

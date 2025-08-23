@@ -1,0 +1,254 @@
+<%- include ('../partials/head') %>
+
+
+
+    <!--  BEGIN NAVBAR  -->
+    <%- include ('../partials/header') %>
+    <!--  END NAVBAR  -->
+
+    <!--  BEGIN MAIN CONTAINER  -->
+    <div class="main-container" id="container">
+
+        <div class="overlay"></div>
+        <div class="search-overlay"></div>
+
+        <!--  BEGIN SIDEBAR  -->
+        <%- include ('../partials/sidebar') %>
+        <!--  END SIDEBAR  -->
+
+        <!--  BEGIN CONTENT AREA  -->
+        <div id="content" class="main-content">
+            <div class="layout-px-spacing">
+
+                <div class="middle-content container-xxl p-0">
+
+                    <!--  BEGIN BREADCRUMBS  -->
+                    <div class="secondary-nav">
+                        <div class="breadcrumbs-container" data-page-heading="Analytics">
+                            <header class="header navbar navbar-expand-sm">
+                                <a href="javascript:void(0);" class="btn-toggle sidebarCollapse"
+                                    data-placement="bottom">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round" class="feather feather-menu">
+                                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                                    </svg>
+                                </a>
+                                <div class="d-flex breadcrumb-content">
+                                    <div class="page-header">
+
+                                        <div class="page-title">
+                                        </div>
+
+                                        <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                                            <ol class="breadcrumb">
+                                                <li class="breadcrumb-item active"><a href="/admin/masters">Master</a></li>
+                                                <!-- <li class="breadcrumb-item active" aria-current="page">country</li> -->
+                                            </ol>
+                                        </nav>
+
+                                    </div>
+                                </div>
+
+                            </header>
+                        </div>
+                    </div>
+                    <!--  END BREADCRUMBS  -->
+
+                    <div class="main-content">
+                        <div class="row layout-top-spacing">
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/country">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-earth-americas"></i>
+                                            <h6 class="my-2">Country</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/state">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-map"></i>
+                                            <h6 class="my-2">State</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/city">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                            <h6 class="my-2">City</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/company">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-building"></i>
+                                            <h6 class="my-2">Company</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/company-type">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-layer-group"></i>
+                                            <h6 class="my-2">Company Type</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/product">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-box"></i>
+                                            <h6 class="my-2">Product</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/product-company-mapping">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-link"></i>
+                                            <h6 class="my-2">Product Mapping</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+<!--     
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/currency">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                                            <h6 class="my-2">Currency</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/expenses">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                                            <h6 class="my-2">Expenses</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/passenger">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa fa-users"></i>
+                                            <h6 class="my-2">Passenger Type</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/mode-of-transport">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fas fa-plane"></i>
+                                            <h6 class="my-2">Mode Of Transport</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/carrier">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fas fa-tram"></i>
+                                            <h6 class="my-2">Carrier</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/fare-class">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-ticket"></i>
+                                            <h6 class="my-2">Fare Class</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/hotels">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-hotel"></i>
+                                            <h6 class="my-2">Hotels</h6>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+    
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/room-type">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-bed"></i>
+                                            <h6 class="my-2">Room Type</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div>
+
+                            <div class="col-xl-2 col-md-3 col-sm-12 col-12 layout-spacing">
+                                <a href="/admin/tax">
+                                    <div class="card">
+                                        <div class="card-body custom-tab">
+                                            <i class="fa-solid fa-percent"></i>
+                                            <h6 class="my-2">Tax</h6>
+                                        </div>                   
+                                    </div>
+                                </a>
+                            </div> -->
+      
+                        </div>
+                    
+                    </div>
+                </div>
+
+            </div>
+           
+        </div>
+        <!--  END CONTENT AREA  -->
+
+    </div>
+    <!-- END MAIN CONTAINER -->
+
+    <%- include ('../partials/footer') %>
+
+    <%- include ('../partials/footer-end') %>
