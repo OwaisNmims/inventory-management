@@ -1,0 +1,888 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Inventory Mapping
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Inventory Company Mapping</h3>
+              </div>
+              <div class="table-actions">
+                <button style="background: none; border: none" 
+                        class="create-mapping-modal"
+                        title="Create new inventory mapping to assign units to companies"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="left">
+                  <i class="fa-regular fa-square-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <!-- Company Totals Summary -->
+              <% if (totals && totals.length > 0) { %>
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h5>Company Inventory Summary</h5>
+                    <div class="table-responsive">
+                      <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>Company</th>
+                            <th>Type</th>
+                            <th>Total Units</th>
+                            <th>Available</th>
+                            <th>Mapped</th>
+                            <th>Sold</th>
+                            <th>NEW Stock</th>
+                            <th>OLD Stock</th>
+                            <th>Total Value</th>
+                            <th>Sold Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% totals.forEach(function(total) { %>
+                            <tr>
+                              <td><%= total.company_name %></td>
+                              <td>
+                                <span class="badge 
+                                  <% if (total.company_type === 'SELF') { %>badge-primary<% } 
+                                     else if (total.company_type === 'VENDOR') { %>badge-warning<% } 
+                                     else { %>badge-info<% } %>">
+                                  <%= total.company_type %>
+                                </span>
+                              </td>
+                              <td><%= total.total_units %></td>
+                              <td><span class="badge badge-success"><%= total.available_units %></span></td>
+                              <td><span class="badge badge-warning"><%= total.mapped_units %></span></td>
+                              <td><span class="badge badge-danger"><%= total.sold_units %></span></td>
+                              <td><span class="badge badge-info"><%= total.new_stock || 0 %></span></td>
+                              <td><span class="badge badge-secondary"><%= total.old_stock || 0 %></span></td>
+                              <td><strong>₹<%= parseFloat(total.total_value || 0).toFixed(2) %></strong></td>
+                              <td><strong>₹<%= parseFloat(total.sold_value || 0).toFixed(2) %></strong></td>
+                            </tr>
+                          <% }); %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
+              <div class="table-filter-container">
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <select class="form-select" id="company-filter">
+                      <option value="">All Companies</option>
+                      <% companies.forEach(function(company) { %>
+                        <option value="<%= company.name %>"><%= company.name %> (<%= company.company_type %>)</option>
+                      <% }); %>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" id="label-filter">
+                      <option value="">All Labels</option>
+                      <option value="NEW">NEW</option>
+                      <option value="OLD">OLD</option>
+                      <option value="SOLD">SOLD</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <input type="text" class="form-control" id="product-filter" placeholder="Filter by product">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-secondary" id="clear-filters">Clear Filters</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="mapping-table">
+                    <thead>
+                      <tr>
+                        <th><input type="checkbox" 
+                                   id="select-all"
+                                   title="Select/deselect all inventory mappings for bulk actions"
+                                   data-bs-toggle="tooltip" 
+                                   data-bs-placement="top"></th>
+                        <th scope="col">Inventory ID</th>
+                        <th scope="col">Product</th>
+                        <th scope="col">Product Code</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Company</th>
+                        <th scope="col">Company Type</th>
+                        <th scope="col">Label</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Mapped Date</th>
+                        <th scope="col">Notes</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% if (mappings && mappings.length > 0) { %>
+                        <% mappings.forEach(function(mapping) { %>
+                          <tr data-mapping-id="<%= mapping.mapping_id %>" data-company="<%= mapping.company_name %>" data-label="<%= mapping.label %>" data-product="<%= mapping.product_name %>">
+                            <td><input type="checkbox" class="mapping-checkbox" value="<%= mapping.mapping_id %>"></td>
+                            <td><strong>#<%= mapping.inventory_id %></strong></td>
+                            <td class="product-name"><%= mapping.product_name %></td>
+                            <td><%= mapping.product_code %></td>
+                            <td><strong>₹<%= parseFloat(mapping.price || 0).toFixed(2) %></strong></td>
+                            <td><%= mapping.company_name %></td>
+                            <td>
+                              <span class="badge 
+                                <% if (mapping.company_type === 'SELF') { %>badge-primary<% } 
+                                   else if (mapping.company_type === 'VENDOR') { %>badge-warning<% } 
+                                   else { %>badge-info<% } %>">
+                                <%= mapping.company_type %>
+                              </span>
+                            </td>
+                            <td>
+                              <span class="badge 
+                                <% if (mapping.label === 'NEW') { %>badge-success<% } 
+                                   else if (mapping.label === 'OLD') { %>badge-secondary<% } 
+                                   else if (mapping.label === 'SOLD') { %>badge-danger<% } 
+                                   else { %>badge-secondary<% } %>">
+                                <%= mapping.label %>
+                              </span>
+                            </td>
+                            <td>
+                              <span class="badge 
+                                <% if (mapping.status === 'AVAILABLE') { %>badge-success<% } 
+                                   else if (mapping.status === 'MAPPED') { %>badge-warning<% } 
+                                   else if (mapping.status === 'SOLD') { %>badge-danger<% } 
+                                   else { %>badge-secondary<% } %>">
+                                <%= mapping.status %>
+                              </span>
+                            </td>
+                            <td><%= new Date(mapping.mapped_at).toLocaleDateString() %></td>
+                            <td><%= mapping.notes || '-' %></td>
+                            <td class="text-center">
+                              <div class="action-btns">
+                                <% if (mapping.company_type !== 'SELF' && mapping.status === 'MAPPED') { %>
+                                  <button class="btn btn-sm btn-outline-primary btn-transfer" 
+                                          data-id="<%= mapping.mapping_id %>" 
+                                          title="Return this inventory unit back to SELF company and change status to AVAILABLE"
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top">
+                                    <i class="fas fa-undo"></i>
+                                  </button>
+                                <% } %>
+                                <% if (mapping.status === 'MAPPED') { %>
+                                  <button class="btn btn-sm btn-outline-success btn-mark-sold" 
+                                          data-id="<%= mapping.mapping_id %>" 
+                                          title="Mark this inventory unit as SOLD (Value: ₹<%= parseFloat(mapping.price || 0).toFixed(2) %>)"
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top">
+                                    <i class="fas fa-indian-rupee-sign"></i>
+                                  </button>
+                                <% } %>
+                                <% if (mapping.status === 'SOLD') { %>
+                                  <button class="btn btn-sm btn-outline-secondary" 
+                                          disabled
+                                          title="This inventory unit has been sold (Value: ₹<%= parseFloat(mapping.price || 0).toFixed(2) %>)"
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top">
+                                    <i class="fas fa-check-circle"></i>
+                                  </button>
+                                <% } %>
+                                <button class="btn btn-sm btn-outline-info btn-details" 
+                                        data-id="<%= mapping.mapping_id %>" 
+                                        title="View detailed information about this inventory mapping"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top">
+                                  <i class="fas fa-eye"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="11" class="text-center">No mappings found</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bulk Actions -->
+          <div class="row mt-3">
+            <div class="col-12">
+              <button class="btn btn-primary bulk-transfer" 
+                      disabled
+                      title="Return all selected inventory units back to SELF company"
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top">
+                Transfer Selected to SELF
+              </button>
+              <button class="btn btn-success bulk-mark-sold ms-2" 
+                      disabled
+                      title="Mark all selected inventory units as SOLD"
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top">
+                Mark Selected as SOLD
+              </button>
+              <div class="ms-3 d-inline-block">
+                <span id="selected-count">0</span> items selected | 
+                Total Value: <strong>₹<span id="selected-value">0.00</span></strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!-- Create Mapping Modal -->
+<div class="modal fade" id="create-mapping-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="create-mapping-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">CREATE INVENTORY MAPPING</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label" for="mapping-company">Select Company</label>
+              <select class="form-select" id="mapping-company" required>
+                <option value="">Choose Company...</option>
+                <% companies.forEach(function(company) { %>
+                  <% if (company.company_code !== 'SELF') { %>
+                    <option value="<%= company.id %>"><%= company.name %> (<%= company.company_type %>)</option>
+                  <% } %>
+                <% }); %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="mapping-notes">Notes</label>
+              <textarea class="form-control" id="mapping-notes" rows="3" placeholder="Optional notes for this mapping"></textarea>
+            </div>
+          </div>
+          <div class="col-md-8">
+            <h6>Available Inventory Units</h6>
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+              <table class="table table-sm table-bordered">
+                <thead class="sticky-top bg-light">
+                  <tr>
+                    <th><input type="checkbox" 
+                               id="select-all-inventory"
+                               title="Select/deselect all available inventory units"
+                               data-bs-toggle="tooltip" 
+                               data-bs-placement="top"></th>
+                    <th>Inventory ID</th>
+                    <th>Product</th>
+                    <th>Product Code</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                  </tr>
+                </thead>
+                <tbody id="available-inventory-list">
+                  <% if (availableInventory && availableInventory.length > 0) { %>
+                    <% availableInventory.forEach(function(item) { %>
+                      <tr>
+                        <td><input type="checkbox" class="inventory-checkbox" value="<%= item.inventory_id %>"></td>
+                        <td><strong>#<%= item.inventory_id %></strong></td>
+                        <td><%= item.product_name %></td>
+                        <td><%= item.product_code %></td>
+                        <td><%= item.category || '-' %></td>
+                        <td><%= item.price ? '₹' + parseFloat(item.price).toFixed(2) : '-' %></td>
+                      </tr>
+                    <% }); %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="6" class="text-center">No available inventory units</td>
+                    </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                data-bs-dismiss="modal"
+                title="Close this dialog without creating any mappings"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+          Cancel
+        </button>
+        <button type="button" 
+                class="btn btn-primary create-mapping"
+                title="Create mappings for selected inventory units to the chosen company"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+          Create Mapping
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Product View Modal -->
+<div class="modal fade" id="product-view-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="product-view-modal" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">PRODUCT DETAILS</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong>Product Name:</strong></label>
+              <p id="view-product-name" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Product Code:</strong></label>
+              <p id="view-product-code" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Category:</strong></label>
+              <p id="view-product-category" class="form-control-plaintext"></p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong>Price:</strong></label>
+              <p id="view-product-price" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Status:</strong></label>
+              <p id="view-product-status" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Company:</strong></label>
+              <p id="view-product-company" class="form-control-plaintext"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="mb-3">
+              <label class="form-label"><strong>Description:</strong></label>
+              <p id="view-product-description" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Specifications:</strong></label>
+              <p id="view-product-specifications" class="form-control-plaintext"></p>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong>Inventory ID:</strong></label>
+              <p id="view-inventory-id" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Label:</strong></label>
+              <p id="view-inventory-label" class="form-control-plaintext"></p>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label"><strong>Mapped Date:</strong></label>
+              <p id="view-mapped-date" class="form-control-plaintext"></p>
+            </div>
+            <div class="mb-3">
+              <label class="form-label"><strong>Notes:</strong></label>
+              <p id="view-notes" class="form-control-plaintext"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" 
+                class="btn btn-secondary" 
+                data-bs-dismiss="modal"
+                title="Close product details"
+                data-bs-toggle="tooltip" 
+                data-bs-placement="top">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include ('../partials/footer') %>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+$(document).ready(function() {
+  
+  // Initialize Bootstrap tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+  
+  // Simple table filtering function
+  function filterTable() {
+    var companyFilter = $('#company-filter').val().toLowerCase();
+    var labelFilter = $('#label-filter').val().toLowerCase();
+    var productFilter = $('#product-filter').val().toLowerCase();
+    
+    $('#mapping-table tbody tr').each(function() {
+      var row = $(this);
+      var company = row.find('td:eq(5)').text().toLowerCase(); // Company is column 5
+      var label = row.find('td:eq(7)').text().toLowerCase();   // Label is column 7
+      var product = row.find('td:eq(2)').text().toLowerCase(); // Product is column 2
+      
+      var showRow = true;
+      
+      // Check company filter
+      if (companyFilter && company.indexOf(companyFilter) === -1) {
+        showRow = false;
+      }
+      
+      // Check label filter
+      if (labelFilter && label.indexOf(labelFilter) === -1) {
+        showRow = false;
+      }
+      
+      // Check product filter
+      if (productFilter && product.indexOf(productFilter) === -1) {
+        showRow = false;
+      }
+      
+      if (showRow) {
+        row.show();
+      } else {
+        row.hide();
+      }
+    });
+  }
+
+  // Show create mapping modal with fresh data
+  $('.create-mapping-modal').on('click', function() {
+    // Refresh available inventory data before showing modal
+    refreshAvailableInventory();
+    $('#create-mapping-modal').modal('show');
+  });
+
+  // Function to refresh available inventory data
+  function refreshAvailableInventory() {
+    $.ajax({
+      method: "GET",
+      url: "/admin/inventory/available",
+      success: function(response) {
+        if (response.status === 200) {
+          // Clear existing inventory list
+          $('#available-inventory-list').empty();
+          
+          if (response.data.length === 0) {
+            $('#available-inventory-list').html(`
+              <tr>
+                <td colspan="6" class="text-center">No available inventory units for mapping</td>
+              </tr>
+            `);
+          } else {
+            // Populate with fresh data
+            response.data.forEach(function(item) {
+              $('#available-inventory-list').append(`
+                <tr>
+                  <td><input type="checkbox" class="inventory-checkbox" value="${item.inventory_id}"></td>
+                  <td><strong>#${item.inventory_id}</strong></td>
+                  <td>${item.product_name}</td>
+                  <td>${item.product_code}</td>
+                  <td>${item.category || '-'}</td>
+                  <td><strong>₹${parseFloat(item.price || 0).toFixed(2)}</strong></td>
+                </tr>
+              `);
+            });
+          }
+          
+          // Reset select all checkbox
+          $('#select-all-inventory').prop('checked', false);
+        }
+      },
+      error: function() {
+        console.error('Failed to refresh available inventory');
+        // Show error in modal
+        $('#available-inventory-list').html(`
+          <tr>
+            <td colspan="6" class="text-center text-danger">Error loading available inventory. Please refresh the page.</td>
+          </tr>
+        `);
+      }
+    });
+  }
+
+  // Select all checkboxes
+  $('#select-all').on('change', function() {
+    $('.mapping-checkbox').prop('checked', $(this).prop('checked'));
+    updateBulkActions();
+  });
+
+  $('#select-all-inventory').on('change', function() {
+    $('.inventory-checkbox').prop('checked', $(this).prop('checked'));
+  });
+
+  // Update bulk actions based on selection
+  $('.mapping-checkbox').on('change', function() {
+    updateBulkActions();
+  });
+
+  function updateBulkActions() {
+    const selectedCount = $('.mapping-checkbox:checked').length;
+    let totalValue = 0;
+    
+    $('.mapping-checkbox:checked').each(function() {
+      const row = $(this).closest('tr');
+      const priceText = row.find('td:eq(4)').text().replace('₹', '');
+      const price = parseFloat(priceText) || 0;
+      totalValue += price;
+    });
+    
+    $('.bulk-transfer').prop('disabled', selectedCount === 0);
+    $('.bulk-mark-sold').prop('disabled', selectedCount === 0);
+    $('#selected-count').text(selectedCount);
+    $('#selected-value').text(totalValue.toFixed(2));
+  }
+
+  // Filters
+  $('#company-filter').on('change', function() {
+    filterTable();
+  });
+
+  $('#label-filter').on('change', function() {
+    filterTable();
+  });
+
+  $('#product-filter').on('keyup', function() {
+    filterTable();
+  });
+
+  $('#clear-filters').on('click', function() {
+    $('#company-filter').val('');
+    $('#label-filter').val('');
+    $('#product-filter').val('');
+    $('#mapping-table tbody tr').show();
+  });
+
+  // Create mapping
+  $('.create-mapping').on('click', function() {
+    const companyId = $('#mapping-company').val();
+    const notes = $('#mapping-notes').val();
+    const selectedInventory = $('.inventory-checkbox:checked').map(function() {
+      return parseInt($(this).val());
+    }).get();
+
+    if (!companyId) {
+      createAlert({
+        title: 'ERROR',
+        msg: 'Please select a company',
+        type: 'negative'
+      });
+      return;
+    }
+
+    if (selectedInventory.length === 0) {
+      createAlert({
+        title: 'ERROR',
+        msg: 'Please select at least one inventory unit',
+        type: 'negative'
+      });
+      return;
+    }
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/inventory-mapping/create",
+      headers: { 'Content-Type': 'application/json' },
+      data: JSON.stringify({
+        inventoryUnitIds: selectedInventory,
+        companyId: companyId,
+        notes: notes
+      }),
+      success: function(response) {
+        if (response.status === 200) {
+          createAlert({
+            title: "SUCCESS",
+            msg: response.data.message,
+            type: "positive",
+          });
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.data.message,
+            type: "negative",
+          });
+        }
+        $('#create-mapping-modal').modal('hide');
+      },
+      error: function() {
+        createAlert({
+          title: "ERROR",
+          msg: "Something went wrong!",
+          type: "negative",
+        });
+        $('#create-mapping-modal').modal('hide');
+      }
+    });
+  });
+
+  // Transfer single mapping
+  $(document).on('click', '.btn-transfer', function() {
+    const mappingId = $(this).data('id');
+    
+    if (confirm('Are you sure you want to transfer this inventory back to SELF?')) {
+      $.ajax({
+        method: "POST",
+        url: "/admin/inventory-mapping/transfer-to-self",
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ mappingIds: [mappingId] }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function() {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+        }
+      });
+    }
+  });
+
+  // Bulk transfer
+  $('.bulk-transfer').on('click', function() {
+    const selectedMappings = $('.mapping-checkbox:checked').map(function() {
+      return parseInt($(this).val());
+    }).get();
+
+    if (selectedMappings.length === 0) return;
+
+    if (confirm(`Are you sure you want to transfer ${selectedMappings.length} inventory units back to SELF?`)) {
+      $.ajax({
+        method: "POST",
+        url: "/admin/inventory-mapping/transfer-to-self",
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ mappingIds: selectedMappings }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function() {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+        }
+      });
+    }
+  });
+
+  // Bulk mark as sold
+  $('.bulk-mark-sold').on('click', function() {
+    const selectedMappings = $('.mapping-checkbox:checked').map(function() {
+      return parseInt($(this).val());
+    }).get();
+
+    if (selectedMappings.length === 0) return;
+
+    const totalValue = $('#selected-value').text();
+    if (confirm(`Are you sure you want to mark ${selectedMappings.length} inventory units as SOLD? Total value: $${totalValue}`)) {
+      $.ajax({
+        method: "POST",
+        url: "/admin/inventory-mapping/mark-as-sold",
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ mappingIds: selectedMappings }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function() {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+        }
+      });
+    }
+  });
+
+  // Single mark as sold
+  $(document).on('click', '.btn-mark-sold', function() {
+    const mappingId = $(this).data('id');
+    const row = $(this).closest('tr');
+    const productName = row.find('td:eq(2)').text();
+    const price = row.find('td:eq(4)').text();
+    
+    if (confirm(`Are you sure you want to mark "${productName}" as SOLD? Value: ${price}`)) {
+      $.ajax({
+        method: "POST",
+        url: "/admin/inventory-mapping/mark-as-sold",
+        headers: { 'Content-Type': 'application/json' },
+        data: JSON.stringify({ mappingIds: [mappingId] }),
+        success: function(response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "SUCCESS",
+              msg: response.data.message,
+              type: "positive",
+            });
+            setTimeout(() => {
+              location.reload();
+            }, 2000);
+          } else {
+            createAlert({
+              title: "ERROR",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function() {
+          createAlert({
+            title: "ERROR",
+            msg: "Something went wrong!",
+            type: "negative",
+          });
+        }
+      });
+    }
+  });
+
+  // View details
+  $(document).on('click', '.btn-details', function() {
+    const mappingId = $(this).data('id');
+    const row = $(this).closest('tr');
+    
+    // Populate modal with data from the table row
+    $('#view-inventory-id').text(row.find('td:eq(1)').text());
+    $('#view-product-name').text(row.find('td:eq(2)').text());
+    $('#view-product-code').text(row.find('td:eq(3)').text());
+    $('#view-product-category').text(row.find('td:eq(4)').text() || '-');
+    $('#view-product-price').text(row.find('td:eq(5)').text());
+    $('#view-product-company').text(row.find('td:eq(6)').text());
+    $('#view-product-status').text(row.find('td:eq(7)').text());
+    $('#view-inventory-label').text(row.find('td:eq(8)').text());
+    $('#view-mapped-date').text(row.find('td:eq(9)').text());
+    $('#view-notes').text(row.find('td:eq(10)').text() || '-');
+    
+    // For description and specifications, show placeholder since not available in table
+    $('#view-product-description').text('Product description not available in current view');
+    $('#view-product-specifications').text('Product specifications not available in current view');
+    
+    // Show the modal
+    $('#product-view-modal').modal('show');
+  });
+});
+</script><!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %>

@@ -25,7 +25,9 @@ const tourTax = require("../controllers/tourTax.js");
 const company = require('../controllers/company');
 const companyType = require('../controllers/companyType');
 const product = require('../controllers/product');
-const productCompanyMapping = require('../controllers/productCompanyMapping');
+const inventory = require('../controllers/inventory');
+const inventoryMapping = require('../controllers/inventoryMapping');
+const orderTracking = require('../controllers/orderTracking');
 // const {
 //     validate
 // } = require("../utils/index")
@@ -80,26 +82,35 @@ router.post('/company-type/bulk-insert', companyType.bulkInsert);
 
 //Product page CRUD OPERATION
 router.get('/product', product.productMaster);
+router.get('/product/download-excel-sample', product.downloadExcelSample);
+router.post('/product/bulk-upload', product.bulkUploadProducts);
 router.get('/product/:productId', product.getProductById);
 router.post('/product/insert', product.insert);
 router.post('/product/update', product.updateProduct);
 router.post('/product/delete', product.deleteProduct);
 
-//Product Company Mapping page CRUD OPERATION
-router.get('/product-company-mapping', productCompanyMapping.productCompanyMappingMaster);
-router.post('/product-company-mapping/create', productCompanyMapping.createMapping);
-router.post('/product-company-mapping/bulk-create', productCompanyMapping.bulkMapProducts);
-router.get('/product-company-mapping/availability/:productId', productCompanyMapping.getProductAvailability);
-router.get('/product-company-mapping/receipts', productCompanyMapping.getMappingReceipts);
-router.post('/product-company-mapping/update-label', productCompanyMapping.updateMappingLabel);
-router.post('/product-company-mapping/delete', productCompanyMapping.deleteMapping);
-router.post('/product-company-mapping/transfer', productCompanyMapping.transferProduct);
-router.get('/product-company-mapping/by-company', productCompanyMapping.getMappingsByCompany);
-router.post('/product-company-mapping/record-sales', productCompanyMapping.recordSales);
+//Inventory page CRUD OPERATION
+router.get('/inventory', inventory.inventoryMaster);
+router.get('/inventory/all', inventory.getAllInventory);
+router.get('/inventory/product/:productId', inventory.getInventoryByProduct);
+router.get('/inventory/company/:companyId', inventory.getInventoryByCompany);
+router.get('/inventory/summary', inventory.getInventorySummary);
+router.get('/inventory/available', inventory.getAvailableInventory);
+router.post('/inventory/update-status', inventory.updateInventoryStatus);
+router.delete('/inventory/delete/:inventoryId', inventory.deleteInventoryUnit);
 
-// Receipts page and data integrity
-router.get('/receipts', productCompanyMapping.receiptsPage);
-router.get('/data-integrity/validate-mappings', productCompanyMapping.validateDataIntegrity);
+//Inventory Mapping page CRUD OPERATION
+router.get('/inventory-mapping', inventoryMapping.inventoryMappingMaster);
+router.post('/inventory-mapping/create', inventoryMapping.createMapping);
+router.post('/inventory-mapping/transfer-to-self', inventoryMapping.transferToSelf);
+router.post('/inventory-mapping/mark-as-sold', inventoryMapping.markAsSold);
+
+//Order Tracking page CRUD OPERATION
+router.get('/order-tracking', orderTracking.orderTrackingMaster);
+router.get('/order-tracking/details/:orderId', orderTracking.getOrderDetails);
+router.get('/order-tracking/company/:companyId', orderTracking.getOrdersByCompany);
+
+
 
 // Currency PAGE CRUD OPERATION
 router.get('/currency', currency.currencyMaster);

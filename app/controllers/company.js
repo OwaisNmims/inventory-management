@@ -29,11 +29,16 @@ module.exports = {
             };
 
             const result = await company.insert(companyList);
+            const insertResult = result.rows[0].insert_companies;
             
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: result.rows[0].insert_companies
+                data: { 
+                    message: insertResult.message,
+                    inserted_count: insertResult.inserted_count,
+                    duplicate_count: insertResult.duplicate_count
+                }
             });
 
         } catch (e) {
@@ -59,7 +64,7 @@ module.exports = {
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: result.rows[0].update_company
+                data: { message: 'Company updated successfully', company: result.rows[0] }
             });
 
         } catch (e) {
@@ -111,7 +116,7 @@ module.exports = {
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: result.rows[0].add_new_companies
+                data: { message: 'Company created successfully', company: result.rows[0] }
             });
 
         } catch (e) {

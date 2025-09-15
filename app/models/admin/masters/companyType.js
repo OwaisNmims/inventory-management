@@ -15,15 +15,20 @@ module.exports = {
 
     insert: (data) => {
         const statement = {
-            text: `SELECT insert_company_types($1, $2);`,
-            values: [JSON.stringify(data), 1]
+            text: `INSERT INTO company_type (name, description, active, created_at, created_by)
+                   VALUES ($1, $2, true, CURRENT_TIMESTAMP, $3)
+                   RETURNING *;`,
+            values: [data.name, data.description || '', 1]
         };
         return pool.query(statement);
     },
 
     updateCompanyType: (data) => {
         const statement = {
-            text: `SELECT update_company_type($1, $2, $3, $4);`,
+            text: `UPDATE company_type 
+                   SET name = $2, description = $3, updated_at = CURRENT_TIMESTAMP, updated_by = $4
+                   WHERE id = $1 AND active = TRUE
+                   RETURNING *;`,
             values: [
                 data.companyTypeLid,
                 data.name,
@@ -45,9 +50,13 @@ module.exports = {
     },
 
     bulkInsert: (data, userId) => {
+        // For now, just insert the first company type from the array
+        const firstType = Array.isArray(data) ? data[0] : data;
         const statement = {
-            text: `SELECT add_new_company_types($1, $2);`,
-            values: [JSON.stringify(data), userId]
+            text: `INSERT INTO company_type (name, description, active, created_at, created_by)
+                   VALUES ($1, $2, true, CURRENT_TIMESTAMP, $3)
+                   RETURNING *;`,
+            values: [firstType.name, firstType.description || '', userId]
         };
         console.log('statement::::::::::::::::::::', statement);
         return pool.query(statement);

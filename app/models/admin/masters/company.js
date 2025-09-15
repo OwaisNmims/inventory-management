@@ -3,17 +3,10 @@ const { pool } = require("../../../config/dbConfig");
 module.exports = {
     getAllCompanies: () => {
         const statement = {
-            text: `SELECT c.id, c.name, c.company_code, c.email, c.phone, c.address_line1, c.address_line2, 
-                   c.postal_code, c.registration_number, c.tax_number, c.company_type_lid, 
-                   ctype.name AS company_type_name, c.website,
-                   c.country_lid, co.name AS country_name, c.state_lid, s.name AS state_name, 
-                   c.city_lid, ct.name AS city_name,
+            text: `SELECT c.id, c.name, c.company_code, c.company_type,
+                   c.company_type as company_type_name,
                    c.created_at, c.updated_at, c.created_by, c.updated_by, c.active 
                    FROM company c
-                   LEFT JOIN country co ON co.id = c.country_lid AND co.active = TRUE
-                   LEFT JOIN state s ON s.id = c.state_lid AND s.active = TRUE
-                   LEFT JOIN city ct ON ct.id = c.city_lid AND ct.active = TRUE
-                   LEFT JOIN company_type ctype ON ctype.id = c.company_type_lid AND ctype.active = TRUE
                    WHERE c.active = TRUE
                    ORDER BY c.name;`,
             values: []
@@ -32,23 +25,16 @@ module.exports = {
 
     updateCompany: (data) => {
         const statement = {
-            text: `SELECT update_company($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16);`,
+            text: `UPDATE company 
+                   SET name = $2, company_code = $3, company_type = $4, 
+                       updated_at = CURRENT_TIMESTAMP, updated_by = $5
+                   WHERE id = $1 AND active = TRUE
+                   RETURNING *;`,
             values: [
                 data.companyLid,
-                data.companyName,
-                data.companyCode,
-                data.email,
-                data.phone,
-                data.addressLine1,
-                data.addressLine2,
-                data.countryLid,
-                data.stateLid,
-                data.cityLid,
-                data.postalCode,
-                data.registrationNumber,
-                data.taxNumber,
-                data.companyTypeLid,
-                data.website,
+                data.companyName || data.name,
+                data.companyCode || data.company_code,
+                data.companyType || data.company_type || 'VENDOR',
                 data.updatedBy || 1
             ]
         };
@@ -66,9 +52,14 @@ module.exports = {
     },
 
     bulkInsert: (data, userId) => {
+        // For now, just insert the first company from the array
+        // This can be enhanced later if bulk insert is needed
+        const firstCompany = Array.isArray(data) ? data[0] : data;
         const statement = {
-            text: `SELECT add_new_companies($1, $2);`,
-            values: [JSON.stringify(data), userId]
+            text: `INSERT INTO company (name, company_code, company_type, active, created_at, created_by)
+                   VALUES ($1, $2, $3, true, CURRENT_TIMESTAMP, $4)
+                   RETURNING *;`,
+            values: [firstCompany.name, firstCompany.company_code, firstCompany.company_type || 'VENDOR', userId]
         };
         console.log('statement::::::::::::::::::::', statement);
         return pool.query(statement);
@@ -76,11 +67,8 @@ module.exports = {
 
     findById: (companyId) => {
         const statement = {
-            text: `SELECT c.*, co.name AS country_name, s.name AS state_name, ct.name AS city_name
+            text: `SELECT c.*
                    FROM company c
-                   LEFT JOIN country co ON co.id = c.country_lid
-                   LEFT JOIN state s ON s.id = c.state_lid
-                   LEFT JOIN city ct ON ct.id = c.city_lid
                    WHERE c.id = $1 AND c.active = TRUE;`,
             values: [companyId]
         };
@@ -98,9 +86,8 @@ module.exports = {
     findAllActiveWithType: () => {
         const statement = {
             text: `
-                SELECT c.id, c.name, c.company_code, c.company_type_lid, ct.name AS company_type_name
+                SELECT c.id, c.name, c.company_code, c.company_type
                 FROM company c
-                LEFT JOIN company_type ct ON ct.id = c.company_type_lid AND ct.active = TRUE
                 WHERE c.active = TRUE
                 ORDER BY c.name;
             `,

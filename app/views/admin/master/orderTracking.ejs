@@ -1,0 +1,486 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="./masters">Master</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">
+                        Order Tracking
+                      </li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Order Tracking & Company Mappings</h3>
+              </div>
+              <div class="table-actions">
+                <button style="background: none; border: none" 
+                        class="refresh-orders"
+                        title="Refresh order data"
+                        data-bs-toggle="tooltip" 
+                        data-bs-placement="left">
+                  <i class="fa-solid fa-refresh"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="table-content">
+              <!-- Orders Summary Cards -->
+              <div class="row mb-4">
+                <div class="col-md-3">
+                  <div class="card bg-primary text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Total Orders</h6>
+                          <h4 class="mb-0"><%= summary.total_orders || 0 %></h4>
+                        </div>
+                        <div class="align-self-center">
+                          <i class="fas fa-shopping-cart fa-2x"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-success text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Completed Orders</h6>
+                          <h4 class="mb-0"><%= summary.completed_orders || 0 %></h4>
+                        </div>
+                        <div class="align-self-center">
+                          <i class="fas fa-check-circle fa-2x"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-warning text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Pending Orders</h6>
+                          <h4 class="mb-0"><%= summary.pending_orders || 0 %></h4>
+                        </div>
+                        <div class="align-self-center">
+                          <i class="fas fa-clock fa-2x"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="card bg-info text-white">
+                    <div class="card-body">
+                      <div class="d-flex justify-content-between">
+                        <div>
+                          <h6 class="card-title">Total Value</h6>
+                          <h4 class="mb-0">₹<%= parseFloat(summary.total_order_value || 0).toFixed(2) %></h4>
+                        </div>
+                        <div class="align-self-center">
+                          <i class="fas fa-indian-rupee-sign fa-2x"></i>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Company Statistics -->
+              <% if (companyStats && companyStats.length > 0) { %>
+                <div class="row mb-4">
+                  <div class="col-12">
+                    <h5>Company Mapping Statistics</h5>
+                    <div class="table-responsive">
+                      <table class="table table-sm table-bordered">
+                        <thead class="table-dark">
+                          <tr>
+                            <th>Company</th>
+                            <th>Type</th>
+                            <th>Orders</th>
+                            <th>Items Mapped</th>
+                            <th>Total Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <% companyStats.forEach(function(stat) { %>
+                            <tr>
+                              <td><%= stat.company_name %></td>
+                              <td>
+                                <span class="badge 
+                                  <% if (stat.company_type === 'SELF') { %>badge-primary<% } 
+                                     else if (stat.company_type === 'VENDOR') { %>badge-warning<% } 
+                                     else { %>badge-info<% } %>">
+                                  <%= stat.company_type %>
+                                </span>
+                              </td>
+                              <td><%= stat.orders_count %></td>
+                              <td><%= stat.items_count %></td>
+                              <td><strong>₹<%= parseFloat(stat.total_value || 0).toFixed(2) %></strong></td>
+                            </tr>
+                          <% }); %>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              <% } %>
+
+              <div class="table-filter-container">
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <select class="form-select" id="status-filter">
+                      <option value="">All Status</option>
+                      <option value="PENDING">Pending</option>
+                      <option value="COMPLETED">Completed</option>
+                      <option value="CANCELLED">Cancelled</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" id="company-filter">
+                      <option value="">All Companies</option>
+                      <% if (companies && companies.length > 0) { %>
+                        <% companies.forEach(function(company) { %>
+                          <option value="<%= company.name %>"><%= company.name %> (<%= company.company_type %>)</option>
+                        <% }); %>
+                      <% } %>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <input type="text" class="form-control" id="order-filter" placeholder="Filter by order number">
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-secondary" id="clear-filters">Clear Filters</button>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered" id="orders-table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Order ID</th>
+                        <th scope="col">Order Number</th>
+                        <th scope="col">Customer Company</th>
+                        <th scope="col">Order Date</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Total Items</th>
+                        <th scope="col">Total Amount</th>
+                        <th scope="col">Notes</th>
+                        <th class="text-center" scope="col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(function(order) { %>
+                          <tr data-order-id="<%= order.order_id %>" data-status="<%= order.order_status %>" data-company="<%= order.customer_company_name %>">
+                            <td><strong>#<%= order.order_id %></strong></td>
+                            <td><%= order.order_number %></td>
+                            <td>
+                              <%= order.customer_company_name || 'N/A' %>
+                              <% if (order.customer_company_type) { %>
+                                <br><small class="text-muted">(<%= order.customer_company_type %>)</small>
+                              <% } %>
+                            </td>
+                            <td><%= new Date(order.order_date).toLocaleDateString() %></td>
+                            <td>
+                              <span class="badge 
+                                <% if (order.order_status === 'COMPLETED') { %>badge-success<% } 
+                                   else if (order.order_status === 'PENDING') { %>badge-warning<% } 
+                                   else if (order.order_status === 'CANCELLED') { %>badge-danger<% } 
+                                   else { %>badge-secondary<% } %>">
+                                <%= order.order_status %>
+                              </span>
+                            </td>
+                            <td><%= order.total_items || 0 %> items (<%= order.total_quantity || 0 %> qty)</td>
+                            <td><strong>₹<%= parseFloat(order.total_amount || 0).toFixed(2) %></strong></td>
+                            <td><%= order.order_notes || '-' %></td>
+                            <td class="text-center">
+                              <div class="action-btns">
+                                <button class="btn btn-sm btn-outline-info btn-view-details" 
+                                        data-id="<%= order.order_id %>" 
+                                        title="View order details and inventory mappings"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top">
+                                  <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary btn-view-mappings" 
+                                        data-id="<%= order.order_id %>" 
+                                        title="View company mappings for this order"
+                                        data-bs-toggle="tooltip" 
+                                        data-bs-placement="top">
+                                  <i class="fas fa-sitemap"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        <% }); %>
+                      <% } else { %>
+                        <tr>
+                          <td colspan="9" class="text-center">No orders found</td>
+                        </tr>
+                      <% } %>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!-- END MAIN CONTAINER -->
+
+<!-- Order Details Modal -->
+<div class="modal fade" id="order-details-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="order-details-modal" aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="order-details-title">ORDER DETAILS</h5>
+        <button type="button" class="btn fs-4 text-dark" data-bs-dismiss="modal" aria-label="Close">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="order-details-content">
+          <div class="text-center">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include ('../partials/footer') %>
+
+<!-- CUSTOM JS SCRIPT -->
+<script>
+$(document).ready(function() {
+  
+  // Initialize Bootstrap tooltips
+  var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+  
+  // Simple table filtering function
+  function filterTable() {
+    var statusFilter = $('#status-filter').val().toLowerCase();
+    var companyFilter = $('#company-filter').val().toLowerCase();
+    var orderFilter = $('#order-filter').val().toLowerCase();
+    
+    $('#orders-table tbody tr').each(function() {
+      var row = $(this);
+      var status = row.find('td:eq(4)').text().toLowerCase();
+      var company = row.find('td:eq(2)').text().toLowerCase();
+      var orderNumber = row.find('td:eq(1)').text().toLowerCase();
+      
+      var showRow = true;
+      
+      // Check status filter
+      if (statusFilter && status.indexOf(statusFilter) === -1) {
+        showRow = false;
+      }
+      
+      // Check company filter
+      if (companyFilter && company.indexOf(companyFilter) === -1) {
+        showRow = false;
+      }
+      
+      // Check order filter
+      if (orderFilter && orderNumber.indexOf(orderFilter) === -1) {
+        showRow = false;
+      }
+      
+      if (showRow) {
+        row.show();
+      } else {
+        row.hide();
+      }
+    });
+  }
+
+  // Status filter
+  $('#status-filter').on('change', function() {
+    filterTable();
+  });
+
+  // Company filter
+  $('#company-filter').on('change', function() {
+    filterTable();
+  });
+
+  // Order filter
+  $('#order-filter').on('keyup', function() {
+    filterTable();
+  });
+
+  // Clear filters
+  $('#clear-filters').on('click', function() {
+    $('#status-filter').val('');
+    $('#company-filter').val('');
+    $('#order-filter').val('');
+    $('#orders-table tbody tr').show();
+  });
+
+  // View order details
+  $(document).on('click', '.btn-view-details', function() {
+    const orderId = $(this).data('id');
+    
+    $('#order-details-title').text('ORDER DETAILS - #' + orderId);
+    $('#order-details-content').html(`
+      <div class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    `);
+    
+    $('#order-details-modal').modal('show');
+    
+    // Fetch order details
+    $.ajax({
+      method: "GET",
+      url: "/admin/order-tracking/details/" + orderId,
+      success: function(response) {
+        if (response.status === 200 && response.data.length > 0) {
+          let orderInfo = response.data[0];
+          let orderItems = response.data;
+          
+          let detailsHtml = `
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <h6>Order Information</h6>
+                <p><strong>Order Number:</strong> ${orderInfo.order_number}</p>
+                <p><strong>Order Date:</strong> ${new Date(orderInfo.order_date).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> <span class="badge badge-${orderInfo.order_status === 'COMPLETED' ? 'success' : orderInfo.order_status === 'PENDING' ? 'warning' : 'secondary'}">${orderInfo.order_status}</span></p>
+                <p><strong>Total Amount:</strong> ₹${parseFloat(orderInfo.total_amount || 0).toFixed(2)}</p>
+              </div>
+              <div class="col-md-6">
+                <h6>Customer Information</h6>
+                <p><strong>Company:</strong> ${orderInfo.customer_company_name || 'N/A'}</p>
+                <p><strong>Company Type:</strong> ${orderInfo.customer_company_type || 'N/A'}</p>
+                <p><strong>Notes:</strong> ${orderInfo.order_notes || 'None'}</p>
+              </div>
+            </div>
+            
+            <h6>Order Items & Inventory Mappings</h6>
+            <div class="table-responsive">
+              <table class="table table-sm table-bordered">
+                <thead>
+                  <tr>
+                    <th>Item ID</th>
+                    <th>Product</th>
+                    <th>Inventory ID</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total Price</th>
+                    <th>Mapped Company</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+          
+          orderItems.forEach(item => {
+            detailsHtml += `
+              <tr>
+                <td>#${item.order_item_id}</td>
+                <td>${item.product_name} (${item.product_code})</td>
+                <td><strong>#${item.inventory_id}</strong></td>
+                <td>${item.quantity}</td>
+                <td>₹${parseFloat(item.unit_price || 0).toFixed(2)}</td>
+                <td>₹${parseFloat(item.total_price || 0).toFixed(2)}</td>
+                <td>${item.mapped_company_name || 'Not Mapped'}</td>
+                <td><span class="badge badge-${item.inventory_status === 'SOLD' ? 'danger' : item.inventory_status === 'MAPPED' ? 'warning' : 'success'}">${item.inventory_status}</span></td>
+              </tr>
+            `;
+          });
+          
+          detailsHtml += `
+                </tbody>
+              </table>
+            </div>
+          `;
+          
+          $('#order-details-content').html(detailsHtml);
+        } else {
+          $('#order-details-content').html('<p class="text-center">No order details found.</p>');
+        }
+      },
+      error: function() {
+        $('#order-details-content').html('<p class="text-center text-danger">Error loading order details.</p>');
+      }
+    });
+  });
+
+  // View mappings
+  $(document).on('click', '.btn-view-mappings', function() {
+    const orderId = $(this).data('id');
+    // This could open a different modal or redirect to a mappings view
+    alert('View mappings for Order #' + orderId + ' - Feature coming soon!');
+  });
+
+  // Refresh orders
+  $('.refresh-orders').on('click', function() {
+    location.reload();
+  });
+});
+</script><!--END CUSTOM JS SCRIPT -->
+
+<%- include ('../partials/footer-end') %>
