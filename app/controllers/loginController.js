@@ -86,6 +86,36 @@ module.exports = {
         });
       }
     });
+  },
+
+  logout: async function (req, res) {
+    try {
+      const token = req.cookies.token;
+      
+      if (token) {
+        // Remove the token from Redis
+        redisClient.client.del(token, function (err, response) {
+          if (err) {
+            console.log('Error removing token from Redis:', err);
+          } else {
+            console.log('Token removed from Redis:', response);
+          }
+        });
+      }
+      
+      // Clear the cookie
+      res.clearCookie('token');
+      
+      // Redirect to login page
+      res.redirect('/login');
+      
+    } catch (error) {
+      console.error('Logout error:', error);
+      res.status(500).json({
+        msg: "Error during logout",
+        error: error.message
+      });
+    }
   }
 }
 

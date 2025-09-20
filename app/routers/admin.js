@@ -4,6 +4,7 @@ const router = express.Router();
 //import controllers
 const adminController = require('../controllers/adminController')
 const indexController = require('../controllers/indexController');
+const loginController = require('../controllers/loginController');
 const countryMasterController = require('../controllers/countryMasterController');
 const stateMasterController = require('../controllers/stateMasterController');
 const tourController = require('../controllers/tourController');
@@ -207,5 +208,7 @@ router.post('/tour-taxes/delete', tourTax.delete);
 //Users
 router.get('/users', userController.getAllUsers);
 
+// Logout
+router.get('/logout', loginController.logout);
 
 module.exports = router;
