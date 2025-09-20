@@ -330,7 +330,7 @@
   aria-labelledby="edit-product-modal"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-lg" role="document">
+  <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content modal-inputform">
       <div class="modal-header modal-inputform-header">
         <h5 class="modal-title text-dark" id="">EDIT PRODUCT</h5>
@@ -399,6 +399,80 @@
                 id="edit-product-specifications"
                 rows="2"
               ></textarea>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Inventory Management Section -->
+        <div class="row mt-4">
+          <div class="col-12">
+            <hr>
+            <h6 class="mb-3"><i class="fas fa-boxes"></i> Inventory Management</h6>
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Current Inventory Units</label>
+                  <div class="d-flex align-items-center">
+                    <span id="current-inventory-count" class="badge bg-info fs-6 me-3">0</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="refresh-inventory">
+                      <i class="fas fa-sync-alt"></i> Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label" for="add-inventory-units">Add Inventory Units</label>
+                  <div class="input-group">
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="add-inventory-units"
+                      placeholder="Units to add"
+                      min="1"
+                      max="100"
+                    />
+                    <button class="btn btn-success" type="button" id="add-inventory-btn">
+                      <i class="fas fa-plus"></i> Add
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <label class="form-label">Quick Actions</label>
+                  <div>
+                    <button type="button" class="btn btn-sm btn-outline-info" id="show-available-only">
+                      <i class="fas fa-filter"></i> Available Only
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="show-all-units">
+                      <i class="fas fa-list"></i> Show All
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Inventory Units List -->
+            <div class="inventory-units-container" style="max-height: 350px; overflow-y: auto;">
+              <table class="table table-sm table-bordered" id="inventory-units-table">
+                <thead class="table-light">
+                  <tr>
+                    <th style="width: 25%;">Unit Serial</th>
+                    <th style="width: 15%;">Status</th>
+                    <th style="width: 25%;">Company</th>
+                    <th style="width: 20%;">Mapped Date</th>
+                    <th style="width: 15%;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      <i class="fas fa-spinner fa-spin"></i> Loading inventory units...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -634,10 +708,26 @@
           }
           $("#add-product-modal").modal("hide");
         },
-        error: function (error) {
+        error: function (xhr, status, error) {
+          let errorMessage = "Something went wrong!";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
           createAlert({
             title: "ERROR",
-            msg: "Something went wrong!",
+            msg: errorMessage,
             type: "negative",
           });
           $("#add-product-modal").modal("hide");
@@ -699,6 +789,9 @@
 
             $(".save-product").attr("data-id", productId);
             $("#edit-product-modal").modal("show");
+            
+            // Load inventory units for this product
+            loadInventoryUnits(productId);
           } else {
             // Fallback to table data if API fails
             $("#edit-product-name").val(productName);
@@ -783,10 +876,26 @@
             });
           }
         },
-        error: function (error) {
+        error: function (xhr, status, error) {
+          let errorMessage = "Something went wrong!";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
           createAlert({
             title: "Error",
-            msg: "Something went wrong!",
+            msg: errorMessage,
             type: "negative",
           });
         },
@@ -832,10 +941,26 @@
             });
           }
         },
-        error: function (error) {
+        error: function (xhr, status, error) {
+          let errorMessage = "Something went wrong!";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
           createAlert({
             title: "ERROR",
-            msg: "Something went wrong!",
+            msg: errorMessage,
             type: "negative",
           });
         },
@@ -1014,6 +1139,304 @@
           $('#process-upload').prop('disabled', false);
         }
       });
+    });
+
+    // Inventory Management Functions
+    let allInventoryUnits = [];
+    let currentFilter = 'all'; // 'all' or 'available'
+
+    function loadInventoryUnits(productId) {
+      // Show loading state
+      $("#inventory-units-table tbody").html(`
+        <tr>
+          <td colspan="5" class="text-center text-muted">
+            <i class="fas fa-spinner fa-spin"></i> Loading inventory units...
+          </td>
+        </tr>
+      `);
+
+      $.ajax({
+        method: "GET",
+        url: `/admin/product/${productId}/inventory-units`,
+        success: function (response) {
+          if (response.status === 200) {
+            allInventoryUnits = response.data;
+            updateInventoryTable();
+            $("#current-inventory-count").text(allInventoryUnits.length);
+          } else {
+            $("#inventory-units-table tbody").html(`
+              <tr>
+                <td colspan="5" class="text-center text-danger">
+                  <i class="fas fa-exclamation-triangle"></i> Failed to load inventory units
+                </td>
+              </tr>
+            `);
+            createAlert({
+              title: "Error",
+              msg: "Failed to load inventory units",
+              type: "negative",
+            });
+          }
+        },
+        error: function (xhr, status, error) {
+          let errorMessage = "Failed to load inventory units";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
+          $("#inventory-units-table tbody").html(`
+            <tr>
+              <td colspan="5" class="text-center text-danger">
+                <i class="fas fa-exclamation-triangle"></i> ${errorMessage}
+              </td>
+            </tr>
+          `);
+          createAlert({
+            title: "Error",
+            msg: errorMessage,
+            type: "negative",
+          });
+        },
+      });
+    }
+
+    function updateInventoryTable() {
+      const tbody = $("#inventory-units-table tbody");
+      tbody.empty();
+
+      // Filter units based on current filter
+      let unitsToShow = allInventoryUnits;
+      if (currentFilter === 'available') {
+        unitsToShow = allInventoryUnits.filter(unit => unit.status === 'AVAILABLE');
+      }
+
+      if (unitsToShow.length === 0) {
+        const message = currentFilter === 'available' ? 'No available inventory units found' : 'No inventory units found';
+        tbody.append(`
+          <tr>
+            <td colspan="5" class="text-center text-muted">${message}</td>
+          </tr>
+        `);
+        return;
+      }
+
+      unitsToShow.forEach(function (unit) {
+        const statusBadge = getStatusBadge(unit.status);
+        const companyName = unit.company_name || "Not Mapped";
+        const mappedDate = unit.mapped_at ? new Date(unit.mapped_at).toLocaleDateString() : "-";
+        const canDelete = unit.status === "AVAILABLE" && (unit.company_type === "SELF" || !unit.company_type);
+
+        const row = `
+          <tr data-unit-id="${unit.id}">
+            <td><small class="font-monospace">${unit.unit_serial || unit.id}</small></td>
+            <td>${statusBadge}</td>
+            <td><small>${companyName}</small></td>
+            <td><small>${mappedDate}</small></td>
+            <td class="text-center">
+              ${canDelete ? `
+                <button class="btn btn-sm btn-outline-danger delete-inventory-unit" 
+                        data-unit-id="${unit.id}" 
+                        title="Delete Unit">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              ` : `
+                <span class="text-muted" title="Cannot delete - unit is not available or mapped to external company">
+                  <i class="fas fa-lock"></i>
+                </span>
+              `}
+            </td>
+          </tr>
+        `;
+        tbody.append(row);
+      });
+    }
+
+    function getStatusBadge(status) {
+      const badges = {
+        'AVAILABLE': '<span class="badge bg-success">Available</span>',
+        'MAPPED': '<span class="badge bg-warning">Mapped</span>',
+        'SOLD': '<span class="badge bg-danger">Sold</span>',
+        'RETURNED': '<span class="badge bg-info">Returned</span>'
+      };
+      return badges[status] || `<span class="badge bg-secondary">${status}</span>`;
+    }
+
+    // Add inventory units
+    $(document).on("click", "#add-inventory-btn", function () {
+      const productId = $(".save-product").attr("data-id");
+      const unitsToAdd = parseInt($("#add-inventory-units").val());
+
+      if (!unitsToAdd || unitsToAdd <= 0) {
+        createAlert({
+          title: "Error",
+          msg: "Please enter a valid number of units to add",
+          type: "negative",
+        });
+        return;
+      }
+
+      if (unitsToAdd > 100) {
+        createAlert({
+          title: "Error",
+          msg: "Cannot add more than 100 units at once",
+          type: "negative",
+        });
+        return;
+      }
+
+      // Disable button during request
+      $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+      $.ajax({
+        method: "POST",
+        url: `/admin/product/${productId}/add-inventory-units`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        data: JSON.stringify({
+          unitsToAdd: unitsToAdd,
+        }),
+        success: function (response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "Success",
+              msg: response.data.message,
+              type: "positive",
+            });
+            $("#add-inventory-units").val("");
+            loadInventoryUnits(productId);
+          } else {
+            createAlert({
+              title: "Error",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (xhr, status, error) {
+          let errorMessage = "Failed to add inventory units";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
+          createAlert({
+            title: "Error",
+            msg: errorMessage,
+            type: "negative",
+          });
+        },
+        complete: function() {
+          // Re-enable button
+          $("#add-inventory-btn").prop('disabled', false).html('<i class="fas fa-plus"></i> Add');
+        }
+      });
+    });
+
+    // Delete inventory unit
+    $(document).on("click", ".delete-inventory-unit", function () {
+      const unitId = $(this).attr("data-unit-id");
+      const productId = $(".save-product").attr("data-id");
+
+      const isConfirmed = confirm(
+        "Are you sure you want to delete this inventory unit? This action cannot be undone."
+      );
+
+      if (!isConfirmed) {
+        return false;
+      }
+
+      // Disable button during request
+      $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+
+      $.ajax({
+        method: "DELETE",
+        url: `/admin/product/inventory-unit/${unitId}`,
+        success: function (response) {
+          if (response.status === 200) {
+            createAlert({
+              title: "Success",
+              msg: response.data.message,
+              type: "positive",
+            });
+            loadInventoryUnits(productId);
+          } else {
+            createAlert({
+              title: "Error",
+              msg: response.data.message,
+              type: "negative",
+            });
+          }
+        },
+        error: function (xhr, status, error) {
+          let errorMessage = "Failed to delete inventory unit";
+          
+          // Try to parse the error response
+          if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+            errorMessage = xhr.responseJSON.data.message;
+          } else if (xhr.responseText) {
+            try {
+              const errorResponse = JSON.parse(xhr.responseText);
+              if (errorResponse.data && errorResponse.data.message) {
+                errorMessage = errorResponse.data.message;
+              }
+            } catch (e) {
+              // If parsing fails, use the status text or generic message
+              errorMessage = xhr.statusText || errorMessage;
+            }
+          }
+          
+          createAlert({
+            title: "Error",
+            msg: errorMessage,
+            type: "negative",
+          });
+        }
+      });
+    });
+
+    // Refresh inventory
+    $(document).on("click", "#refresh-inventory", function () {
+      const productId = $(".save-product").attr("data-id");
+      if (productId) {
+        loadInventoryUnits(productId);
+      }
+    });
+
+    // Filter buttons
+    $(document).on("click", "#show-available-only", function () {
+      currentFilter = 'available';
+      $(this).removeClass('btn-outline-info').addClass('btn-info');
+      $("#show-all-units").removeClass('btn-secondary').addClass('btn-outline-secondary');
+      updateInventoryTable();
+    });
+
+    $(document).on("click", "#show-all-units", function () {
+      currentFilter = 'all';
+      $(this).removeClass('btn-outline-secondary').addClass('btn-secondary');
+      $("#show-available-only").removeClass('btn-info').addClass('btn-outline-info');
+      updateInventoryTable();
     });
 
   });

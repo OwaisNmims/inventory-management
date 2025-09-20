@@ -300,7 +300,8 @@
       </div>
       <div class="modal-body">
         <div class="row">
-          <div class="col-md-4">
+          <!-- Left Column: Company Selection and Selected Items -->
+          <div class="col-md-5">
             <div class="mb-3">
               <label class="form-label" for="mapping-company">Select Company</label>
               <select class="form-select" id="mapping-company" required>
@@ -314,46 +315,114 @@
             </div>
             <div class="mb-3">
               <label class="form-label" for="mapping-notes">Notes</label>
-              <textarea class="form-control" id="mapping-notes" rows="3" placeholder="Optional notes for this mapping"></textarea>
+              <textarea class="form-control" id="mapping-notes" rows="2" placeholder="Optional notes for this mapping"></textarea>
+            </div>
+            
+            <!-- Selected Inventory Table -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0"><i class="fas fa-check-circle text-success"></i> Selected Items</h6>
+                <span class="badge bg-primary" id="selected-count">0</span>
+              </div>
+              <div class="table-responsive" style="max-height: 250px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+                <table class="table table-sm table-hover mb-0" id="selected-inventory-table">
+                  <thead class="sticky-top bg-light">
+                    <tr>
+                      <th style="width: 15%;">ID</th>
+                      <th style="width: 40%;">Product</th>
+                      <th style="width: 30%;">Code</th>
+                      <th style="width: 15%;">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="selected-inventory-list">
+                    <tr id="no-selection-row">
+                      <td colspan="4" class="text-center text-muted">
+                        <i class="fas fa-info-circle"></i> No items selected
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-          <div class="col-md-8">
-            <h6>Available Inventory Units</h6>
-            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
-              <table class="table table-sm table-bordered">
+          
+          <!-- Right Column: Available Inventory with Search -->
+          <div class="col-md-7">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h6 class="mb-0"><i class="fas fa-boxes"></i> Available Inventory Units</h6>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-sm btn-outline-success" id="select-all-btn">
+                  <i class="fas fa-check-square"></i> Select All
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-warning" id="clear-selection-btn">
+                  <i class="fas fa-times-circle"></i> Clear All
+                </button>
+              </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="mb-3">
+              <div class="input-group">
+                <span class="input-group-text">
+                  <i class="fas fa-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       id="inventory-search" 
+                       placeholder="Search by product name, code, or category...">
+                <button class="btn btn-outline-secondary" type="button" id="clear-search-btn">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+            
+            <!-- Available Inventory Table -->
+            <div class="table-responsive" style="max-height: 350px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+              <table class="table table-sm table-hover mb-0" id="available-inventory-table">
                 <thead class="sticky-top bg-light">
                   <tr>
-                    <th><input type="checkbox" 
+                    <th style="width: 8%;"><input type="checkbox" 
                                id="select-all-inventory"
-                               title="Select/deselect all available inventory units"
+                               title="Select/deselect all visible inventory units"
                                data-bs-toggle="tooltip" 
                                data-bs-placement="top"></th>
-                    <th>Inventory ID</th>
-                    <th>Product</th>
-                    <th>Product Code</th>
-                    <th>Category</th>
-                    <th>Price</th>
+                    <th style="width: 12%;">ID</th>
+                    <th style="width: 35%;">Product</th>
+                    <th style="width: 25%;">Code</th>
+                    <th style="width: 20%;">Price</th>
                   </tr>
                 </thead>
                 <tbody id="available-inventory-list">
                   <% if (availableInventory && availableInventory.length > 0) { %>
                     <% availableInventory.forEach(function(item) { %>
-                      <tr>
-                        <td><input type="checkbox" class="inventory-checkbox" value="<%= item.inventory_id %>"></td>
+                      <tr data-product-name="<%= item.product_name.toLowerCase() %>" 
+                          data-product-code="<%= item.product_code.toLowerCase() %>" 
+                          data-category="<%= (item.category || '').toLowerCase() %>">
+                        <td><input type="checkbox" class="inventory-checkbox" value="<%= item.inventory_id %>"
+                                   data-product-name="<%= item.product_name %>"
+                                   data-product-code="<%= item.product_code %>"
+                                   data-category="<%= item.category || '-' %>"
+                                   data-price="<%= item.price || 0 %>"></td>
                         <td><strong>#<%= item.inventory_id %></strong></td>
                         <td><%= item.product_name %></td>
                         <td><%= item.product_code %></td>
-                        <td><%= item.category || '-' %></td>
                         <td><%= item.price ? '₹' + parseFloat(item.price).toFixed(2) : '-' %></td>
                       </tr>
                     <% }); %>
                   <% } else { %>
-                    <tr>
-                      <td colspan="6" class="text-center">No available inventory units</td>
+                    <tr id="no-inventory-row">
+                      <td colspan="5" class="text-center text-muted">No available inventory units</td>
                     </tr>
                   <% } %>
                 </tbody>
               </table>
+            </div>
+            
+            <!-- Search Results Info -->
+            <div class="mt-2">
+              <small class="text-muted" id="search-info">
+                Showing <span id="visible-count"><%= availableInventory ? availableInventory.length : 0 %></span> of <span id="total-count"><%= availableInventory ? availableInventory.length : 0 %></span> items
+              </small>
             </div>
           </div>
         </div>
@@ -545,16 +614,25 @@ $(document).ready(function() {
             // Populate with fresh data
             response.data.forEach(function(item) {
               $('#available-inventory-list').append(`
-                <tr>
-                  <td><input type="checkbox" class="inventory-checkbox" value="${item.inventory_id}"></td>
+                <tr data-product-name="${(item.product_name || '').toLowerCase()}" 
+                    data-product-code="${(item.product_code || '').toLowerCase()}" 
+                    data-category="${(item.category || '').toLowerCase()}">
+                  <td><input type="checkbox" class="inventory-checkbox" value="${item.inventory_id}"
+                             data-product-name="${item.product_name || ''}"
+                             data-product-code="${item.product_code || ''}"
+                             data-category="${item.category || '-'}"
+                             data-price="${item.price || 0}"></td>
                   <td><strong>#${item.inventory_id}</strong></td>
                   <td>${item.product_name}</td>
                   <td>${item.product_code}</td>
-                  <td>${item.category || '-'}</td>
                   <td><strong>₹${parseFloat(item.price || 0).toFixed(2)}</strong></td>
                 </tr>
               `);
             });
+            
+            // Update search info with fresh data
+            $('#total-count').text(response.data.length);
+            $('#visible-count').text(response.data.length);
           }
           
           // Reset select all checkbox
@@ -580,7 +658,8 @@ $(document).ready(function() {
   });
 
   $('#select-all-inventory').on('change', function() {
-    $('.inventory-checkbox').prop('checked', $(this).prop('checked'));
+    $('.inventory-checkbox:visible').prop('checked', $(this).prop('checked'));
+    updateSelectedInventory();
   });
 
   // Update bulk actions based on selection
@@ -686,6 +765,278 @@ $(document).ready(function() {
           type: "negative",
         });
         $('#create-mapping-modal').modal('hide');
+      }
+    });
+  });
+
+  // Enhanced Inventory Mapping Modal Functions
+  let selectedInventoryItems = new Map(); // Store selected items with their data
+
+  // Update selected inventory display
+  function updateSelectedInventory() {
+    const selectedCheckboxes = $('.inventory-checkbox:checked');
+    selectedInventoryItems.clear();
+    
+    // Collect selected items data
+    selectedCheckboxes.each(function() {
+      const checkbox = $(this);
+      const inventoryId = checkbox.val();
+      const itemData = {
+        id: inventoryId,
+        productName: checkbox.data('product-name'),
+        productCode: checkbox.data('product-code'),
+        category: checkbox.data('category'),
+        price: checkbox.data('price')
+      };
+      selectedInventoryItems.set(inventoryId, itemData);
+    });
+
+    // Update selected count badge
+    $('#selected-count').text(selectedInventoryItems.size);
+
+    // Update selected inventory table
+    const selectedList = $('#selected-inventory-list');
+    selectedList.empty();
+
+    if (selectedInventoryItems.size === 0) {
+      selectedList.append(`
+        <tr id="no-selection-row">
+          <td colspan="4" class="text-center text-muted">
+            <i class="fas fa-info-circle"></i> No items selected
+          </td>
+        </tr>
+      `);
+    } else {
+      selectedInventoryItems.forEach((item, id) => {
+        selectedList.append(`
+          <tr data-inventory-id="${id}">
+            <td><strong>#${id}</strong></td>
+            <td><small>${item.productName}</small></td>
+            <td><small>${item.productCode}</small></td>
+            <td class="text-center">
+              <button type="button" class="btn btn-sm btn-outline-danger remove-selected" 
+                      data-inventory-id="${id}" title="Remove from selection">
+                <i class="fas fa-times"></i>
+              </button>
+            </td>
+          </tr>
+        `);
+      });
+    }
+
+    // Update select all checkbox state
+    const totalVisible = $('.inventory-checkbox:visible').length;
+    const totalSelected = $('.inventory-checkbox:visible:checked').length;
+    
+    if (totalSelected === 0) {
+      $('#select-all-inventory').prop('indeterminate', false).prop('checked', false);
+    } else if (totalSelected === totalVisible) {
+      $('#select-all-inventory').prop('indeterminate', false).prop('checked', true);
+    } else {
+      $('#select-all-inventory').prop('indeterminate', true);
+    }
+  }
+
+  // Individual checkbox change handler
+  $(document).on('change', '.inventory-checkbox', function() {
+    updateSelectedInventory();
+  });
+
+  // Remove item from selection
+  $(document).on('click', '.remove-selected', function() {
+    const inventoryId = $(this).data('inventory-id');
+    $(`.inventory-checkbox[value="${inventoryId}"]`).prop('checked', false);
+    updateSelectedInventory();
+  });
+
+  // Search functionality
+  $('#inventory-search').on('input', function() {
+    const searchTerm = $(this).val().toLowerCase().trim();
+    console.log('Search term:', searchTerm); // Debug log
+    filterInventoryTable(searchTerm);
+  });
+
+  // Clear search
+  $('#clear-search-btn').on('click', function() {
+    $('#inventory-search').val('');
+    filterInventoryTable('');
+  });
+
+  // Filter inventory table based on search term
+  function filterInventoryTable(searchTerm) {
+    const rows = $('#available-inventory-list tr').not('#no-inventory-row');
+    let visibleCount = 0;
+    const totalCount = rows.length;
+
+    if (searchTerm === '') {
+      // Show all rows
+      rows.show();
+      visibleCount = totalCount;
+    } else {
+      // Filter rows
+      rows.each(function() {
+        const row = $(this);
+        
+        // Get search data from row attributes (for server-rendered content)
+        let productName = row.data('product-name') || '';
+        let productCode = row.data('product-code') || '';
+        let category = row.data('category') || '';
+        
+        // Fallback: get data from visible text content if attributes are missing
+        if (!productName && !productCode) {
+          productName = row.find('td:eq(2)').text().toLowerCase(); // Product name column
+          productCode = row.find('td:eq(3)').text().toLowerCase(); // Product code column
+          category = row.find('td:eq(4)').text().toLowerCase(); // Category would be in 5th column if present
+        }
+        
+        const matchesSearch = productName.includes(searchTerm) || 
+                             productCode.includes(searchTerm) || 
+                             category.includes(searchTerm);
+        
+        if (matchesSearch) {
+          row.show();
+          visibleCount++;
+        } else {
+          row.hide();
+        }
+      });
+    }
+
+    // Update search info
+    $('#visible-count').text(visibleCount);
+    $('#total-count').text(totalCount);
+
+    // Update select all checkbox for visible items
+    updateSelectedInventory();
+  }
+
+  // Select all visible items
+  $('#select-all-btn').on('click', function() {
+    $('.inventory-checkbox:visible').prop('checked', true);
+    updateSelectedInventory();
+  });
+
+  // Clear all selections
+  $('#clear-selection-btn').on('click', function() {
+    $('.inventory-checkbox').prop('checked', false);
+    updateSelectedInventory();
+  });
+
+  // Reset modal when opened
+  $('#create-mapping-modal').on('show.bs.modal', function() {
+    // Clear selections
+    $('.inventory-checkbox').prop('checked', false);
+    selectedInventoryItems.clear();
+    
+    // Clear form
+    $('#mapping-company').val('');
+    $('#mapping-notes').val('');
+    
+    // Clear search
+    $('#inventory-search').val('');
+    
+    // Update display
+    updateSelectedInventory();
+    
+    // Refresh available inventory
+    refreshAvailableInventory();
+    
+    // Initialize search after a short delay to ensure DOM is ready
+    setTimeout(function() {
+      filterInventoryTable('');
+    }, 100);
+  });
+
+  // Enhanced create mapping with validation
+  $('.create-mapping').off('click').on('click', function() {
+    const companyId = $('#mapping-company').val();
+    const notes = $('#mapping-notes').val();
+    const selectedInventory = Array.from(selectedInventoryItems.keys()).map(id => parseInt(id));
+
+    if (!companyId) {
+      createAlert({
+        title: 'ERROR',
+        msg: 'Please select a company',
+        type: 'negative'
+      });
+      return;
+    }
+
+    if (selectedInventory.length === 0) {
+      createAlert({
+        title: 'ERROR',
+        msg: 'Please select at least one inventory unit',
+        type: 'negative'
+      });
+      return;
+    }
+
+    // Show confirmation with details
+    const companyName = $('#mapping-company option:selected').text();
+    const itemCount = selectedInventory.length;
+    
+    if (!confirm(`Create mapping for ${itemCount} inventory unit(s) to ${companyName}?`)) {
+      return;
+    }
+
+    // Disable button during request
+    $(this).prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Creating...');
+
+    $.ajax({
+      method: "POST",
+      url: "/admin/inventory-mapping/create",
+      headers: { 'Content-Type': 'application/json' },
+      data: JSON.stringify({
+        inventoryUnitIds: selectedInventory,
+        companyId: companyId,
+        notes: notes
+      }),
+      success: function(response) {
+        if (response.status === 200) {
+          createAlert({
+            title: "SUCCESS",
+            msg: response.data.message,
+            type: "positive",
+          });
+          setTimeout(() => {
+            location.reload();
+          }, 2000);
+        } else {
+          createAlert({
+            title: "ERROR",
+            msg: response.data.message,
+            type: "negative",
+          });
+        }
+        $('#create-mapping-modal').modal('hide');
+      },
+      error: function(xhr, status, error) {
+        let errorMessage = "Something went wrong!";
+        
+        // Try to parse the error response
+        if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+          errorMessage = xhr.responseJSON.data.message;
+        } else if (xhr.responseText) {
+          try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            if (errorResponse.data && errorResponse.data.message) {
+              errorMessage = errorResponse.data.message;
+            }
+          } catch (e) {
+            errorMessage = xhr.statusText || errorMessage;
+          }
+        }
+        
+        createAlert({
+          title: "ERROR",
+          msg: errorMessage,
+          type: "negative",
+        });
+        $('#create-mapping-modal').modal('hide');
+      },
+      complete: function() {
+        // Re-enable button
+        $('.create-mapping').prop('disabled', false).html('Create Mapping');
       }
     });
   });

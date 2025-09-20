@@ -89,6 +89,11 @@ router.post('/product/insert', product.insert);
 router.post('/product/update', product.updateProduct);
 router.post('/product/delete', product.deleteProduct);
 
+// Product Inventory Management
+router.get('/product/:productId/inventory-units', product.getProductInventoryUnits);
+router.post('/product/:productId/add-inventory-units', product.addInventoryUnits);
+router.delete('/product/inventory-unit/:unitId', product.deleteInventoryUnit);
+
 //Inventory page CRUD OPERATION
 router.get('/inventory', inventory.inventoryMaster);
 router.get('/inventory/all', inventory.getAllInventory);

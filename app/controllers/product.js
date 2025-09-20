@@ -396,5 +396,269 @@ module.exports = {
                 data: { message: 'Something went wrong during bulk upload' }
             });
         }
+    },
+
+    // Get inventory units for a product
+    getProductInventoryUnits: async (req, res) => {
+        try {
+            const { productId } = req.params;
+            const { pool } = require('../config/dbConfig');
+
+            const result = await pool.query(`
+                SELECT 
+                    iu.id,
+                    CONCAT('P', iu.product_lid, '-', LPAD(iu.id::text, 6, '0')) as unit_serial,
+                    ist.name as status,
+                    icm.created_at as mapped_at,
+                    iu.created_at,
+                    c.name as company_name,
+                    c.company_code,
+                    c.company_type,
+                    icm.id as mapping_id
+                FROM inventory_unit iu
+                JOIN inventory_status ist ON ist.id = iu.status_lid
+                LEFT JOIN company c ON c.id = iu.current_company_lid
+                LEFT JOIN inventory_company_mapping icm ON icm.inventory_unit_lid = iu.id AND icm.active = TRUE
+                WHERE iu.product_lid = $1 AND iu.active = TRUE
+                ORDER BY iu.created_at DESC
+            `, [productId]);
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: result.rows
+            });
+        } catch (e) {
+            console.error('Get inventory units error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
+    // Add inventory units to a product
+    addInventoryUnits: async (req, res) => {
+        try {
+            const { productId } = req.params;
+            const { unitsToAdd } = req.body;
+            const { pool } = require('../config/dbConfig');
+
+            if (!unitsToAdd || unitsToAdd <= 0 || unitsToAdd > 100) {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'Invalid number of units. Must be between 1 and 100.' }
+                });
+            }
+
+            // Check if product exists
+            const productCheck = await pool.query(`
+                SELECT id, name FROM product WHERE id = $1 AND active = TRUE
+            `, [productId]);
+
+            if (productCheck.rows.length === 0) {
+                return res.status(404).json({
+                    message: 'error',
+                    status: 404,
+                    data: { message: 'Product not found' }
+                });
+            }
+
+            const productName = productCheck.rows[0].name;
+
+            // Get the AVAILABLE status ID and SELF company info
+            const statusResult = await pool.query(`
+                SELECT id FROM inventory_status WHERE name = 'AVAILABLE'
+            `);
+            
+            if (statusResult.rows.length === 0) {
+                return res.status(500).json({
+                    message: 'error',
+                    status: 500,
+                    data: { message: 'AVAILABLE status not found in system' }
+                });
+            }
+
+            // Get SELF company and NEW label for auto-mapping
+            const selfCompanyResult = await pool.query(`
+                SELECT id FROM company WHERE company_type = 'SELF' OR company_code = 'SELF' LIMIT 1
+            `);
+            
+            const newLabelResult = await pool.query(`
+                SELECT id FROM mapping_label WHERE name = 'NEW' LIMIT 1
+            `);
+
+            if (selfCompanyResult.rows.length === 0) {
+                return res.status(500).json({
+                    message: 'error',
+                    status: 500,
+                    data: { message: 'SELF company not found in system' }
+                });
+            }
+
+            if (newLabelResult.rows.length === 0) {
+                return res.status(500).json({
+                    message: 'error',
+                    status: 500,
+                    data: { message: 'NEW label not found in system' }
+                });
+            }
+
+            const availableStatusId = statusResult.rows[0].id;
+            const selfCompanyId = selfCompanyResult.rows[0].id;
+            const newLabelId = newLabelResult.rows[0].id;
+
+            // Begin transaction
+            await pool.query('BEGIN');
+
+            try {
+                // Insert new inventory units one by one and map them immediately
+                const insertedUnitIds = [];
+                
+                for (let i = 1; i <= unitsToAdd; i++) {
+                    // Insert inventory unit
+                    const unitResult = await pool.query(`
+                        INSERT INTO inventory_unit (product_lid, status_lid, current_company_lid, created_by)
+                        VALUES ($1, $2, $3, $4)
+                        RETURNING id
+                    `, [productId, availableStatusId, selfCompanyId, 1]);
+                    
+                    const unitId = unitResult.rows[0].id;
+                    insertedUnitIds.push(unitId);
+                    
+                    // Immediately create the mapping for this unit
+                    await pool.query(`
+                        INSERT INTO inventory_company_mapping (inventory_unit_lid, company_lid, label_lid, notes, created_by)
+                        VALUES ($1, $2, $3, $4, $5)
+                    `, [unitId, selfCompanyId, newLabelId, 'Auto-map on inventory add', 1]);
+                }
+
+                await pool.query('COMMIT');
+
+                res.status(200).json({
+                    message: 'success',
+                    status: 200,
+                    data: { 
+                        message: `Successfully added ${insertedUnitIds.length} inventory units to "${productName}" and mapped to SELF company` 
+                    }
+                });
+
+            } catch (error) {
+                await pool.query('ROLLBACK');
+                console.error('Transaction error in addInventoryUnits:', error);
+                throw error;
+            }
+
+        } catch (e) {
+            console.error('Add inventory units error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
+    // Delete inventory unit
+    deleteInventoryUnit: async (req, res) => {
+        try {
+            const { unitId } = req.params;
+            const { pool } = require('../config/dbConfig');
+
+            // Get inventory unit details with company information
+            const unitResult = await pool.query(`
+                SELECT 
+                    iu.id,
+                    ist.name as status,
+                    CONCAT('P', iu.product_lid, '-', LPAD(iu.id::text, 6, '0')) as unit_serial,
+                    p.name as product_name,
+                    c.company_type,
+                    c.name as company_name,
+                    icm.id as mapping_id
+                FROM inventory_unit iu
+                JOIN product p ON p.id = iu.product_lid
+                JOIN inventory_status ist ON ist.id = iu.status_lid
+                LEFT JOIN company c ON c.id = iu.current_company_lid
+                LEFT JOIN inventory_company_mapping icm ON icm.inventory_unit_lid = iu.id AND icm.active = TRUE
+                WHERE iu.id = $1 AND iu.active = TRUE
+            `, [unitId]);
+
+            if (unitResult.rows.length === 0) {
+                return res.status(404).json({
+                    message: 'error',
+                    status: 404,
+                    data: { message: 'Inventory unit not found' }
+                });
+            }
+
+            const unit = unitResult.rows[0];
+
+            // Check if unit is available
+            if (unit.status !== 'AVAILABLE') {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'Cannot delete inventory unit that is not available' }
+                });
+            }
+
+            // Check if it's mapped to external company (not SELF)
+            if (unit.company_type && unit.company_type !== 'SELF') {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'Cannot delete inventory unit that is mapped to external company' }
+                });
+            }
+
+            // Begin transaction
+            await pool.query('BEGIN');
+
+            try {
+                // Deactivate any active mappings first
+                if (unit.mapping_id) {
+                    await pool.query(`
+                        UPDATE inventory_company_mapping 
+                        SET active = FALSE, 
+                            updated_at = CURRENT_TIMESTAMP,
+                            updated_by = $1
+                        WHERE id = $2
+                    `, [1, unit.mapping_id]);
+                }
+
+                // Deactivate the inventory unit
+                await pool.query(`
+                    UPDATE inventory_unit 
+                    SET active = FALSE, 
+                        updated_at = CURRENT_TIMESTAMP,
+                        updated_by = $1
+                    WHERE id = $2
+                `, [1, unitId]);
+
+                await pool.query('COMMIT');
+
+                res.status(200).json({
+                    message: 'success',
+                    status: 200,
+                    data: { 
+                        message: `Inventory unit ${unit.unit_serial} for "${unit.product_name}" deleted successfully!` 
+                    }
+                });
+
+            } catch (error) {
+                await pool.query('ROLLBACK');
+                throw error;
+            }
+
+        } catch (e) {
+            console.error('Delete inventory unit error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
     }
 };
