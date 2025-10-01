@@ -1,0 +1,54 @@
+<!-- Reusable Pagination Component -->
+<!-- Usage: include ('../partials/pagination', { containerId: 'my-pagination', searchInputId: '#my-search' }) -->
+
+<div id="<%= containerId || 'pagination-container' %>" class="pagination-wrapper">
+  <!-- Search Bar -->
+  <% if (searchInputId) { %>
+  <div class="mb-3">
+    <div class="input-group">
+      <span class="input-group-text">
+        <i class="fas fa-search"></i>
+      </span>
+      <input type="text" 
+             class="form-control" 
+             id="<%= searchInputId.replace('#', '') %>" 
+             placeholder="<%= searchPlaceholder || 'Search...' %>">
+      <button class="btn btn-outline-secondary pagination-clear-search" type="button">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+  <% } %>
+  
+  <!-- Pagination Controls -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex align-items-center gap-3">
+      <label for="<%= containerId || 'pagination-container' %>-items-per-page" class="form-label mb-0">Items per page:</label>
+      <select class="form-select form-select-sm pagination-items-per-page" 
+              id="<%= containerId || 'pagination-container' %>-items-per-page" 
+              style="width: auto;">
+        <option value="10">10</option>
+        <option value="20" selected>20</option>
+        <option value="50">50</option>
+        <option value="100">100</option>
+      </select>
+      <small class="text-muted pagination-info">Loading...</small>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <button class="btn btn-sm btn-outline-primary pagination-prev" disabled>
+        <i class="fas fa-chevron-left"></i> Previous
+      </button>
+      <span class="px-3 pagination-page-info">Page 1 of 1</span>
+      <button class="btn btn-sm btn-outline-primary pagination-next" disabled>
+        Next <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Search Results Info -->
+  <div class="mb-2">
+    <small class="text-muted">
+      Showing <span class="pagination-visible-count">0</span> of <span class="pagination-total-count">0</span> items
+    </small>
+  </div>
+</div>

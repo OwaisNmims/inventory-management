@@ -16,6 +16,60 @@ module.exports = {
         }
     },
 
+    // Get paginated products with search and filters
+    getProductsPaginated: async (req, res) => {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+            const search = req.query.search || '';
+            const sortBy = req.query.sortBy || 'p.name';
+            const sortOrder = req.query.sortOrder || 'ASC';
+
+            // Build filters object
+            const filters = {};
+            if (req.query.category && req.query.category.trim()) {
+                filters.category = req.query.category;
+            }
+
+            const [countResult, dataResult] = await product.getProductsPaginated(
+                page, 
+                limit, 
+                search, 
+                filters, 
+                sortBy, 
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0]?.total || 0);
+            const totalPages = Math.ceil(totalRecords / limit);
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        pageSize: limit,
+                        hasNextPage: page < totalPages,
+                        hasPrevPage: page > 1
+                    },
+                    filters: filters,
+                    search: search
+                }
+            });
+        } catch (e) {
+            console.error('Products paginated error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
     // Get product by ID
     getProductById: async (req, res) => {
         try {
@@ -132,20 +186,20 @@ module.exports = {
                 {
                     'Product Name': 'Sample Product 1',
                     'Product Code': 'SP001',
-                    'Category': 'Electronics',
                     'Price': 999.99,
-                    'Description': 'This is a sample product description',
-                    'Specifications': 'Sample specifications for the product',
-                    'Units': 5
+                    'Units': 5,
+                    'Category': 'Electronics (Optional)',
+                    'Description': 'This is a sample product description (Optional)',
+                    'Specifications': 'Sample specifications for the product (Optional)'
                 },
                 {
                     'Product Name': 'Sample Product 2',
                     'Product Code': 'SP002',
-                    'Category': 'Accessories',
                     'Price': 299.50,
-                    'Description': 'Another sample product description',
-                    'Specifications': 'More sample specifications',
-                    'Units': 10
+                    'Units': 10,
+                    'Category': '',
+                    'Description': '',
+                    'Specifications': ''
                 }
             ];
 
@@ -153,15 +207,15 @@ module.exports = {
             const workbook = XLSX.utils.book_new();
             const worksheet = XLSX.utils.json_to_sheet(sampleData);
 
-            // Set column widths
+            // Set column widths (mandatory fields first, then optional)
             const colWidths = [
-                { width: 20 }, // Product Name
-                { width: 15 }, // Product Code
-                { width: 15 }, // Category
-                { width: 12 }, // Price
-                { width: 30 }, // Description
-                { width: 30 }, // Specifications
-                { width: 10 }  // Units
+                { width: 25 }, // Product Name (REQUIRED)
+                { width: 15 }, // Product Code (REQUIRED)
+                { width: 12 }, // Price (REQUIRED)
+                { width: 10 }, // Units (REQUIRED)
+                { width: 20 }, // Category (Optional)
+                { width: 35 }, // Description (Optional)
+                { width: 35 }  // Specifications (Optional)
             ];
             worksheet['!cols'] = colWidths;
 
@@ -312,13 +366,17 @@ module.exports = {
                         duplicates.add(nameKey);
 
                         // Add to valid products
+                        const category = row['Category'] ? row['Category'].toString().trim() : '';
+                        const description = row['Description'] ? row['Description'].toString().trim() : '';
+                        const specifications = row['Specifications'] ? row['Specifications'].toString().trim() : '';
+                        
                         validProducts.push({
                             name: productName,
                             product_code: productCode,
-                            category: row['Category'] ? row['Category'].toString().trim() : null,
+                            category: category || null,
                             price: parseFloat(row['Price']),
-                            description: row['Description'] ? row['Description'].toString().trim() : null,
-                            specifications: row['Specifications'] ? row['Specifications'].toString().trim() : null,
+                            description: description || null,
+                            specifications: specifications || null,
                             units: parseInt(row['Units'])
                         });
                     }

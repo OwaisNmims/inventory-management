@@ -180,15 +180,9 @@
                <label class="form-label" for="add-registration-number">Registration Number</label>
                <input type="text" class="form-control" id="add-registration-number" />
              </div>
-             <div class="mb-3">
-               <label class="form-label" for="add-company-type">Company Type</label>
-               <select class="form-control" id="add-company-type">
-                 <option value="" disabled selected>Select Company Type...</option>
-                 <% companyTypes.forEach((companyType) => { %>
-                   <option value="<%= companyType.id %>"><%= companyType.name %></option>
-                 <% }) %>
-               </select>
-             </div>
+             
+             <!-- Company Type hidden - all companies are VENDOR by default -->
+             <input type="hidden" id="add-company-type" value="VENDOR" />
 
              <div class="mb-3 d-grid gap-2">
                <button class="btn text-light add-company btn-info">ADD</button>
@@ -201,7 +195,6 @@
                   <th>Sr No.</th>
                   <th>Company Name</th>
                   <th>Company Code</th>
-                  <th>Company Type</th>
                   <th>Email</th>
                   <th>Phone</th>
                   <th>Registration No.</th>
@@ -258,15 +251,9 @@
               <label class="form-label" for="edit-registration-number">Registration Number</label>
               <input type="text" class="form-control" id="edit-registration-number" />
             </div>
-            <div class="mb-3">
-              <label class="form-label" for="edit-company-type">Company Type</label>
-              <select class="form-control" id="edit-company-type">
-                <option value="" disabled>Select Company Type...</option>
-                <% companyTypes.forEach((companyType) => { %>
-                  <option value="<%= companyType.id %>"><%= companyType.name %></option>
-                <% }) %>
-              </select>
-            </div>
+            
+            <!-- Company Type hidden - all companies are VENDOR -->
+            <input type="hidden" id="edit-company-type" value="VENDOR" />
           </div>
         </div>
 
@@ -302,8 +289,8 @@
       let email = $("#add-company-email").val();
       let phone = $("#add-company-phone").val();
       let registrationNumber = $("#add-registration-number").val();
-      let companyTypeLid = $("#add-company-type").val();
-      let companyTypeName = $("#add-company-type option:selected").text();
+      // Company type is always VENDOR - no need to get from dropdown
+      let companyType = "VENDOR";
       
       companyName = companyName.trim();
       companyCode = companyCode.trim().toUpperCase();
@@ -335,11 +322,10 @@
       }
 
       let count = $("#add-more-company-table tbody tr").length == undefined ? 0 : $("#add-more-company-table tbody tr").length;
-      let tableRow = `<tr class="add-company-row" data-company-type-lid="${companyTypeLid || ''}">
+      let tableRow = `<tr class="add-company-row" data-company-type="${companyType}">
             <td>${++count}</td>
             <td class="company-name">${companyName}</td>
             <td class="company-code">${companyCode}</td>
-            <td class="company-type-name">${companyTypeName || '-'}</td>
             <td class="company-email">${email || '-'}</td>
             <td class="company-phone">${phone || '-'}</td>
             <td class="registration-number">${registrationNumber || '-'}</td>
@@ -359,7 +345,6 @@
       $("#add-company-email").val('');
       $("#add-company-phone").val('');
       $("#add-registration-number").val('');
-      $("#add-company-type").val('').trigger('change');
     });
 
     // add-company modal - for deleting added companies in table
@@ -382,7 +367,7 @@
             email: $(element).find('.company-email').text().trim() === '-' ? '' : $(element).find('.company-email').text().trim(),
             phone: $(element).find('.company-phone').text().trim() === '-' ? '' : $(element).find('.company-phone').text().trim(),
             registrationNumber: $(element).find('.registration-number').text().trim() === '-' ? '' : $(element).find('.registration-number').text().trim(),
-            companyTypeLid: $(element).attr('data-company-type-lid') || null
+            company_type: $(element).attr('data-company-type') || 'VENDOR'
           }
           companies.push(obj);
         });
@@ -456,7 +441,8 @@
       let email = $("#edit-company-email").val().trim();
       let phone = $("#edit-company-phone").val().trim();
       let registrationNumber = $("#edit-registration-number").val().trim();
-      let companyTypeLid = $("#edit-company-type").val();
+      // Company type is always VENDOR
+      let companyType = "VENDOR";
       let companyId = $(this).attr("data-id");
 
       $.ajax({
@@ -473,7 +459,7 @@
             email: email,
             phone: phone,
             registrationNumber: registrationNumber,
-            companyTypeLid: companyTypeLid
+            companyType: companyType
           }
         }),
         success: function(response) {

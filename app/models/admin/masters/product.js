@@ -22,6 +22,85 @@ module.exports = {
         return pool.query(statement);
     },
 
+    // Get paginated products with search and filters
+    getProductsPaginated: (page = 1, limit = 20, search = '', filters = {}, sortBy = 'p.name', sortOrder = 'ASC') => {
+        const offset = (parseInt(page) - 1) * parseInt(limit);
+        const searchTerm = `%${search.toLowerCase()}%`;
+
+        // Build search and filter conditions
+        let conditions = [];
+        let params = [];
+        
+        // Search condition
+        if (search.trim()) {
+            conditions.push(`
+                (
+                    LOWER(p.name) LIKE $${params.length + 1} OR 
+                    LOWER(p.product_code) LIKE $${params.length + 1} OR 
+                    LOWER(p.category) LIKE $${params.length + 1}
+                )
+            `);
+            params.push(searchTerm);
+        }
+
+        // Category filter
+        if (filters.category && filters.category.trim()) {
+            conditions.push(`p.category = $${params.length + 1}`);
+            params.push(filters.category);
+        }
+
+        // Combine all conditions
+        const whereClause = conditions.length > 0 
+            ? `AND (${conditions.join(' AND ')})` 
+            : '';
+
+        // Validate sort parameters
+        const allowedSortFields = ['p.name', 'p.product_code', 'p.category', 'p.price', 'p.created_at', 'unit', 'available_units'];
+        const allowedSortOrders = ['ASC', 'DESC'];
+        
+        const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'p.name';
+        const validSortOrder = allowedSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+        // Get total count for pagination
+        const countStatement = {
+            text: `
+                SELECT COUNT(DISTINCT p.id) as total
+                FROM product p
+                LEFT JOIN inventory_unit iu ON iu.product_lid = p.id AND iu.active = TRUE
+                WHERE p.active = TRUE
+                ${whereClause}
+            `,
+            values: params
+        };
+
+        // Get paginated data
+        const dataStatement = {
+            text: `
+                SELECT p.id, p.name, p.product_code, p.description, p.category, p.price, p.specifications,
+                       p.created_at, p.updated_at, p.created_by, p.updated_by, p.active,
+                       COUNT(iu.id) as unit,
+                       COUNT(CASE WHEN ist.name = 'AVAILABLE' THEN 1 END) as available_units,
+                       COUNT(CASE WHEN ist.name = 'MAPPED' THEN 1 END) as mapped_units,
+                       COUNT(CASE WHEN ist.name = 'SOLD' THEN 1 END) as sold_units
+                FROM product p
+                LEFT JOIN inventory_unit iu ON iu.product_lid = p.id AND iu.active = TRUE
+                LEFT JOIN inventory_status ist ON ist.id = iu.status_lid
+                WHERE p.active = TRUE
+                ${whereClause}
+                GROUP BY p.id, p.name, p.product_code, p.description, p.category, p.price, p.specifications,
+                         p.created_at, p.updated_at, p.created_by, p.updated_by, p.active
+                ORDER BY ${validSortBy} ${validSortOrder}
+                LIMIT $${params.length + 1} OFFSET $${params.length + 2}
+            `,
+            values: [...params, parseInt(limit), offset]
+        };
+
+        return Promise.all([
+            pool.query(countStatement),
+            pool.query(dataStatement)
+        ]);
+    },
+
     // Insert products using the function that auto-creates inventory
     insert: (data) => {
         const statement = {

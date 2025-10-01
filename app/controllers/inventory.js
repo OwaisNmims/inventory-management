@@ -206,6 +206,73 @@ module.exports = {
         }
     },
 
+    // Get paginated inventory units with search and filters
+    getInventoryUnitsPaginated: async (req, res) => {
+        try {
+            const { 
+                page = 1, 
+                limit = 20, 
+                search = '', 
+                status = '',
+                product = '',
+                company = '',
+                sortBy = 'iu.id', 
+                sortOrder = 'DESC' 
+            } = req.query;
+
+            // Build filters object
+            const filters = {
+                status: status,
+                product: product,
+                company: company
+            };
+
+            // Use model method for pagination
+            const [countResult, dataResult] = await inventory.getInventoryUnitsPaginated(
+                parseInt(page), 
+                parseInt(limit), 
+                search,
+                filters,
+                sortBy, 
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0].total);
+            const totalPages = Math.ceil(totalRecords / parseInt(limit));
+            const hasNextPage = parseInt(page) < totalPages;
+            const hasPrevPage = parseInt(page) > 1;
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: parseInt(page),
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        limit: parseInt(limit),
+                        hasNextPage: hasNextPage,
+                        hasPrevPage: hasPrevPage
+                    },
+                    search: {
+                        term: search,
+                        results: dataResult.rows.length
+                    },
+                    filters: filters
+                }
+            });
+
+        } catch (e) {
+            console.error('Get paginated inventory units error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
     // Delete inventory unit
     deleteInventoryUnit: async (req, res) => {
         try {

@@ -83,6 +83,7 @@ router.post('/company-type/bulk-insert', companyType.bulkInsert);
 
 //Product page CRUD OPERATION
 router.get('/product', product.productMaster);
+router.get('/product/paginated', product.getProductsPaginated);
 router.get('/product/download-excel-sample', product.downloadExcelSample);
 router.post('/product/bulk-upload', product.bulkUploadProducts);
 router.get('/product/:productId', product.getProductById);
@@ -97,6 +98,7 @@ router.delete('/product/inventory-unit/:unitId', product.deleteInventoryUnit);
 
 //Inventory page CRUD OPERATION
 router.get('/inventory', inventory.inventoryMaster);
+router.get('/inventory/paginated', inventory.getInventoryUnitsPaginated);
 router.get('/inventory/all', inventory.getAllInventory);
 router.get('/inventory/product/:productId', inventory.getInventoryByProduct);
 router.get('/inventory/company/:companyId', inventory.getInventoryByCompany);
@@ -107,6 +109,10 @@ router.delete('/inventory/delete/:inventoryId', inventory.deleteInventoryUnit);
 
 //Inventory Mapping page CRUD OPERATION
 router.get('/inventory-mapping', inventoryMapping.inventoryMappingMaster);
+router.get('/inventory-mapping/available-paginated', inventoryMapping.getAvailableInventoryPaginated);
+router.get('/inventory-mapping/products-for-mapping', inventoryMapping.getProductsForMapping);
+router.get('/inventory-mapping/grouped', inventoryMapping.getInventoryMappingsGrouped);
+router.get('/inventory-mapping/paginated', inventoryMapping.getInventoryMappingsPaginated);
 router.post('/inventory-mapping/create', inventoryMapping.createMapping);
 router.post('/inventory-mapping/transfer-to-self', inventoryMapping.transferToSelf);
 router.post('/inventory-mapping/mark-as-sold', inventoryMapping.markAsSold);

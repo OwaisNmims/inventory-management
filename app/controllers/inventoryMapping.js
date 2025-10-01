@@ -14,29 +14,10 @@ module.exports = {
                     ORDER BY name
                 `);
                 
-                // Get available inventory units that can be mapped to other companies
-                const availableInventory = await pool.query(`
-                    SELECT
-                        iu.id as inventory_id,
-                        p.id as product_id,
-                        p.name as product_name,
-                        p.product_code,
-                        p.category,
-                        p.price,
-                        ist.name as status
-                    FROM inventory_unit iu
-                    JOIN product p ON p.id = iu.product_lid
-                    JOIN inventory_status ist ON ist.id = iu.status_lid
-                    JOIN inventory_company_mapping icm ON icm.inventory_unit_lid = iu.id AND icm.active = TRUE
-                    JOIN company c ON c.id = icm.company_lid
-                    WHERE iu.active = TRUE 
-                        AND p.active = TRUE 
-                        AND ist.name = 'AVAILABLE'
-                        AND c.company_type = 'SELF'
-                    ORDER BY p.name, iu.id
-                `);
+                // Get initial available inventory (first page only for performance)
+                const [countResult, availableInventoryResult] = await inventory.getAvailableInventoryPaginated(1, 20, '', 'product_name', 'ASC');
                 
-                // Get all mappings with price information
+                // Get all mappings with price information (for now, we'll paginate this later)
                 const mappingsResult = await pool.query(`
                     SELECT 
                         icm.id as mapping_id,
@@ -93,7 +74,7 @@ module.exports = {
                 
                 res.render("admin/master/inventoryMapping", {
                     companies: companiesResult.rows,
-                    availableInventory: availableInventory.rows,
+                    availableInventory: availableInventoryResult.rows,
                     mappings: mappingsResult.rows,
                     totals: totalsResult.rows
                 });
@@ -107,13 +88,13 @@ module.exports = {
     // Create inventory mapping
     createMapping: async (req, res) => {
         try {
-            const { inventoryUnitIds, companyId, notes } = req.body;
+            const { productQuantities, companyId, notes } = req.body;
             
-            if (!inventoryUnitIds || !Array.isArray(inventoryUnitIds) || inventoryUnitIds.length === 0) {
+            if (!productQuantities || !Array.isArray(productQuantities) || productQuantities.length === 0) {
                 return res.status(400).json({
                     message: 'error',
                     status: 400,
-                    data: { message: 'Please select inventory units to map' }
+                    data: { message: 'Please select products with quantities to map' }
                 });
             }
 
@@ -154,37 +135,68 @@ module.exports = {
                 AND active = TRUE
             `, [1, companyId]);
 
-            // Create or update mappings (UPSERT)
-            for (const inventoryUnitId of inventoryUnitIds) {
-                // Update inventory unit status and company
-                await pool.query(`
-                    UPDATE inventory_unit 
-                    SET status_lid = (SELECT id FROM inventory_status WHERE name = 'MAPPED'),
-                        current_company_lid = $1,
-                        updated_at = CURRENT_TIMESTAMP,
-                        updated_by = $2
-                    WHERE id = $3
-                `, [companyId, 1, inventoryUnitId]);
+            let totalMappedUnits = 0;
 
-                // UPSERT mapping - update if exists, insert if not
-                await pool.query(`
-                    INSERT INTO inventory_company_mapping (inventory_unit_lid, company_lid, label_lid, notes, created_by)
-                    VALUES ($1, $2, $3, $4, $5)
-                    ON CONFLICT (inventory_unit_lid) 
-                    DO UPDATE SET 
-                        company_lid = EXCLUDED.company_lid,
-                        label_lid = EXCLUDED.label_lid,
-                        notes = EXCLUDED.notes,
-                        updated_at = CURRENT_TIMESTAMP,
-                        updated_by = $5,
-                        active = TRUE
-                `, [inventoryUnitId, companyId, labelId, notes || 'Manual mapping', 1]);
+            // Process each product quantity
+            for (const { productId, quantity } of productQuantities) {
+                // Get available inventory units for this product (FIFO - oldest first)
+                const availableUnitsResult = await pool.query(`
+                    SELECT iu.id 
+                    FROM inventory_unit iu
+                    JOIN company c ON c.id = iu.current_company_lid
+                    JOIN inventory_status ist ON ist.id = iu.status_lid
+                    WHERE iu.product_lid = $1 
+                    AND iu.active = TRUE 
+                    AND c.company_code = 'SELF'
+                    AND ist.name = 'AVAILABLE'
+                    ORDER BY iu.created_at ASC
+                    LIMIT $2
+                `, [productId, quantity]);
+
+                const availableUnits = availableUnitsResult.rows;
+
+                if (availableUnits.length < quantity) {
+                    return res.status(400).json({
+                        message: 'error',
+                        status: 400,
+                        data: { message: `Not enough available units for product ID ${productId}. Requested: ${quantity}, Available: ${availableUnits.length}` }
+                    });
+                }
+
+                // Map each selected unit
+                for (const unit of availableUnits) {
+                    // Update inventory unit status and company
+                    await pool.query(`
+                        UPDATE inventory_unit 
+                        SET status_lid = (SELECT id FROM inventory_status WHERE name = 'MAPPED'),
+                            current_company_lid = $1,
+                            updated_at = CURRENT_TIMESTAMP,
+                            updated_by = $2
+                        WHERE id = $3
+                    `, [companyId, 1, unit.id]);
+
+                    // UPSERT mapping - update if exists, insert if not
+                    await pool.query(`
+                        INSERT INTO inventory_company_mapping (inventory_unit_lid, company_lid, label_lid, notes, created_by)
+                        VALUES ($1, $2, $3, $4, $5)
+                        ON CONFLICT (inventory_unit_lid) 
+                        DO UPDATE SET 
+                            company_lid = EXCLUDED.company_lid,
+                            label_lid = EXCLUDED.label_lid,
+                            notes = EXCLUDED.notes,
+                            updated_at = CURRENT_TIMESTAMP,
+                            updated_by = $5,
+                            active = TRUE
+                    `, [unit.id, companyId, labelId, notes || 'Quantity-based mapping', 1]);
+
+                    totalMappedUnits++;
+                }
             }
 
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: { message: `Successfully mapped ${inventoryUnitIds.length} inventory units` }
+                data: { message: `Successfully mapped ${totalMappedUnits} inventory units across ${productQuantities.length} products` }
             });
 
         } catch (e) {
@@ -320,6 +332,241 @@ module.exports = {
 
         } catch (e) {
             console.error('Mark as sold error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
+    // Get paginated available inventory with search
+    getAvailableInventoryPaginated: async (req, res) => {
+        try {
+            const { 
+                page = 1, 
+                limit = 20, 
+                search = '', 
+                sortBy = 'product_name', 
+                sortOrder = 'ASC' 
+            } = req.query;
+
+            // Use model method for pagination
+            const [countResult, dataResult] = await inventory.getAvailableInventoryPaginated(
+                parseInt(page), 
+                parseInt(limit), 
+                search, 
+                sortBy, 
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0].total);
+            const totalPages = Math.ceil(totalRecords / parseInt(limit));
+            const hasNextPage = parseInt(page) < totalPages;
+            const hasPrevPage = parseInt(page) > 1;
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: parseInt(page),
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        limit: parseInt(limit),
+                        hasNextPage: hasNextPage,
+                        hasPrevPage: hasPrevPage
+                    },
+                    search: {
+                        term: search,
+                        results: dataResult.rows.length
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.error('Get paginated available inventory error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
+    // Get products with available units for quantity-based mapping
+    getProductsForMapping: async (req, res) => {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+            const search = req.query.search || '';
+            const sortBy = req.query.sortBy || 'p.name';
+            const sortOrder = req.query.sortOrder || 'ASC';
+
+            const [countResult, dataResult] = await inventory.getProductsWithAvailableUnits(
+                page,
+                limit,
+                search,
+                sortBy,
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0].total);
+            const totalPages = Math.ceil(totalRecords / limit);
+
+            return res.status(200).json({
+                status: 200,
+                message: 'success',
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: page,
+                        pageSize: limit,
+                        totalRecords: totalRecords,
+                        totalPages: totalPages,
+                        hasNextPage: page < totalPages,
+                        hasPrevPage: page > 1
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching products for mapping:', error);
+            return res.status(500).json({
+                status: 500,
+                message: 'error',
+                error: 'Failed to fetch products'
+            });
+        }
+    },
+
+    // Get grouped inventory mappings (by product and company)
+    getInventoryMappingsGrouped: async (req, res) => {
+        try {
+            const page = parseInt(req.query.page) || 1;
+            const limit = parseInt(req.query.limit) || 20;
+            const search = req.query.search || '';
+            const sortBy = req.query.sortBy || 'product_name';
+            const sortOrder = req.query.sortOrder || 'ASC';
+
+            // Build filters object
+            const filters = {};
+            if (req.query.company && req.query.company.trim()) {
+                filters.company = req.query.company;
+            }
+            if (req.query.product && req.query.product.trim()) {
+                filters.product = req.query.product;
+            }
+
+            const [countResult, dataResult] = await inventory.getInventoryMappingsGrouped(
+                page, 
+                limit, 
+                search, 
+                filters, 
+                sortBy, 
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0]?.total || 0);
+            const totalPages = Math.ceil(totalRecords / limit);
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: page,
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        pageSize: limit,
+                        hasNextPage: page < totalPages,
+                        hasPrevPage: page > 1
+                    },
+                    filters: filters,
+                    search: search
+                }
+            });
+        } catch (e) {
+            console.error('Inventory mappings grouped error:', e);
+            res.status(500).json({
+                message: 'error',
+                status: 500,
+                data: { message: 'Something went wrong!' }
+            });
+        }
+    },
+
+    // Get paginated inventory mappings with search and filters (detailed view)
+    getInventoryMappingsPaginated: async (req, res) => {
+        try {
+            const { 
+                page = 1, 
+                limit = 20, 
+                search = '', 
+                company = '',
+                label = '',
+                product = '',
+                exactProduct = '',
+                sortBy = 'icm.created_at', 
+                sortOrder = 'DESC' 
+            } = req.query;
+
+            // Build filters object
+            const filters = {
+                company: company,
+                label: label,
+                product: product,
+                exactProduct: exactProduct
+            };
+
+            console.log('Inventory Mappings Paginated - Filters:', filters);
+
+            // Use model method for pagination
+            const [countResult, dataResult] = await inventory.getInventoryMappingsPaginated(
+                parseInt(page), 
+                parseInt(limit), 
+                search,
+                filters,
+                sortBy, 
+                sortOrder
+            );
+
+            const totalRecords = parseInt(countResult.rows[0].total);
+            const totalPages = Math.ceil(totalRecords / parseInt(limit));
+            const hasNextPage = parseInt(page) < totalPages;
+            const hasPrevPage = parseInt(page) > 1;
+
+            console.log('Results count:', dataResult.rows.length);
+            console.log('Sample items:', dataResult.rows.slice(0, 3).map(r => ({
+                product: r.product_name,
+                company: r.company_name,
+                id: r.inventory_id
+            })));
+
+            res.status(200).json({
+                message: 'success',
+                status: 200,
+                data: {
+                    items: dataResult.rows,
+                    pagination: {
+                        currentPage: parseInt(page),
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        limit: parseInt(limit),
+                        hasNextPage: hasNextPage,
+                        hasPrevPage: hasPrevPage
+                    },
+                    search: {
+                        term: search,
+                        results: dataResult.rows.length
+                    },
+                    filters: filters
+                }
+            });
+
+        } catch (e) {
+            console.error('Get paginated inventory mappings error:', e);
             res.status(500).json({
                 message: 'error',
                 status: 500,

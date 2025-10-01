@@ -117,9 +117,16 @@
                 </div>
               <% } %>
 
+              <!-- Pagination Controls for Main Table -->
+              <%- include ('../partials/pagination', { 
+                containerId: 'main-mappings-pagination', 
+                searchInputId: '#main-mappings-search',
+                searchPlaceholder: 'Search by product name, code, company, or label...'
+              }) %>
+              
               <div class="table-filter-container">
                 <div class="row mb-3">
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <select class="form-select" id="company-filter">
                       <option value="">All Companies</option>
                       <% companies.forEach(function(company) { %>
@@ -127,18 +134,10 @@
                       <% }); %>
                     </select>
                   </div>
-                  <div class="col-md-3">
-                    <select class="form-select" id="label-filter">
-                      <option value="">All Labels</option>
-                      <option value="NEW">NEW</option>
-                      <option value="OLD">OLD</option>
-                      <option value="SOLD">SOLD</option>
-                    </select>
-                  </div>
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <input type="text" class="form-control" id="product-filter" placeholder="Filter by product">
                   </div>
-                  <div class="col-md-3">
+                  <div class="col-md-4">
                     <button class="btn btn-secondary" id="clear-filters">Clear Filters</button>
                   </div>
                 </div>
@@ -146,110 +145,34 @@
               
               <div class="table-content">
                 <div class="table-responsive">
-                  <table class="table table-bordered" id="mapping-table">
+                  <table class="table table-bordered pagination-table" id="mapping-table">
                     <thead>
                       <tr>
-                        <th><input type="checkbox" 
-                                   id="select-all"
-                                   title="Select/deselect all inventory mappings for bulk actions"
-                                   data-bs-toggle="tooltip" 
-                                   data-bs-placement="top"></th>
-                        <th scope="col">Inventory ID</th>
                         <th scope="col">Product</th>
                         <th scope="col">Product Code</th>
-                        <th scope="col">Price</th>
                         <th scope="col">Company</th>
                         <th scope="col">Company Type</th>
-                        <th scope="col">Label</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Mapped Date</th>
-                        <th scope="col">Notes</th>
+                        <th scope="col">Total Units</th>
+                        <th scope="col">Available</th>
+                        <th scope="col">Mapped</th>
+                        <th scope="col">Sold</th>
+                        <th scope="col">NEW</th>
+                        <th scope="col">OLD</th>
+                        <th scope="col">Total Value</th>
+                        <th scope="col">First Mapped</th>
                         <th class="text-center" scope="col">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
-                      <% if (mappings && mappings.length > 0) { %>
-                        <% mappings.forEach(function(mapping) { %>
-                          <tr data-mapping-id="<%= mapping.mapping_id %>" data-company="<%= mapping.company_name %>" data-label="<%= mapping.label %>" data-product="<%= mapping.product_name %>">
-                            <td><input type="checkbox" class="mapping-checkbox" value="<%= mapping.mapping_id %>"></td>
-                            <td><strong>#<%= mapping.inventory_id %></strong></td>
-                            <td class="product-name"><%= mapping.product_name %></td>
-                            <td><%= mapping.product_code %></td>
-                            <td><strong>₹<%= parseFloat(mapping.price || 0).toFixed(2) %></strong></td>
-                            <td><%= mapping.company_name %></td>
-                            <td>
-                              <span class="badge 
-                                <% if (mapping.company_type === 'SELF') { %>badge-primary<% } 
-                                   else if (mapping.company_type === 'VENDOR') { %>badge-warning<% } 
-                                   else { %>badge-info<% } %>">
-                                <%= mapping.company_type %>
-                              </span>
-                            </td>
-                            <td>
-                              <span class="badge 
-                                <% if (mapping.label === 'NEW') { %>badge-success<% } 
-                                   else if (mapping.label === 'OLD') { %>badge-secondary<% } 
-                                   else if (mapping.label === 'SOLD') { %>badge-danger<% } 
-                                   else { %>badge-secondary<% } %>">
-                                <%= mapping.label %>
-                              </span>
-                            </td>
-                            <td>
-                              <span class="badge 
-                                <% if (mapping.status === 'AVAILABLE') { %>badge-success<% } 
-                                   else if (mapping.status === 'MAPPED') { %>badge-warning<% } 
-                                   else if (mapping.status === 'SOLD') { %>badge-danger<% } 
-                                   else { %>badge-secondary<% } %>">
-                                <%= mapping.status %>
-                              </span>
-                            </td>
-                            <td><%= new Date(mapping.mapped_at).toLocaleDateString() %></td>
-                            <td><%= mapping.notes || '-' %></td>
-                            <td class="text-center">
-                              <div class="action-btns">
-                                <% if (mapping.company_type !== 'SELF' && mapping.status === 'MAPPED') { %>
-                                  <button class="btn btn-sm btn-outline-primary btn-transfer" 
-                                          data-id="<%= mapping.mapping_id %>" 
-                                          title="Return this inventory unit back to SELF company and change status to AVAILABLE"
-                                          data-bs-toggle="tooltip" 
-                                          data-bs-placement="top">
-                                    <i class="fas fa-undo"></i>
-                                  </button>
-                                <% } %>
-                                <% if (mapping.status === 'MAPPED') { %>
-                                  <button class="btn btn-sm btn-outline-success btn-mark-sold" 
-                                          data-id="<%= mapping.mapping_id %>" 
-                                          title="Mark this inventory unit as SOLD (Value: ₹<%= parseFloat(mapping.price || 0).toFixed(2) %>)"
-                                          data-bs-toggle="tooltip" 
-                                          data-bs-placement="top">
-                                    <i class="fas fa-indian-rupee-sign"></i>
-                                  </button>
-                                <% } %>
-                                <% if (mapping.status === 'SOLD') { %>
-                                  <button class="btn btn-sm btn-outline-secondary" 
-                                          disabled
-                                          title="This inventory unit has been sold (Value: ₹<%= parseFloat(mapping.price || 0).toFixed(2) %>)"
-                                          data-bs-toggle="tooltip" 
-                                          data-bs-placement="top">
-                                    <i class="fas fa-check-circle"></i>
-                                  </button>
-                                <% } %>
-                                <button class="btn btn-sm btn-outline-info btn-details" 
-                                        data-id="<%= mapping.mapping_id %>" 
-                                        title="View detailed information about this inventory mapping"
-                                        data-bs-toggle="tooltip" 
-                                        data-bs-placement="top">
-                                  <i class="fas fa-eye"></i>
-                                </button>
+                    <tbody id="mappings-tbody">
+                      <!-- Data will be loaded dynamically via pagination -->
+                      <tr>
+                        <td colspan="13" class="text-center">
+                          <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
                               </div>
+                          Loading mappings...
                             </td>
                           </tr>
-                        <% }); %>
-                      <% } else { %>
-                        <tr>
-                          <td colspan="11" class="text-center">No mappings found</td>
-                        </tr>
-                      <% } %>
                     </tbody>
                   </table>
                 </div>
@@ -257,29 +180,6 @@
             </div>
           </div>
 
-          <!-- Bulk Actions -->
-          <div class="row mt-3">
-            <div class="col-12">
-              <button class="btn btn-primary bulk-transfer" 
-                      disabled
-                      title="Return all selected inventory units back to SELF company"
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top">
-                Transfer Selected to SELF
-              </button>
-              <button class="btn btn-success bulk-mark-sold ms-2" 
-                      disabled
-                      title="Mark all selected inventory units as SOLD"
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top">
-                Mark Selected as SOLD
-              </button>
-              <div class="ms-3 d-inline-block">
-                <span id="selected-count">0</span> items selected | 
-                Total Value: <strong>₹<span id="selected-value">0.00</span></strong>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
@@ -287,6 +187,167 @@
   <!--  END CONTENT AREA  -->
 </div>
 <!-- END MAIN CONTAINER -->
+
+<!-- View Units Modal -->
+<div class="modal fade" id="view-units-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="fas fa-list"></i> Inventory Units - 
+          <span id="modal-product-name" class="text-primary"></span> → 
+          <span id="modal-company-name" class="text-info"></span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Summary Cards -->
+        <div class="row mb-3">
+          <div class="col-md-3">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <h3 id="units-total">0</h3>
+                <p class="mb-0">Total Units</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <h3 id="units-available">0</h3>
+                <p class="mb-0">Available</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-warning text-white">
+              <div class="card-body text-center">
+                <h3 id="units-mapped">0</h3>
+                <p class="mb-0">Mapped</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-danger text-white">
+              <div class="card-body text-center">
+                <h3 id="units-sold">0</h3>
+                <p class="mb-0">Sold</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-outline-primary" id="btn-return-units">
+                <i class="fas fa-undo"></i> Return Units to SELF
+              </button>
+              <button type="button" class="btn btn-outline-success" id="btn-mark-sold-units">
+                <i class="fas fa-indian-rupee-sign"></i> Mark Units as SOLD
+              </button>
+              </div>
+            </div>
+          </div>
+
+        <!-- Return Units Form -->
+        <div class="card mb-3" id="return-units-form" style="display: none;">
+          <div class="card-header bg-primary text-white">
+            <h6 class="mb-0"><i class="fas fa-undo"></i> Return Units to SELF Company</h6>
+        </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">Number of Units to Return:</label>
+                <input type="number" class="form-control" id="return-quantity" min="1" placeholder="Enter quantity">
+                <small class="text-muted">Max: <span id="max-returnable">0</span> mapped units</small>
+      </div>
+              <div class="col-md-8">
+                <label class="form-label">Notes (optional):</label>
+                <input type="text" class="form-control" id="return-notes" placeholder="Reason for return">
+    </div>
+  </div>
+            <div class="mt-3">
+              <button type="button" class="btn btn-primary" id="confirm-return">
+                <i class="fas fa-check"></i> Confirm Return
+              </button>
+              <button type="button" class="btn btn-secondary" id="cancel-return">Cancel</button>
+</div>
+          </div>
+        </div>
+
+        <!-- Mark as Sold Form -->
+        <div class="card mb-3" id="mark-sold-form" style="display: none;">
+          <div class="card-header bg-success text-white">
+            <h6 class="mb-0"><i class="fas fa-indian-rupee-sign"></i> Mark Units as SOLD</h6>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="form-label">Number of Units to Mark as SOLD:</label>
+                <input type="number" class="form-control" id="sold-quantity" min="1" placeholder="Enter quantity">
+                <small class="text-muted">Max: <span id="max-sellable">0</span> mapped units</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Price per Unit:</label>
+                <div class="form-control-plaintext">
+                  <strong>₹<span id="unit-price">0.00</span></strong>
+                </div>
+                <small class="text-muted">Total Value: <strong>₹<span id="total-sale-value">0.00</span></strong></small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Notes (optional):</label>
+                <input type="text" class="form-control" id="sold-notes" placeholder="Sale details">
+              </div>
+            </div>
+            <div class="mt-3">
+              <button type="button" class="btn btn-success" id="confirm-sold">
+                <i class="fas fa-check"></i> Confirm Sale
+              </button>
+              <button type="button" class="btn btn-secondary" id="cancel-sold">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pagination Controls for Units -->
+        <%- include('../partials/pagination', { 
+          containerId: 'units-detail-pagination', 
+          searchInputId: '#units-detail-search',
+          searchPlaceholder: 'Search units...'
+        }) %>
+
+        <!-- Units Table -->
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered" id="units-detail-table">
+            <thead class="table-dark">
+              <tr>
+                <th>Inventory ID</th>
+                <th>Product Code</th>
+                <th>Price</th>
+                <th>Label</th>
+                <th>Status</th>
+                <th>Mapped Date</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody id="units-detail-tbody">
+              <tr>
+                <td colspan="7" class="text-center">
+                  <div class="spinner-border spinner-border-sm" role="status"></div>
+                  Loading units...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Create Mapping Modal -->
 <div class="modal fade" id="create-mapping-modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="create-mapping-modal" aria-hidden="true">
@@ -301,128 +362,59 @@
       <div class="modal-body">
         <div class="row">
           <!-- Left Column: Company Selection and Selected Items -->
-          <div class="col-md-5">
-            <div class="mb-3">
-              <label class="form-label" for="mapping-company">Select Company</label>
-              <select class="form-select" id="mapping-company" required>
-                <option value="">Choose Company...</option>
-                <% companies.forEach(function(company) { %>
-                  <% if (company.company_code !== 'SELF') { %>
-                    <option value="<%= company.id %>"><%= company.name %> (<%= company.company_type %>)</option>
-                  <% } %>
-                <% }); %>
-              </select>
-            </div>
-            <div class="mb-3">
-              <label class="form-label" for="mapping-notes">Notes</label>
-              <textarea class="form-control" id="mapping-notes" rows="2" placeholder="Optional notes for this mapping"></textarea>
-            </div>
-            
-            <!-- Selected Inventory Table -->
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <h6 class="mb-0"><i class="fas fa-check-circle text-success"></i> Selected Items</h6>
-                <span class="badge bg-primary" id="selected-count">0</span>
+          <!-- Mapping Configuration -->
+          <div class="col-md-12">
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label" for="mapping-company">Select Company <span class="text-danger">*</span></label>
+                <select class="form-select" id="mapping-company" required>
+                  <option value="">Choose Company...</option>
+                  <% companies.forEach(function(company) { %>
+                    <% if (company.company_code !== 'SELF') { %>
+                      <option value="<%= company.id %>"><%= company.name %> (<%= company.company_type %>)</option>
+                    <% } %>
+                  <% }); %>
+                </select>
               </div>
-              <div class="table-responsive" style="max-height: 250px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
-                <table class="table table-sm table-hover mb-0" id="selected-inventory-table">
-                  <thead class="sticky-top bg-light">
-                    <tr>
-                      <th style="width: 15%;">ID</th>
-                      <th style="width: 40%;">Product</th>
-                      <th style="width: 30%;">Code</th>
-                      <th style="width: 15%;">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody id="selected-inventory-list">
-                    <tr id="no-selection-row">
-                      <td colspan="4" class="text-center text-muted">
-                        <i class="fas fa-info-circle"></i> No items selected
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Right Column: Available Inventory with Search -->
-          <div class="col-md-7">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <h6 class="mb-0"><i class="fas fa-boxes"></i> Available Inventory Units</h6>
-              <div class="d-flex gap-2">
-                <button type="button" class="btn btn-sm btn-outline-success" id="select-all-btn">
-                  <i class="fas fa-check-square"></i> Select All
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-warning" id="clear-selection-btn">
-                  <i class="fas fa-times-circle"></i> Clear All
-                </button>
+              <div class="col-md-6">
+                <label class="form-label" for="mapping-notes">Notes</label>
+                <textarea class="form-control" id="mapping-notes" rows="1" placeholder="Optional notes for this mapping"></textarea>
               </div>
             </div>
             
-            <!-- Search Bar -->
+            <!-- Product Search and Filter -->
             <div class="mb-3">
-              <div class="input-group">
-                <span class="input-group-text">
-                  <i class="fas fa-search"></i>
-                </span>
-                <input type="text" 
-                       class="form-control" 
-                       id="inventory-search" 
-                       placeholder="Search by product name, code, or category...">
-                <button class="btn btn-outline-secondary" type="button" id="clear-search-btn">
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
+              <%- include ('../partials/pagination', { 
+                containerId: 'available-inventory-pagination', 
+                searchInputId: '#inventory-search',
+                searchPlaceholder: 'Search by product name, code, or category...'
+              }) %>
             </div>
             
-            <!-- Available Inventory Table -->
-            <div class="table-responsive" style="max-height: 350px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
-              <table class="table table-sm table-hover mb-0" id="available-inventory-table">
+            <!-- Products with Quantity Input -->
+            <div class="table-responsive" style="max-height: 500px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem;">
+              <table class="table table-hover mb-0 pagination-table" id="available-inventory-table">
                 <thead class="sticky-top bg-light">
                   <tr>
-                    <th style="width: 8%;"><input type="checkbox" 
-                               id="select-all-inventory"
-                               title="Select/deselect all visible inventory units"
-                               data-bs-toggle="tooltip" 
-                               data-bs-placement="top"></th>
-                    <th style="width: 12%;">ID</th>
                     <th style="width: 35%;">Product</th>
-                    <th style="width: 25%;">Code</th>
-                    <th style="width: 20%;">Price</th>
+                    <th style="width: 20%;">Product Code</th>
+                    <th style="width: 15%;">Available Units</th>
+                    <th style="width: 15%;">Price per Unit</th>
+                    <th style="width: 15%;">Quantity to Map</th>
                   </tr>
                 </thead>
                 <tbody id="available-inventory-list">
-                  <% if (availableInventory && availableInventory.length > 0) { %>
-                    <% availableInventory.forEach(function(item) { %>
-                      <tr data-product-name="<%= item.product_name.toLowerCase() %>" 
-                          data-product-code="<%= item.product_code.toLowerCase() %>" 
-                          data-category="<%= (item.category || '').toLowerCase() %>">
-                        <td><input type="checkbox" class="inventory-checkbox" value="<%= item.inventory_id %>"
-                                   data-product-name="<%= item.product_name %>"
-                                   data-product-code="<%= item.product_code %>"
-                                   data-category="<%= item.category || '-' %>"
-                                   data-price="<%= item.price || 0 %>"></td>
-                        <td><strong>#<%= item.inventory_id %></strong></td>
-                        <td><%= item.product_name %></td>
-                        <td><%= item.product_code %></td>
-                        <td><%= item.price ? '₹' + parseFloat(item.price).toFixed(2) : '-' %></td>
-                      </tr>
-                    <% }); %>
-                  <% } else { %>
-                    <tr id="no-inventory-row">
-                      <td colspan="5" class="text-center text-muted">No available inventory units</td>
-                    </tr>
-                  <% } %>
+                  <!-- Data will be loaded dynamically via pagination -->
+                  <tr>
+                    <td colspan="5" class="text-center">
+                      <div class="spinner-border spinner-border-sm" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                      Loading products...
+                    </td>
+                  </tr>
                 </tbody>
               </table>
-            </div>
-            
-            <!-- Search Results Info -->
-            <div class="mt-2">
-              <small class="text-muted" id="search-info">
-                Showing <span id="visible-count"><%= availableInventory ? availableInventory.length : 0 %></span> of <span id="total-count"><%= availableInventory ? availableInventory.length : 0 %></span> items
-              </small>
             </div>
           </div>
         </div>
@@ -540,6 +532,9 @@
 
 <%- include ('../partials/footer') %>
 
+<!-- Pagination Script -->
+<script src="/js/pagination.js"></script>
+
 <!-- CUSTOM JS SCRIPT -->
 <script>
 $(document).ready(function() {
@@ -550,42 +545,7 @@ $(document).ready(function() {
     return new bootstrap.Tooltip(tooltipTriggerEl);
   });
   
-  // Simple table filtering function
-  function filterTable() {
-    var companyFilter = $('#company-filter').val().toLowerCase();
-    var labelFilter = $('#label-filter').val().toLowerCase();
-    var productFilter = $('#product-filter').val().toLowerCase();
-    
-    $('#mapping-table tbody tr').each(function() {
-      var row = $(this);
-      var company = row.find('td:eq(5)').text().toLowerCase(); // Company is column 5
-      var label = row.find('td:eq(7)').text().toLowerCase();   // Label is column 7
-      var product = row.find('td:eq(2)').text().toLowerCase(); // Product is column 2
-      
-      var showRow = true;
-      
-      // Check company filter
-      if (companyFilter && company.indexOf(companyFilter) === -1) {
-        showRow = false;
-      }
-      
-      // Check label filter
-      if (labelFilter && label.indexOf(labelFilter) === -1) {
-        showRow = false;
-      }
-      
-      // Check product filter
-      if (productFilter && product.indexOf(productFilter) === -1) {
-        showRow = false;
-      }
-      
-      if (showRow) {
-        row.show();
-      } else {
-        row.hide();
-      }
-    });
-  }
+  // Filters are now handled by server-side pagination (removed client-side filtering)
 
   // Show create mapping modal with fresh data
   $('.create-mapping-modal').on('click', function() {
@@ -594,61 +554,173 @@ $(document).ready(function() {
     $('#create-mapping-modal').modal('show');
   });
 
-  // Function to refresh available inventory data
-  function refreshAvailableInventory() {
-    $.ajax({
-      method: "GET",
-      url: "/admin/inventory/available",
-      success: function(response) {
-        if (response.status === 200) {
-          // Clear existing inventory list
-          $('#available-inventory-list').empty();
-          
-          if (response.data.length === 0) {
-            $('#available-inventory-list').html(`
-              <tr>
-                <td colspan="6" class="text-center">No available inventory units for mapping</td>
+  // Initialize pagination managers
+  let mainMappingsPagination;
+  let availableInventoryPagination;
+
+  // Initialize pagination after DOM is ready
+  function initializePagination() {
+    console.log('Initializing pagination...');
+    
+    // Check if pagination components exist
+    if ($('#main-mappings-pagination').length === 0) {
+      console.error('Main pagination container not found');
+      return;
+    }
+    
+    if ($('#available-inventory-pagination').length === 0) {
+      console.error('Available inventory pagination container not found');
+      return;
+    }
+
+    // Initialize main mappings pagination
+    mainMappingsPagination = new InventoryPaginationManager({
+      containerId: 'main-mappings-pagination',
+      apiUrl: '/admin/inventory-mapping/grouped',
+      pageSize: 20,
+      searchInputId: '#main-mappings-search',
+      sortBy: 'product_name',
+      sortOrder: 'ASC',
+      filters: {
+        company: '#company-filter',
+        product: '#product-filter'
+      },
+      onDataLoad: function(data) {
+        const tbody = $('#mappings-tbody');
+        tbody.empty();
+        
+        if (data.items.length === 0) {
+          tbody.html(`
+            <tr>
+              <td colspan="13" class="text-center">No mappings found</td>
+            </tr>
+          `);
+      } else {
+          data.items.forEach(function(group) {
+            tbody.append(`
+              <tr data-product-id="${group.product_id}" data-company-id="${group.company_id}" data-product="${group.product_name}" data-company="${group.company_name}">
+                <td class="product-name"><strong>${group.product_name}</strong></td>
+                <td>${group.product_code}</td>
+                <td>${group.company_name}</td>
+                <td>
+                  <span class="badge ${group.company_type === 'SELF' ? 'badge-primary' : group.company_type === 'VENDOR' ? 'badge-warning' : 'badge-info'}">
+                    ${group.company_type}
+                  </span>
+                </td>
+                <td><span class="badge badge-info fs-6">${group.total_units}</span></td>
+                <td><span class="badge badge-success">${group.available_units}</span></td>
+                <td><span class="badge badge-warning">${group.mapped_units}</span></td>
+                <td><span class="badge badge-danger">${group.sold_units}</span></td>
+                <td><span class="badge badge-success">${group.new_stock || 0}</span></td>
+                <td><span class="badge badge-secondary">${group.old_stock || 0}</span></td>
+                <td><strong>₹${parseFloat(group.total_value || 0).toFixed(2)}</strong></td>
+                <td>${new Date(group.first_mapped_at).toLocaleDateString()}</td>
+                <td class="text-center">
+                  <div class="action-btns">
+                    <button class="btn btn-sm btn-outline-info btn-view-details" 
+                            data-product-id="${group.product_id}" 
+                            data-company-id="${group.company_id}"
+                            data-product-name="${group.product_name}"
+                            data-company-name="${group.company_name}"
+                            title="View individual units for ${group.product_name} at ${group.company_name}"
+                            data-bs-toggle="tooltip" 
+                            data-bs-placement="top">
+                      <i class="fas fa-list"></i> View Units
+                    </button>
+                  </div>
+                </td>
               </tr>
             `);
-          } else {
-            // Populate with fresh data
-            response.data.forEach(function(item) {
-              $('#available-inventory-list').append(`
-                <tr data-product-name="${(item.product_name || '').toLowerCase()}" 
-                    data-product-code="${(item.product_code || '').toLowerCase()}" 
-                    data-category="${(item.category || '').toLowerCase()}">
-                  <td><input type="checkbox" class="inventory-checkbox" value="${item.inventory_id}"
-                             data-product-name="${item.product_name || ''}"
-                             data-product-code="${item.product_code || ''}"
-                             data-category="${item.category || '-'}"
-                             data-price="${item.price || 0}"></td>
-                  <td><strong>#${item.inventory_id}</strong></td>
-                  <td>${item.product_name}</td>
-                  <td>${item.product_code}</td>
-                  <td><strong>₹${parseFloat(item.price || 0).toFixed(2)}</strong></td>
-                </tr>
-              `);
-            });
-            
-            // Update search info with fresh data
-            $('#total-count').text(response.data.length);
-            $('#visible-count').text(response.data.length);
-          }
-          
-          // Reset select all checkbox
-          $('#select-all-inventory').prop('checked', false);
+          });
         }
+        
+        // Update bulk actions
+        updateBulkActions();
       },
-      error: function() {
-        console.error('Failed to refresh available inventory');
-        // Show error in modal
-        $('#available-inventory-list').html(`
+      onError: function(message) {
+        $('#mappings-tbody').html(`
           <tr>
-            <td colspan="6" class="text-center text-danger">Error loading available inventory. Please refresh the page.</td>
+            <td colspan="12" class="text-center text-danger">${message}</td>
           </tr>
         `);
       }
     });
+
+    // Initialize products pagination for modal (quantity-based)
+    availableInventoryPagination = new InventoryPaginationManager({
+      containerId: 'available-inventory-pagination',
+      apiUrl: '/admin/inventory-mapping/products-for-mapping',
+      pageSize: 20,
+      searchInputId: '#inventory-search',
+      sortBy: 'p.name',
+      sortOrder: 'ASC',
+      onDataLoad: function(data) {
+        const tbody = $('#available-inventory-list');
+        tbody.empty();
+        
+        if (data.items.length === 0) {
+          tbody.html(`
+            <tr>
+              <td colspan="5" class="text-center">No products with available inventory found</td>
+            </tr>
+          `);
+        } else {
+          data.items.forEach(function(product) {
+            tbody.append(`
+              <tr>
+                <td><strong>${product.product_name}</strong></td>
+                <td>${product.product_code}</td>
+                <td><span class="badge bg-info">${product.available_units}</span></td>
+                <td><strong>₹${parseFloat(product.price || 0).toFixed(2)}</strong></td>
+                <td>
+                  <input type="number" 
+                         class="form-control form-control-sm quantity-input" 
+                         data-product-id="${product.product_id}"
+                         data-product-name="${product.product_name}"
+                         data-product-code="${product.product_code}"
+                         data-max="${product.available_units}"
+                         min="0" 
+                         max="${product.available_units}" 
+                         value="0"
+                         placeholder="0">
+                </td>
+              </tr>
+            `);
+          });
+          
+          // Update mapping when quantity changes
+          $('.quantity-input').on('input', function() {
+            const max = parseInt($(this).data('max'));
+            const val = parseInt($(this).val()) || 0;
+            
+            // Enforce max
+            if (val > max) {
+              $(this).val(max);
+            }
+            
+            // Update selected count
+            updateQuantityBasedSelection();
+          });
+        }
+      },
+      onError: function(message) {
+        $('#available-inventory-list').html(`
+          <tr>
+            <td colspan="5" class="text-center text-danger">${message}</td>
+          </tr>
+        `);
+      }
+    });
+    
+    console.log('Pagination initialized successfully');
+  }
+
+  // Initialize pagination after a short delay to ensure DOM is ready
+  setTimeout(initializePagination, 100);
+
+  // Function to refresh available inventory data (backward compatibility)
+  function refreshAvailableInventory() {
+    availableInventoryPagination.refresh();
   }
 
   // Select all checkboxes
@@ -657,10 +729,10 @@ $(document).ready(function() {
     updateBulkActions();
   });
 
-  $('#select-all-inventory').on('change', function() {
-    $('.inventory-checkbox:visible').prop('checked', $(this).prop('checked'));
-    updateSelectedInventory();
-  });
+  // Quantity-based selection (replaced checkbox logic)
+  function updateQuantityBasedSelection() {
+    // No longer needed - just used for future extensions
+  }
 
   // Update bulk actions based on selection
   $('.mapping-checkbox').on('change', function() {
@@ -684,274 +756,411 @@ $(document).ready(function() {
     $('#selected-value').text(totalValue.toFixed(2));
   }
 
-  // Filters
-  $('#company-filter').on('change', function() {
-    filterTable();
-  });
-
-  $('#label-filter').on('change', function() {
-    filterTable();
-  });
-
-  $('#product-filter').on('keyup', function() {
-    filterTable();
-  });
-
+  // Clear filters button - now resets pagination
   $('#clear-filters').on('click', function() {
     $('#company-filter').val('');
-    $('#label-filter').val('');
     $('#product-filter').val('');
-    $('#mapping-table tbody tr').show();
+    
+    if (mainMappingsPagination) {
+      mainMappingsPagination.reset();
+    }
+  });
+  
+  // Product filter with debouncing (like search)
+  let productFilterTimeout;
+  $('#product-filter').on('input', function() {
+    clearTimeout(productFilterTimeout);
+    productFilterTimeout = setTimeout(function() {
+      if (mainMappingsPagination) {
+        mainMappingsPagination.handleFilterChange();
+      }
+    }, 500);
   });
 
-  // Create mapping
-  $('.create-mapping').on('click', function() {
-    const companyId = $('#mapping-company').val();
-    const notes = $('#mapping-notes').val();
-    const selectedInventory = $('.inventory-checkbox:checked').map(function() {
-      return parseInt($(this).val());
-    }).get();
+  // View Units Modal
+  let currentViewUnitsData = {
+    productId: null,
+    companyId: null,
+    productName: '',
+    companyName: '',
+    unitPrice: 0,
+    totalUnits: 0,
+    availableUnits: 0,
+    mappedUnits: 0,
+    soldUnits: 0
+  };
 
-    if (!companyId) {
-      createAlert({
-        title: 'ERROR',
-        msg: 'Please select a company',
-        type: 'negative'
-      });
-      return;
+  let unitsDetailPagination = null;
+
+  // Open View Units Modal
+  $(document).on('click', '.btn-view-details', function() {
+    const productId = $(this).data('product-id');
+    const companyId = $(this).data('company-id');
+    const productName = $(this).data('product-name');
+    const companyName = $(this).data('company-name');
+
+    currentViewUnitsData = { 
+      productId, 
+      companyId, 
+      productName, 
+      companyName, 
+      unitPrice: 0,
+      totalUnits: 0,
+      availableUnits: 0,
+      mappedUnits: 0,
+      soldUnits: 0
+    };
+
+    $('#modal-product-name').text(productName);
+    $('#modal-company-name').text(companyName);
+    
+    // Initialize or refresh pagination for units
+    initializeUnitsDetailPagination();
+    
+    $('#view-units-modal').modal('show');
+  });
+
+  // Initialize units detail pagination
+  function initializeUnitsDetailPagination() {
+    // Always destroy and recreate to ensure fresh filters
+    if (unitsDetailPagination) {
+      unitsDetailPagination = null;
     }
 
-    if (selectedInventory.length === 0) {
-      createAlert({
-        title: 'ERROR',
-        msg: 'Please select at least one inventory unit',
-        type: 'negative'
-      });
-      return;
-    }
+    // Create a custom loadData function that always includes product and company filters
+    const productName = currentViewUnitsData.productName;
+    const companyName = currentViewUnitsData.companyName;
 
+    unitsDetailPagination = new InventoryPaginationManager({
+      containerId: 'units-detail-pagination',
+      apiUrl: '/admin/inventory-mapping/paginated',
+      pageSize: 20,
+      searchInputId: '#units-detail-search',
+      sortBy: 'iu.id',
+      sortOrder: 'ASC',
+      customParams: {
+        product: productName,
+        company: companyName,
+        exactProduct: true  // Force exact match
+      },
+      filters: {}, // No dynamic filters needed - using customParams
+      onDataLoad: function(data) {
+        console.log('Modal onDataLoad - Received items:', data.items.length);
+        console.log('Modal onDataLoad - Sample items:', data.items.slice(0, 3).map(i => ({
+          id: i.inventory_id,
+          product: i.product_name,
+          company: i.company_name
+        })));
+        
+        const tbody = $('#units-detail-tbody');
+        tbody.empty();
+        
+        // Update summary with total counts from pagination metadata
+        if (data.pagination) {
+          currentViewUnitsData.totalUnits = data.pagination.totalRecords;
+        }
+        
+        // Get unit price from first unit
+        if (data.items.length > 0) {
+          currentViewUnitsData.unitPrice = parseFloat(data.items[0].price) || 0;
+          $('#unit-price').text(currentViewUnitsData.unitPrice.toFixed(2));
+          
+          // Calculate counts from all items
+          currentViewUnitsData.availableUnits = data.items.filter(u => u.status === 'AVAILABLE').length;
+          currentViewUnitsData.mappedUnits = data.items.filter(u => u.status === 'MAPPED').length;
+          currentViewUnitsData.soldUnits = data.items.filter(u => u.status === 'SOLD').length;
+        }
+        
+        // Update summary cards
+        updateUnitsSummaryFromData(data);
+        
+        if (data.items.length === 0) {
+          tbody.html('<tr><td colspan="7" class="text-center">No units found</td></tr>');
+          return;
+        }
+
+        data.items.forEach(function(unit) {
+          tbody.append(`
+            <tr>
+              <td><strong>#${unit.inventory_id}</strong></td>
+              <td>${unit.product_code}</td>
+              <td><strong>₹${parseFloat(unit.price || 0).toFixed(2)}</strong></td>
+              <td>
+                <span class="badge ${unit.label === 'NEW' ? 'badge-success' : unit.label === 'OLD' ? 'badge-secondary' : 'badge-danger'}">
+                  ${unit.label}
+                </span>
+              </td>
+              <td>
+                <span class="badge ${unit.status === 'AVAILABLE' ? 'badge-success' : unit.status === 'MAPPED' ? 'badge-warning' : 'badge-danger'}">
+                  ${unit.status}
+                </span>
+              </td>
+              <td>${new Date(unit.mapped_at).toLocaleDateString()}</td>
+              <td>${unit.notes || '-'}</td>
+            </tr>
+          `);
+        });
+      },
+      onError: function(message) {
+        $('#units-detail-tbody').html(`
+          <tr>
+            <td colspan="7" class="text-center text-danger">${message}</td>
+          </tr>
+        `);
+      }
+    });
+  }
+
+  // Update units summary from paginated data
+  function updateUnitsSummaryFromData(data) {
+    // We need to get total counts for all statuses, not just current page
+    // Make a quick summary request with exact matching
     $.ajax({
-      method: "POST",
-      url: "/admin/inventory-mapping/create",
-      headers: { 'Content-Type': 'application/json' },
-      data: JSON.stringify({
-        inventoryUnitIds: selectedInventory,
-        companyId: companyId,
-        notes: notes
-      }),
+      url: '/admin/inventory-mapping/paginated',
+      method: 'GET',
+      data: {
+        product: currentViewUnitsData.productName,
+        company: currentViewUnitsData.companyName,
+        exactProduct: true,  // Force exact match
+        limit: 1000 // Get all for counting
+      },
       success: function(response) {
-        if (response.status === 200) {
-          createAlert({
-            title: "SUCCESS",
-            msg: response.data.message,
-            type: "positive",
-          });
-          setTimeout(() => {
-            location.reload();
-          }, 2000);
-        } else {
-          createAlert({
-            title: "ERROR",
-            msg: response.data.message,
-            type: "negative",
+        if (response.status === 200 && response.data.items) {
+          const units = response.data.items;
+          const total = units.length;
+          const available = units.filter(u => u.status === 'AVAILABLE').length;
+          const mapped = units.filter(u => u.status === 'MAPPED').length;
+          const sold = units.filter(u => u.status === 'SOLD').length;
+
+          $('#units-total').text(total);
+          $('#units-available').text(available);
+          $('#units-mapped').text(mapped);
+          $('#units-sold').text(sold);
+
+          $('#max-returnable').text(mapped);
+          $('#max-sellable').text(mapped);
+          $('#return-quantity').attr('max', mapped);
+          $('#sold-quantity').attr('max', mapped);
+        }
+      }
+    });
+  }
+
+  // Show/Hide Return Form
+  $('#btn-return-units').on('click', function() {
+    $('#mark-sold-form').hide();
+    $('#return-units-form').toggle();
+  });
+
+  $('#cancel-return').on('click', function() {
+    $('#return-units-form').hide();
+    $('#return-quantity').val('');
+    $('#return-notes').val('');
+  });
+
+  // Show/Hide Mark Sold Form
+  $('#btn-mark-sold-units').on('click', function() {
+    $('#return-units-form').hide();
+    $('#mark-sold-form').toggle();
+  });
+
+  $('#cancel-sold').on('click', function() {
+    $('#mark-sold-form').hide();
+    $('#sold-quantity').val('');
+    $('#sold-notes').val('');
+    $('#total-sale-value').text('0.00');
+  });
+
+  // Calculate total sale value based on quantity and unit price
+  $('#sold-quantity').on('input', function() {
+    const quantity = parseInt($('#sold-quantity').val()) || 0;
+    const price = currentViewUnitsData.unitPrice || 0;
+    $('#total-sale-value').text((quantity * price).toFixed(2));
+  });
+
+  // Confirm Return
+  $('#confirm-return').on('click', function() {
+    const quantity = parseInt($('#return-quantity').val());
+    const maxReturnable = parseInt($('#max-returnable').text());
+
+    if (!quantity || quantity <= 0) {
+      alert('Please enter a valid quantity');
+      return;
+    }
+
+    if (quantity > maxReturnable) {
+      alert(`Cannot return more than ${maxReturnable} units`);
+      return;
+    }
+
+    if (!confirm(`Return ${quantity} unit(s) to SELF company?`)) {
+      return;
+    }
+
+    // Get all mapped units for this product-company combination
+    $.ajax({
+      url: '/admin/inventory-mapping/paginated',
+      method: 'GET',
+      data: {
+        product: currentViewUnitsData.productName,
+        company: currentViewUnitsData.companyName,
+        exactProduct: true,  // Force exact match
+        limit: 1000
+      },
+      success: function(response) {
+        if (response.status === 200 && response.data.items) {
+          const mappedUnits = response.data.items
+            .filter(u => u.status === 'MAPPED')
+            .slice(0, quantity)
+            .map(u => u.mapping_id);
+
+          if (mappedUnits.length < quantity) {
+            alert(`Only ${mappedUnits.length} mapped units available`);
+            return;
+          }
+
+          // Transfer to SELF
+          $.ajax({
+            url: '/admin/inventory-mapping/transfer-to-self',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ mappingIds: mappedUnits }),
+            success: function(response) {
+              if (response.status === 200) {
+                alert(`Successfully returned ${quantity} unit(s) to SELF`);
+                $('#return-units-form').hide();
+                $('#return-quantity').val('');
+                $('#return-notes').val('');
+                
+                // Refresh both paginations
+                if (unitsDetailPagination) {
+                  unitsDetailPagination.refresh();
+                }
+                if (mainMappingsPagination) {
+                  mainMappingsPagination.refresh();
+                }
+              } else {
+                alert('Error: ' + (response.data.message || 'Failed to return units'));
+              }
+            },
+            error: function() {
+              alert('Error returning units');
+            }
           });
         }
-        $('#create-mapping-modal').modal('hide');
-      },
-      error: function() {
-        createAlert({
-          title: "ERROR",
-          msg: "Something went wrong!",
-          type: "negative",
-        });
-        $('#create-mapping-modal').modal('hide');
       }
     });
   });
 
-  // Enhanced Inventory Mapping Modal Functions
-  let selectedInventoryItems = new Map(); // Store selected items with their data
+  // Confirm Sold
+  $('#confirm-sold').on('click', function() {
+    const quantity = parseInt($('#sold-quantity').val());
+    const price = currentViewUnitsData.unitPrice;
+    const maxSellable = parseInt($('#max-sellable').text());
 
-  // Update selected inventory display
-  function updateSelectedInventory() {
-    const selectedCheckboxes = $('.inventory-checkbox:checked');
-    selectedInventoryItems.clear();
-    
-    // Collect selected items data
-    selectedCheckboxes.each(function() {
-      const checkbox = $(this);
-      const inventoryId = checkbox.val();
-      const itemData = {
-        id: inventoryId,
-        productName: checkbox.data('product-name'),
-        productCode: checkbox.data('product-code'),
-        category: checkbox.data('category'),
-        price: checkbox.data('price')
-      };
-      selectedInventoryItems.set(inventoryId, itemData);
+    if (!quantity || quantity <= 0) {
+      alert('Please enter a valid quantity');
+      return;
+    }
+
+    if (quantity > maxSellable) {
+      alert(`Cannot sell more than ${maxSellable} units`);
+      return;
+    }
+
+    const totalValue = (quantity * price).toFixed(2);
+    if (!confirm(`Mark ${quantity} unit(s) as SOLD for ₹${totalValue}?\n(₹${price.toFixed(2)} per unit)`)) {
+      return;
+    }
+
+    // Get all mapped units for this product-company combination
+    $.ajax({
+      url: '/admin/inventory-mapping/paginated',
+      method: 'GET',
+      data: {
+        product: currentViewUnitsData.productName,
+        company: currentViewUnitsData.companyName,
+        exactProduct: true,  // Force exact match
+        limit: 1000
+      },
+      success: function(response) {
+        if (response.status === 200 && response.data.items) {
+          const mappedUnits = response.data.items
+            .filter(u => u.status === 'MAPPED')
+            .slice(0, quantity)
+            .map(u => u.mapping_id);
+
+          if (mappedUnits.length < quantity) {
+            alert(`Only ${mappedUnits.length} mapped units available`);
+            return;
+          }
+
+          // Mark as sold
+          $.ajax({
+            url: '/admin/inventory-mapping/mark-as-sold',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ mappingIds: mappedUnits }),
+            success: function(response) {
+              if (response.status === 200) {
+                alert(`Successfully marked ${quantity} unit(s) as SOLD`);
+                $('#mark-sold-form').hide();
+                $('#sold-quantity').val('');
+                $('#sold-notes').val('');
+                $('#total-sale-value').text('0.00');
+                
+                // Refresh both paginations
+                if (unitsDetailPagination) {
+                  unitsDetailPagination.refresh();
+                }
+                if (mainMappingsPagination) {
+                  mainMappingsPagination.refresh();
+                }
+              } else {
+                alert('Error: ' + (response.data.message || 'Failed to mark as sold'));
+              }
+            },
+            error: function() {
+              alert('Error marking units as sold');
+            }
+          });
+        }
+      }
     });
-
-    // Update selected count badge
-    $('#selected-count').text(selectedInventoryItems.size);
-
-    // Update selected inventory table
-    const selectedList = $('#selected-inventory-list');
-    selectedList.empty();
-
-    if (selectedInventoryItems.size === 0) {
-      selectedList.append(`
-        <tr id="no-selection-row">
-          <td colspan="4" class="text-center text-muted">
-            <i class="fas fa-info-circle"></i> No items selected
-          </td>
-        </tr>
-      `);
-    } else {
-      selectedInventoryItems.forEach((item, id) => {
-        selectedList.append(`
-          <tr data-inventory-id="${id}">
-            <td><strong>#${id}</strong></td>
-            <td><small>${item.productName}</small></td>
-            <td><small>${item.productCode}</small></td>
-            <td class="text-center">
-              <button type="button" class="btn btn-sm btn-outline-danger remove-selected" 
-                      data-inventory-id="${id}" title="Remove from selection">
-                <i class="fas fa-times"></i>
-              </button>
-            </td>
-          </tr>
-        `);
-      });
-    }
-
-    // Update select all checkbox state
-    const totalVisible = $('.inventory-checkbox:visible').length;
-    const totalSelected = $('.inventory-checkbox:visible:checked').length;
-    
-    if (totalSelected === 0) {
-      $('#select-all-inventory').prop('indeterminate', false).prop('checked', false);
-    } else if (totalSelected === totalVisible) {
-      $('#select-all-inventory').prop('indeterminate', false).prop('checked', true);
-    } else {
-      $('#select-all-inventory').prop('indeterminate', true);
-    }
-  }
-
-  // Individual checkbox change handler
-  $(document).on('change', '.inventory-checkbox', function() {
-    updateSelectedInventory();
-  });
-
-  // Remove item from selection
-  $(document).on('click', '.remove-selected', function() {
-    const inventoryId = $(this).data('inventory-id');
-    $(`.inventory-checkbox[value="${inventoryId}"]`).prop('checked', false);
-    updateSelectedInventory();
-  });
-
-  // Search functionality
-  $('#inventory-search').on('input', function() {
-    const searchTerm = $(this).val().toLowerCase().trim();
-    console.log('Search term:', searchTerm); // Debug log
-    filterInventoryTable(searchTerm);
-  });
-
-  // Clear search
-  $('#clear-search-btn').on('click', function() {
-    $('#inventory-search').val('');
-    filterInventoryTable('');
-  });
-
-  // Filter inventory table based on search term
-  function filterInventoryTable(searchTerm) {
-    const rows = $('#available-inventory-list tr').not('#no-inventory-row');
-    let visibleCount = 0;
-    const totalCount = rows.length;
-
-    if (searchTerm === '') {
-      // Show all rows
-      rows.show();
-      visibleCount = totalCount;
-    } else {
-      // Filter rows
-      rows.each(function() {
-        const row = $(this);
-        
-        // Get search data from row attributes (for server-rendered content)
-        let productName = row.data('product-name') || '';
-        let productCode = row.data('product-code') || '';
-        let category = row.data('category') || '';
-        
-        // Fallback: get data from visible text content if attributes are missing
-        if (!productName && !productCode) {
-          productName = row.find('td:eq(2)').text().toLowerCase(); // Product name column
-          productCode = row.find('td:eq(3)').text().toLowerCase(); // Product code column
-          category = row.find('td:eq(4)').text().toLowerCase(); // Category would be in 5th column if present
-        }
-        
-        const matchesSearch = productName.includes(searchTerm) || 
-                             productCode.includes(searchTerm) || 
-                             category.includes(searchTerm);
-        
-        if (matchesSearch) {
-          row.show();
-          visibleCount++;
-        } else {
-          row.hide();
-        }
-      });
-    }
-
-    // Update search info
-    $('#visible-count').text(visibleCount);
-    $('#total-count').text(totalCount);
-
-    // Update select all checkbox for visible items
-    updateSelectedInventory();
-  }
-
-  // Select all visible items
-  $('#select-all-btn').on('click', function() {
-    $('.inventory-checkbox:visible').prop('checked', true);
-    updateSelectedInventory();
-  });
-
-  // Clear all selections
-  $('#clear-selection-btn').on('click', function() {
-    $('.inventory-checkbox').prop('checked', false);
-    updateSelectedInventory();
   });
 
   // Reset modal when opened
   $('#create-mapping-modal').on('show.bs.modal', function() {
-    // Clear selections
-    $('.inventory-checkbox').prop('checked', false);
-    selectedInventoryItems.clear();
-    
     // Clear form
     $('#mapping-company').val('');
     $('#mapping-notes').val('');
     
-    // Clear search
-    $('#inventory-search').val('');
+    // Reset all quantity inputs
+    $('.quantity-input').val(0);
     
-    // Update display
-    updateSelectedInventory();
-    
-    // Refresh available inventory
-    refreshAvailableInventory();
-    
-    // Initialize search after a short delay to ensure DOM is ready
-    setTimeout(function() {
-      filterInventoryTable('');
-    }, 100);
+    // Reset pagination
+    if (availableInventoryPagination) {
+      availableInventoryPagination.reset();
+    }
   });
 
-  // Enhanced create mapping with validation
-  $('.create-mapping').off('click').on('click', function() {
+  // Create mapping with quantity-based selection
+  $('.create-mapping').on('click', function() {
     const companyId = $('#mapping-company').val();
     const notes = $('#mapping-notes').val();
-    const selectedInventory = Array.from(selectedInventoryItems.keys()).map(id => parseInt(id));
+    const productQuantities = [];
+
+    // Get all products with quantity > 0
+    $('.quantity-input').each(function() {
+      const quantity = parseInt($(this).val()) || 0;
+      if (quantity > 0) {
+        productQuantities.push({
+          productId: $(this).data('product-id'),
+          productName: $(this).data('product-name'),
+          quantity: quantity
+        });
+      }
+    });
 
     if (!companyId) {
       createAlert({
@@ -962,10 +1171,10 @@ $(document).ready(function() {
       return;
     }
 
-    if (selectedInventory.length === 0) {
+    if (productQuantities.length === 0) {
       createAlert({
         title: 'ERROR',
-        msg: 'Please select at least one inventory unit',
+        msg: 'Please enter at least one product quantity',
         type: 'negative'
       });
       return;
@@ -973,9 +1182,9 @@ $(document).ready(function() {
 
     // Show confirmation with details
     const companyName = $('#mapping-company option:selected').text();
-    const itemCount = selectedInventory.length;
+    const totalUnits = productQuantities.reduce((sum, p) => sum + p.quantity, 0);
     
-    if (!confirm(`Create mapping for ${itemCount} inventory unit(s) to ${companyName}?`)) {
+    if (!confirm(`Create mapping for ${totalUnits} unit(s) across ${productQuantities.length} product(s) to ${companyName}?`)) {
       return;
     }
 
@@ -987,7 +1196,7 @@ $(document).ready(function() {
       url: "/admin/inventory-mapping/create",
       headers: { 'Content-Type': 'application/json' },
       data: JSON.stringify({
-        inventoryUnitIds: selectedInventory,
+        productQuantities: productQuantities,
         companyId: companyId,
         notes: notes
       }),

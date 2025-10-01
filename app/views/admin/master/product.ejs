@@ -96,7 +96,31 @@
             </div>
 
             <div class="table-content">
-              <div class="table-filter-container"></div>
+              <!-- Filters and Search -->
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <input type="text" id="product-search" class="form-control" placeholder="Search products...">
+                </div>
+                <div class="col-md-3">
+                  <select id="category-filter" class="form-control">
+                    <option value="">All Categories</option>
+                    <!-- Categories will be populated dynamically -->
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <button type="button" id="clear-filters" class="btn btn-secondary w-100">
+                    <i class="fas fa-times"></i> Clear Filters
+                  </button>
+                </div>
+              </div>
+
+              <!-- Pagination Controls -->
+              <%- include('../partials/pagination', { 
+                containerId: 'product-pagination', 
+                searchInputId: '#product-search',
+                searchPlaceholder: 'Search products...'
+              }) %>
+
               <div class="table-content">
                 <div class="table-responsive">
                   <table class="table table-bordered" id="table-content">
@@ -107,11 +131,24 @@
                         <th scope="col">Product Code</th>
                         <th scope="col">Category</th>
                         <th scope="col">Price</th>
-                        <th scope="col">Unit</th>
+                        <th scope="col">Total Units</th>
+                        <th scope="col">Available</th>
+                        <th scope="col">Mapped</th>
+                        <th scope="col">Sold</th>
                         <th class="text-center" scope="col">Actions</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="product-tbody">
+                      <!-- Data will be loaded dynamically via pagination -->
+                      <tr>
+                        <td colspan="9" class="text-center">
+                          <div class="spinner-border spinner-border-sm" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                          </div>
+                          Loading products...
+                        </td>
+                      </tr>
+                      <% if (false && products && products.length > 0) { %>
                       <% let i=1; for(let data of products) { %>
 
                       <tr data-id="<%= data.id %>">
@@ -183,7 +220,7 @@
                         </td>
                       </tr>
 
-                      <% i++ %> <% } %>
+                      <% i++ %> <% } %> <% } %>
                     </tbody>
                   </table>
                 </div>
@@ -502,6 +539,8 @@
               <ol>
                 <li>Download the Excel sample template using the green Excel icon</li>
                 <li>Fill in your product data following the template format</li>
+                <li><strong>Required fields:</strong> Product Name, Product Code, Price, Units</li>
+                <li><strong>Optional fields:</strong> Category, Description, Specifications</li>
                 <li>Upload the completed Excel file using the form below</li>
                 <li>All products will be validated before insertion</li>
               </ol>
@@ -553,9 +592,146 @@
 
 <%- include ('../partials/footer') %>
 
+<!-- Pagination Script -->
+<script src="/js/pagination.js"></script>
+
 <!-- CUSTOM JS SCRIPT -->
 <script>
   $(document).ready(function () {
+    // Initialize pagination manager
+    let productPagination;
+    let allCategories = new Set();
+
+    // Initialize pagination
+    function initializePagination() {
+      console.log('Initializing product pagination...');
+      
+      if ($('#product-pagination').length === 0) {
+        console.error('Product pagination container not found');
+        return;
+      }
+
+      productPagination = new InventoryPaginationManager({
+        containerId: 'product-pagination',
+        apiUrl: '/admin/product/paginated',
+        pageSize: 20,
+        searchInputId: '#product-search',
+        sortBy: 'p.name',
+        sortOrder: 'ASC',
+        filters: {
+          category: '#category-filter'
+        },
+        onDataLoad: function(data) {
+          const tbody = $('#product-tbody');
+          tbody.empty();
+          
+          // Collect categories for filter dropdown
+          data.items.forEach(function(product) {
+            if (product.category) {
+              allCategories.add(product.category);
+            }
+          });
+          
+          // Update category filter options
+          updateCategoryFilter();
+          
+          if (data.items.length === 0) {
+            tbody.html(`
+              <tr>
+                <td colspan="9" class="text-center">No products found</td>
+              </tr>
+            `);
+          } else {
+            data.items.forEach(function(product, index) {
+              const startIndex = (data.pagination.currentPage - 1) * data.pagination.pageSize;
+              tbody.append(`
+                <tr data-id="${product.id}">
+                  <td>${startIndex + index + 1}</td>
+                  <td class="product-name">${product.name}</td>
+                  <td class="product-code">${product.product_code}</td>
+                  <td class="product-category">${product.category || '-'}</td>
+                  <td class="product-price">${product.price ? '₹' + parseFloat(product.price).toFixed(2) : '-'}</td>
+                  <td class="product-unit">
+                    <span class="badge badge-info">${product.unit || 0}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-success">${product.available_units || 0}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-warning">${product.mapped_units || 0}</span>
+                  </td>
+                  <td>
+                    <span class="badge badge-danger">${product.sold_units || 0}</span>
+                  </td>
+                  <td class="text-center">
+                    <div class="action-btns">
+                      <a href="javascript:void(0);" class="action-btn btn-edit bs-tooltip me-2" 
+                         data-id="${product.id}" 
+                         data-toggle="tooltip" 
+                         data-placement="top" 
+                         title="Edit">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2">
+                          <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                        </svg>
+                      </a>
+                      <a href="javascript:void(0);" class="action-btn btn-delete bs-tooltip" 
+                         data-id="${product.id}" 
+                         data-toggle="tooltip" 
+                         data-placement="top" 
+                         title="Delete">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                        </svg>
+                      </a>
+                    </div>
+                  </td>
+                </tr>
+              `);
+            });
+          }
+        },
+        onError: function(message) {
+          $('#product-tbody').html(`
+            <tr>
+              <td colspan="9" class="text-center text-danger">${message}</td>
+            </tr>
+          `);
+        }
+      });
+      
+      console.log('Product pagination initialized successfully');
+    }
+
+    // Update category filter dropdown
+    function updateCategoryFilter() {
+      const currentValue = $('#category-filter').val();
+      const options = ['<option value="">All Categories</option>'];
+      
+      Array.from(allCategories).sort().forEach(function(category) {
+        options.push(`<option value="${category}">${category}</option>`);
+      });
+      
+      $('#category-filter').html(options.join(''));
+      
+      // Restore previous selection if it exists
+      if (currentValue && allCategories.has(currentValue)) {
+        $('#category-filter').val(currentValue);
+      }
+    }
+
+    // Initialize pagination after a short delay to ensure DOM is ready
+    setTimeout(initializePagination, 100);
+    
+    // Clear filters button
+    $('#clear-filters').on('click', function() {
+      $('#category-filter').val('');
+      
+      if (productPagination) {
+        productPagination.reset();
+      }
+    });
+
     $(".create-product-modal").on("click", function () {
       $("#add-product-modal").modal("show");
     });
@@ -697,7 +873,11 @@
               type: "positive",
             });
             setTimeout(() => {
-              location.reload(true);
+              if (productPagination) {
+                productPagination.refresh();
+              } else {
+                location.reload(true);
+              }
             }, 2000);
           } else {
             createAlert({
@@ -863,11 +1043,18 @@
               type: "positive",
             });
 
-            let row = $("#table-content").find(`tr[data-id="${productId}"]`);
-            row.find(".product-name").text(productName);
-            row.find(".product-code").text(productCode);
-            row.find(".product-category").text(category || "-");
-            row.find(".product-price").text(price || "-");
+            // Refresh pagination to show updated data
+            if (productPagination) {
+              setTimeout(() => {
+                productPagination.refresh();
+              }, 1000);
+            } else {
+              let row = $("#table-content").find(`tr[data-id="${productId}"]`);
+              row.find(".product-name").text(productName);
+              row.find(".product-code").text(productCode);
+              row.find(".product-category").text(category || "-");
+              row.find(".product-price").text(price || "-");
+            }
           } else {
             createAlert({
               title: "Error",
@@ -931,7 +1118,14 @@
               type: "positive",
             });
 
-            thisBtn.closest("tr").remove();
+            // Refresh pagination to show updated data
+            if (productPagination) {
+              setTimeout(() => {
+                productPagination.refresh();
+              }, 1000);
+            } else {
+              thisBtn.closest("tr").remove();
+            }
             $(".bs-tooltip-top").remove();
           } else {
             createAlert({
