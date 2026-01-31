@@ -8,8 +8,24 @@ module.exports = {
             if (req.method === "GET") {
                 // Get all companies for dropdown
                 const companiesResult = await pool.query(`
-                    SELECT id, name, company_code, company_type 
+                    SELECT id, name, company_code, company_type, state_lid, city_lid 
                     FROM company 
+                    WHERE active = TRUE 
+                    ORDER BY name
+                `);
+                
+                // Get all states for filter dropdown
+                const statesResult = await pool.query(`
+                    SELECT id, name 
+                    FROM state 
+                    WHERE active = TRUE 
+                    ORDER BY name
+                `);
+                
+                // Get all cities for filter dropdown
+                const citiesResult = await pool.query(`
+                    SELECT id, name, state_lid 
+                    FROM city 
                     WHERE active = TRUE 
                     ORDER BY name
                 `);
@@ -74,6 +90,8 @@ module.exports = {
                 
                 res.render("admin/master/inventoryMapping", {
                     companies: companiesResult.rows,
+                    states: statesResult.rows,
+                    cities: citiesResult.rows,
                     availableInventory: availableInventoryResult.rows,
                     mappings: mappingsResult.rows,
                     totals: totalsResult.rows
@@ -457,6 +475,12 @@ module.exports = {
             if (req.query.product && req.query.product.trim()) {
                 filters.product = req.query.product;
             }
+            if (req.query.state && req.query.state.trim()) {
+                filters.state = req.query.state;
+            }
+            if (req.query.city && req.query.city.trim()) {
+                filters.city = req.query.city;
+            }
 
             const [countResult, dataResult] = await inventory.getInventoryMappingsGrouped(
                 page, 
@@ -508,6 +532,8 @@ module.exports = {
                 label = '',
                 product = '',
                 exactProduct = '',
+                state = '',
+                city = '',
                 sortBy = 'icm.created_at', 
                 sortOrder = 'DESC' 
             } = req.query;
@@ -517,10 +543,10 @@ module.exports = {
                 company: company,
                 label: label,
                 product: product,
-                exactProduct: exactProduct
+                exactProduct: exactProduct,
+                state: state,
+                city: city
             };
-
-            console.log('Inventory Mappings Paginated - Filters:', filters);
 
             // Use model method for pagination
             const [countResult, dataResult] = await inventory.getInventoryMappingsPaginated(
@@ -536,13 +562,6 @@ module.exports = {
             const totalPages = Math.ceil(totalRecords / parseInt(limit));
             const hasNextPage = parseInt(page) < totalPages;
             const hasPrevPage = parseInt(page) > 1;
-
-            console.log('Results count:', dataResult.rows.length);
-            console.log('Sample items:', dataResult.rows.slice(0, 3).map(r => ({
-                product: r.product_name,
-                company: r.company_name,
-                id: r.inventory_id
-            })));
 
             res.status(200).json({
                 message: 'success',

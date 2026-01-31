@@ -126,7 +126,20 @@
               
               <div class="table-filter-container">
                 <div class="row mb-3">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
+                    <select class="form-select" id="state-filter">
+                      <option value="">All States</option>
+                      <% states.forEach(function(state) { %>
+                        <option value="<%= state.id %>"><%= state.name %></option>
+                      <% }); %>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" id="city-filter">
+                      <option value="">All Cities</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
                     <select class="form-select" id="company-filter">
                       <option value="">All Companies</option>
                       <% companies.forEach(function(company) { %>
@@ -134,10 +147,7 @@
                       <% }); %>
                     </select>
                   </div>
-                  <div class="col-md-4">
-                    <input type="text" class="form-control" id="product-filter" placeholder="Filter by product">
-                  </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <button class="btn btn-secondary" id="clear-filters">Clear Filters</button>
                   </div>
                 </div>
@@ -364,6 +374,25 @@
           <!-- Left Column: Company Selection and Selected Items -->
           <!-- Mapping Configuration -->
           <div class="col-md-12">
+            <!-- Filter by State/City -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label" for="mapping-state">Filter by State</label>
+                <select class="form-select" id="mapping-state">
+                  <option value="">All States</option>
+                  <% states.forEach(function(state) { %>
+                    <option value="<%= state.id %>"><%= state.name %></option>
+                  <% }); %>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label" for="mapping-city">Filter by City</label>
+                <select class="form-select" id="mapping-city">
+                  <option value="">All Cities</option>
+                </select>
+              </div>
+            </div>
+            
             <div class="row mb-3">
               <div class="col-md-6">
                 <label class="form-label" for="mapping-company">Select Company <span class="text-danger">*</span></label>
@@ -371,7 +400,11 @@
                   <option value="">Choose Company...</option>
                   <% companies.forEach(function(company) { %>
                     <% if (company.company_code !== 'SELF') { %>
-                      <option value="<%= company.id %>"><%= company.name %> (<%= company.company_type %>)</option>
+                      <option value="<%= company.id %>" 
+                              data-state-lid="<%= company.state_lid || '' %>" 
+                              data-city-lid="<%= company.city_lid || '' %>">
+                        <%= company.name %> (<%= company.company_type %>)
+                      </option>
                     <% } %>
                   <% }); %>
                 </select>
@@ -558,6 +591,74 @@ $(document).ready(function() {
   let mainMappingsPagination;
   let availableInventoryPagination;
 
+  // City data for cascading dropdowns
+  const mappingCities = JSON.parse('<%- JSON.stringify(cities || []) %>');
+
+  // Helper function to populate city dropdown based on state (for main filter)
+  function updateCityFilter(stateId) {
+    const citySelect = $('#city-filter');
+    citySelect.html('<option value="">All Cities</option>');
+    
+    if (stateId) {
+      const filteredCities = mappingCities.filter(city => city.state_lid == stateId);
+      filteredCities.forEach(city => {
+        citySelect.append(`<option value="${city.id}">${city.name}</option>`);
+      });
+    }
+  }
+
+  // Helper function to populate city dropdown for mapping modal
+  function updateMappingCityFilter(stateId) {
+    const citySelect = $('#mapping-city');
+    citySelect.html('<option value="">All Cities</option>');
+    
+    if (stateId) {
+      const filteredCities = mappingCities.filter(city => city.state_lid == stateId);
+      filteredCities.forEach(city => {
+        citySelect.append(`<option value="${city.id}">${city.name}</option>`);
+      });
+    }
+  }
+
+  // Helper function to filter company dropdown based on state/city
+  function filterMappingCompanies() {
+    const selectedState = $('#mapping-state').val();
+    const selectedCity = $('#mapping-city').val();
+    const companySelect = $('#mapping-company');
+    
+    // Show all options first
+    companySelect.find('option').each(function() {
+      if ($(this).val() === '') return; // Skip the placeholder option
+      
+      const companyState = $(this).data('state-lid');
+      const companyCity = $(this).data('city-lid');
+      
+      let shouldShow = true;
+      
+      // Filter by state if selected
+      if (selectedState && companyState != selectedState) {
+        shouldShow = false;
+      }
+      
+      // Filter by city if selected
+      if (selectedCity && companyCity != selectedCity) {
+        shouldShow = false;
+      }
+      
+      if (shouldShow) {
+        $(this).show();
+      } else {
+        $(this).hide();
+      }
+    });
+    
+    // Reset company selection if current selection is now hidden
+    const currentCompany = companySelect.val();
+    if (currentCompany && companySelect.find(`option[value="${currentCompany}"]:visible`).length === 0) {
+      companySelect.val('');
+    }
+  }
+
   // Initialize pagination after DOM is ready
   function initializePagination() {
     console.log('Initializing pagination...');
@@ -582,6 +683,8 @@ $(document).ready(function() {
       sortBy: 'product_name',
       sortOrder: 'ASC',
       filters: {
+        state: '#state-filter',
+        city: '#city-filter',
         company: '#company-filter',
         product: '#product-filter'
       },
@@ -757,7 +860,26 @@ $(document).ready(function() {
   }
 
   // Clear filters button - now resets pagination
+  // State filter change handler - cascade to city
+  $('#state-filter').on('change', function() {
+    const stateId = $(this).val();
+    updateCityFilter(stateId);
+    
+    if (mainMappingsPagination) {
+      mainMappingsPagination.handleFilterChange();
+    }
+  });
+
+  // City filter change handler
+  $('#city-filter').on('change', function() {
+    if (mainMappingsPagination) {
+      mainMappingsPagination.handleFilterChange();
+    }
+  });
+
   $('#clear-filters').on('click', function() {
+    $('#state-filter').val('');
+    $('#city-filter').html('<option value="">All Cities</option>');
     $('#company-filter').val('');
     $('#product-filter').val('');
     
@@ -1130,9 +1252,24 @@ $(document).ready(function() {
   });
 
   // Reset modal when opened
+  // Mapping modal state filter change handler
+  $('#mapping-state').on('change', function() {
+    const stateId = $(this).val();
+    updateMappingCityFilter(stateId);
+    filterMappingCompanies();
+  });
+
+  // Mapping modal city filter change handler
+  $('#mapping-city').on('change', function() {
+    filterMappingCompanies();
+  });
+
   $('#create-mapping-modal').on('show.bs.modal', function() {
     // Clear form
+    $('#mapping-state').val('');
+    $('#mapping-city').html('<option value="">All Cities</option>');
     $('#mapping-company').val('');
+    $('#mapping-company option').show(); // Show all companies
     $('#mapping-notes').val('');
     
     // Reset all quantity inputs

@@ -213,6 +213,10 @@ router.post('/tour-tax/delete', tourExpense.delete);
 router.post('/tour-taxes/delete', tourTax.delete);
 //Users
 router.get('/users', userController.getAllUsers);
+router.post('/users/insert', userController.insert);
+router.post('/users/update', userController.updateUser);
+router.post('/users/update-password', userController.updatePassword);
+router.post('/users/delete', userController.deleteUser);
 
 // Logout
 router.get('/logout', loginController.logout);

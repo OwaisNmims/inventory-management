@@ -460,8 +460,49 @@ module.exports = {
     getProductInventoryUnits: async (req, res) => {
         try {
             const { productId } = req.params;
+            const { page = 1, limit = 20, search = '', status = '' } = req.query;
             const { pool } = require('../config/dbConfig');
 
+            const offset = (parseInt(page) - 1) * parseInt(limit);
+            
+            // Build WHERE conditions
+            let whereConditions = ['iu.product_lid = $1', 'iu.active = TRUE'];
+            let params = [productId];
+            let paramCount = 1;
+
+            // Add status filter
+            if (status && status.trim()) {
+                paramCount++;
+                whereConditions.push(`ist.name = $${paramCount}`);
+                params.push(status.trim());
+            }
+
+            // Add search filter (search in unit serial or company name)
+            if (search && search.trim()) {
+                paramCount++;
+                whereConditions.push(`(
+                    CONCAT('P', iu.product_lid, '-', LPAD(iu.id::text, 6, '0')) ILIKE $${paramCount} OR
+                    c.name ILIKE $${paramCount}
+                )`);
+                params.push(`%${search.trim()}%`);
+            }
+
+            const whereClause = whereConditions.join(' AND ');
+
+            // Get total count for pagination
+            const countResult = await pool.query(`
+                SELECT COUNT(*) as total
+                FROM inventory_unit iu
+                JOIN inventory_status ist ON ist.id = iu.status_lid
+                LEFT JOIN company c ON c.id = iu.current_company_lid
+                LEFT JOIN inventory_company_mapping icm ON icm.inventory_unit_lid = iu.id AND icm.active = TRUE
+                WHERE ${whereClause}
+            `, params);
+
+            const totalRecords = parseInt(countResult.rows[0].total);
+            const totalPages = Math.ceil(totalRecords / parseInt(limit));
+
+            // Get paginated data
             const result = await pool.query(`
                 SELECT 
                     iu.id,
@@ -477,14 +518,25 @@ module.exports = {
                 JOIN inventory_status ist ON ist.id = iu.status_lid
                 LEFT JOIN company c ON c.id = iu.current_company_lid
                 LEFT JOIN inventory_company_mapping icm ON icm.inventory_unit_lid = iu.id AND icm.active = TRUE
-                WHERE iu.product_lid = $1 AND iu.active = TRUE
+                WHERE ${whereClause}
                 ORDER BY iu.created_at DESC
-            `, [productId]);
+                LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}
+            `, [...params, parseInt(limit), offset]);
 
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: result.rows
+                data: {
+                    items: result.rows,
+                    pagination: {
+                        currentPage: parseInt(page),
+                        totalPages: totalPages,
+                        totalRecords: totalRecords,
+                        limit: parseInt(limit),
+                        hasNextPage: parseInt(page) < totalPages,
+                        hasPrevPage: parseInt(page) > 1
+                    }
+                }
             });
         } catch (e) {
             console.error('Get inventory units error:', e);
@@ -503,11 +555,11 @@ module.exports = {
             const { unitsToAdd } = req.body;
             const { pool } = require('../config/dbConfig');
 
-            if (!unitsToAdd || unitsToAdd <= 0 || unitsToAdd > 100) {
+            if (!unitsToAdd || unitsToAdd <= 0 || unitsToAdd > 1000) {
                 return res.status(400).json({
                     message: 'error',
                     status: 400,
-                    data: { message: 'Invalid number of units. Must be between 1 and 100.' }
+                    data: { message: 'Invalid number of units. Must be between 1 and 1000.' }
                 });
             }
 

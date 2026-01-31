@@ -261,6 +261,18 @@ module.exports = {
             params.push(`%${filters.product.toLowerCase()}%`);
         }
 
+        // State filter
+        if (filters.state && filters.state.trim()) {
+            whereConditions.push(`c.state_lid = $${params.length + 1}`);
+            params.push(parseInt(filters.state));
+        }
+
+        // City filter
+        if (filters.city && filters.city.trim()) {
+            whereConditions.push(`c.city_lid = $${params.length + 1}`);
+            params.push(parseInt(filters.city));
+        }
+
         // Combine all WHERE conditions
         const whereClause = `WHERE ${whereConditions.join(' AND ')}`;
 
@@ -377,24 +389,31 @@ module.exports = {
         if (filters.product && filters.product.trim()) {
             if (filters.exactProduct === 'true' || filters.exactProduct === true) {
                 // Exact match
-                console.log('Using EXACT product match for:', filters.product);
                 conditions.push(`LOWER(p.name) = LOWER($${params.length + 1})`);
                 params.push(filters.product);
             } else {
                 // Partial match
-                console.log('Using PARTIAL product match for:', filters.product);
                 conditions.push(`LOWER(p.name) LIKE $${params.length + 1}`);
                 params.push(`%${filters.product.toLowerCase()}%`);
             }
+        }
+
+        // State filter
+        if (filters.state && filters.state.trim()) {
+            conditions.push(`c.state_lid = $${params.length + 1}`);
+            params.push(parseInt(filters.state));
+        }
+
+        // City filter
+        if (filters.city && filters.city.trim()) {
+            conditions.push(`c.city_lid = $${params.length + 1}`);
+            params.push(parseInt(filters.city));
         }
 
         // Combine all conditions
         const whereClause = conditions.length > 0 
             ? `AND (${conditions.join(' AND ')})` 
             : '';
-
-        console.log('getInventoryMappingsPaginated - WHERE clause:', whereClause);
-        console.log('getInventoryMappingsPaginated - Params:', params);
 
         // Validate sort parameters
         const allowedSortFields = ['icm.created_at', 'p.name', 'p.product_code', 'c.name', 'ml.name', 'ist.name'];

@@ -9,7 +9,7 @@ module.exports = {
     };
     if (req.method == "GET") {
 
-      res.render("admin/master/dashboard")
+      res.render("admin/master/dashboard", { _user })
 
     }
   },
@@ -18,7 +18,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/dashboard")
+      res.render("admin/dashboard", { _user })
     }
   },
   invoice: function (req, res) {
@@ -26,7 +26,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/invoice")
+      res.render("admin/invoice", { _user })
     }
   },
   countryMaster: function (req, res) {
@@ -38,7 +38,8 @@ module.exports = {
 
         console.log('data:::::::::::::::::::', data.rows)
         res.render("admin/master/country", {
-          countryData: data.rows
+          countryData: data.rows,
+          _user
         })
       }
       ).catch((err) => {
@@ -51,7 +52,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/master/carrier")
+      res.render("admin/master/carrier", { _user })
     }
   },
   cityMaster: async (req, res) => {
@@ -65,7 +66,8 @@ module.exports = {
       const cities = await city.getAllCities();
       console.log('cities>>> ', cities.rows);
       res.render("admin/master/city", { 
-        cities: cities ? cities.rows : []
+        cities: cities ? cities.rows : [],
+        _user
       });
     }
 
@@ -89,13 +91,15 @@ module.exports = {
             console.log('this is state data::::::', data[0].value.rows)
         res.render("admin/master/state", {
           stateData: data[0].value.rows,
-          countryData: data[1].value.rows
+          countryData: data[1].value.rows,
+          _user
         });
       }).catch((err) => {
         console.log('error:::::::::::::::::', err)
         res.render("admin/master/state", {
           status: 500,
-          err: err
+          err: err,
+          _user
         })
       })
     }
@@ -108,7 +112,8 @@ module.exports = {
       const currencies = await currency.getAllCurrency();
       console.log('countries ::::>>', currencies.rows); 
       res.render("admin/master/currency-type", {
-        currencies: currencies ? currencies.rows: []
+        currencies: currencies ? currencies.rows: [],
+        _user
       });
     }
   },
@@ -117,7 +122,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/master/fare-class")
+      res.render("admin/master/fare-class", { _user })
     }
   },
   hotelMaster: function (req, res) {
@@ -125,7 +130,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/master/hotels")
+      res.render("admin/master/hotels", { _user })
     }
   },
   roomTypeMaster: function (req, res) {
@@ -133,7 +138,7 @@ module.exports = {
       ...req.body,
     };
     if (req.method == "GET") {
-      res.render("admin/master/room-type")
+      res.render("admin/master/room-type", { _user })
     }
   },
 

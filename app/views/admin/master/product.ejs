@@ -467,7 +467,7 @@
                       id="add-inventory-units"
                       placeholder="Units to add"
                       min="1"
-                      max="100"
+                      max="1000"
                     />
                     <button class="btn btn-success" type="button" id="add-inventory-btn">
                       <i class="fas fa-plus"></i> Add
@@ -477,16 +477,36 @@
               </div>
               <div class="col-md-4">
                 <div class="mb-3">
-                  <label class="form-label">Quick Actions</label>
+                  <label class="form-label">Inventory Count</label>
                   <div>
-                    <button type="button" class="btn btn-sm btn-outline-info" id="show-available-only">
-                      <i class="fas fa-filter"></i> Available Only
-                    </button>
-                    <button type="button" class="btn btn-sm btn-outline-secondary ms-1" id="show-all-units">
-                      <i class="fas fa-list"></i> Show All
-                    </button>
+                    <span class="badge bg-info" id="current-inventory-count">0</span> total units
                   </div>
                 </div>
+              </div>
+            </div>
+            
+            <!-- Inventory Units Pagination Controls -->
+            <div class="row mb-2 align-items-center" id="inventory-pagination">
+              <div class="col-md-4">
+                <input type="text" class="form-control form-control-sm" 
+                       id="inventory-search" placeholder="Search by serial or company...">
+              </div>
+              <div class="col-md-3">
+                <select class="form-select form-select-sm" id="inventory-status-filter">
+                  <option value="">All Status</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="MAPPED">Mapped</option>
+                  <option value="SOLD">Sold</option>
+                </select>
+              </div>
+              <div class="col-md-5 text-end">
+                <small class="text-muted me-2" id="inventory-page-info">Page 1 of 1</small>
+                <button class="btn btn-sm btn-outline-secondary" id="inventory-prev" disabled>
+                  <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="inventory-next">
+                  <i class="fas fa-chevron-right"></i>
+                </button>
               </div>
             </div>
             
@@ -1336,10 +1356,23 @@
     });
 
     // Inventory Management Functions
-    let allInventoryUnits = [];
-    let currentFilter = 'all'; // 'all' or 'available'
+    let inventoryPagination = {
+      currentPage: 1,
+      limit: 20,
+      totalPages: 1,
+      totalRecords: 0,
+      search: '',
+      status: '',
+      productId: null
+    };
 
-    function loadInventoryUnits(productId) {
+    function loadInventoryUnits(productId, page = 1, limit = 20, search = '', status = '') {
+      inventoryPagination.productId = productId;
+      inventoryPagination.currentPage = page;
+      inventoryPagination.limit = limit;
+      inventoryPagination.search = search;
+      inventoryPagination.status = status;
+
       // Show loading state
       $("#inventory-units-table tbody").html(`
         <tr>
@@ -1352,11 +1385,22 @@
       $.ajax({
         method: "GET",
         url: `/admin/product/${productId}/inventory-units`,
+        data: {
+          page: page,
+          limit: limit,
+          search: search,
+          status: status
+        },
         success: function (response) {
           if (response.status === 200) {
-            allInventoryUnits = response.data;
-            updateInventoryTable();
-            $("#current-inventory-count").text(allInventoryUnits.length);
+            const { items, pagination } = response.data;
+            
+            inventoryPagination.totalPages = pagination.totalPages;
+            inventoryPagination.totalRecords = pagination.totalRecords;
+            
+            updateInventoryTable(items);
+            updatePaginationControls(pagination);
+            $("#current-inventory-count").text(pagination.totalRecords);
           } else {
             $("#inventory-units-table tbody").html(`
               <tr>
@@ -1375,7 +1419,6 @@
         error: function (xhr, status, error) {
           let errorMessage = "Failed to load inventory units";
           
-          // Try to parse the error response
           if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
             errorMessage = xhr.responseJSON.data.message;
           } else if (xhr.responseText) {
@@ -1405,27 +1448,62 @@
       });
     }
 
-    function updateInventoryTable() {
+    function updatePaginationControls(pagination) {
+      $("#inventory-page-info").text(`Page ${pagination.currentPage} of ${pagination.totalPages}`);
+      $("#inventory-prev").prop('disabled', !pagination.hasPrevPage);
+      $("#inventory-next").prop('disabled', !pagination.hasNextPage);
+    }
+
+    function reloadCurrentInventoryPage() {
+      if (inventoryPagination.productId) {
+        loadInventoryUnits(
+          inventoryPagination.productId, 
+          inventoryPagination.currentPage, 
+          inventoryPagination.limit, 
+          inventoryPagination.search, 
+          inventoryPagination.status
+        );
+      }
+    }
+
+    function updateProductRowCounts(productId) {
+      $.ajax({
+        method: "GET",
+        url: `/admin/product/${productId}`,
+        success: function (response) {
+          if (response.status === 200 && response.data) {
+            const product = response.data;
+            const row = $(`#product-tbody tr[data-id="${productId}"]`);
+            
+            if (row.length > 0) {
+              // Update the count badges in the row
+              row.find('td:nth-child(6) .badge').text(product.unit || 0);
+              row.find('td:nth-child(7) .badge').text(product.available_units || 0);
+              row.find('td:nth-child(8) .badge').text(product.mapped_units || 0);
+              row.find('td:nth-child(9) .badge').text(product.sold_units || 0);
+            }
+          }
+        },
+        error: function (error) {
+          console.error('Failed to update product counts:', error);
+        }
+      });
+    }
+
+    function updateInventoryTable(units) {
       const tbody = $("#inventory-units-table tbody");
       tbody.empty();
 
-      // Filter units based on current filter
-      let unitsToShow = allInventoryUnits;
-      if (currentFilter === 'available') {
-        unitsToShow = allInventoryUnits.filter(unit => unit.status === 'AVAILABLE');
-      }
-
-      if (unitsToShow.length === 0) {
-        const message = currentFilter === 'available' ? 'No available inventory units found' : 'No inventory units found';
+      if (!units || units.length === 0) {
         tbody.append(`
           <tr>
-            <td colspan="5" class="text-center text-muted">${message}</td>
+            <td colspan="5" class="text-center text-muted">No inventory units found</td>
           </tr>
         `);
         return;
       }
 
-      unitsToShow.forEach(function (unit) {
+      units.forEach(function (unit) {
         const statusBadge = getStatusBadge(unit.status);
         const companyName = unit.company_name || "Not Mapped";
         const mappedDate = unit.mapped_at ? new Date(unit.mapped_at).toLocaleDateString() : "-";
@@ -1480,10 +1558,10 @@
         return;
       }
 
-      if (unitsToAdd > 100) {
+      if (unitsToAdd > 1000) {
         createAlert({
           title: "Error",
-          msg: "Cannot add more than 100 units at once",
+          msg: "Cannot add more than 1000 units at once",
           type: "negative",
         });
         return;
@@ -1509,7 +1587,10 @@
               type: "positive",
             });
             $("#add-inventory-units").val("");
-            loadInventoryUnits(productId);
+            reloadCurrentInventoryPage();
+            
+            // Update product row counts in main table
+            updateProductRowCounts(productId);
           } else {
             createAlert({
               title: "Error",
@@ -1574,7 +1655,11 @@
               msg: response.data.message,
               type: "positive",
             });
-            loadInventoryUnits(productId);
+            reloadCurrentInventoryPage();
+            
+            // Update product row counts in main table
+            const productId = $(".save-product").attr("data-id");
+            updateProductRowCounts(productId);
           } else {
             createAlert({
               title: "Error",
@@ -1612,25 +1697,67 @@
 
     // Refresh inventory
     $(document).on("click", "#refresh-inventory", function () {
-      const productId = $(".save-product").attr("data-id");
-      if (productId) {
-        loadInventoryUnits(productId);
+      reloadCurrentInventoryPage();
+    });
+
+    // Pagination event handlers
+    let searchTimeout;
+    
+    // Search with debouncing
+    $(document).on("input", "#inventory-search", function () {
+      clearTimeout(searchTimeout);
+      const searchValue = $(this).val();
+      
+      searchTimeout = setTimeout(function() {
+        if (inventoryPagination.productId) {
+          loadInventoryUnits(
+            inventoryPagination.productId, 
+            1, 
+            inventoryPagination.limit, 
+            searchValue, 
+            inventoryPagination.status
+          );
+        }
+      }, 500);
+    });
+
+    // Status filter
+    $(document).on("change", "#inventory-status-filter", function () {
+      if (inventoryPagination.productId) {
+        loadInventoryUnits(
+          inventoryPagination.productId, 
+          1, 
+          inventoryPagination.limit, 
+          inventoryPagination.search, 
+          $(this).val()
+        );
       }
     });
 
-    // Filter buttons
-    $(document).on("click", "#show-available-only", function () {
-      currentFilter = 'available';
-      $(this).removeClass('btn-outline-info').addClass('btn-info');
-      $("#show-all-units").removeClass('btn-secondary').addClass('btn-outline-secondary');
-      updateInventoryTable();
+    // Previous page
+    $(document).on("click", "#inventory-prev", function () {
+      if (inventoryPagination.productId && inventoryPagination.currentPage > 1) {
+        loadInventoryUnits(
+          inventoryPagination.productId, 
+          inventoryPagination.currentPage - 1, 
+          inventoryPagination.limit, 
+          inventoryPagination.search, 
+          inventoryPagination.status
+        );
+      }
     });
 
-    $(document).on("click", "#show-all-units", function () {
-      currentFilter = 'all';
-      $(this).removeClass('btn-outline-secondary').addClass('btn-secondary');
-      $("#show-available-only").removeClass('btn-info').addClass('btn-outline-info');
-      updateInventoryTable();
+    // Next page
+    $(document).on("click", "#inventory-next", function () {
+      if (inventoryPagination.productId && inventoryPagination.currentPage < inventoryPagination.totalPages) {
+        loadInventoryUnits(
+          inventoryPagination.productId, 
+          inventoryPagination.currentPage + 1, 
+          inventoryPagination.limit, 
+          inventoryPagination.search, 
+          inventoryPagination.status
+        );
+      }
     });
 
   });

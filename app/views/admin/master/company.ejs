@@ -77,6 +77,7 @@
                         <th scope="col">Company Type</th>
                         <th scope="col">Email</th>
                         <th scope="col">Phone</th>
+                        <th scope="col">State</th>
                         <th scope="col">City</th>
                         <th scope="col">Registration No.</th>
                         <th class="text-center" scope="col">Actions</th>
@@ -85,7 +86,7 @@
                     <tbody>
                       <% let i=1; for(let data of companies) { %>
 
-                      <tr data-id="<%= data.id %>">
+                      <tr data-id="<%= data.id %>" data-state-lid="<%= data.state_lid || '' %>" data-city-lid="<%= data.city_lid || '' %>">
                         <td>
                           <%= i %>
                         </td>
@@ -99,16 +100,19 @@
                         <td>
                           <%= data.company_type_name || '-' %>
                         </td>
-                        <td>
+                        <td class="company-email">
                           <%= data.email || '-' %>
                         </td>
-                        <td>
+                        <td class="company-phone">
                           <%= data.phone || '-' %>
                         </td>
-                        <td>
+                        <td class="company-state">
+                          <%= data.state_name || '-' %>
+                        </td>
+                        <td class="company-city">
                           <%= data.city_name || '-' %>
                         </td>
-                        <td>
+                        <td class="registration-number">
                           <%= data.registration_number || '-' %>
                         </td>
                         <td class="text-center">
@@ -176,6 +180,21 @@
               <label class="form-label" for="add-company-phone">Phone</label>
               <input type="text" class="form-control" id="add-company-phone" />
             </div>
+            <div class="mb-3">
+              <label class="form-label" for="add-company-state">State</label>
+              <select class="form-select" id="add-company-state">
+                <option value="">Select state</option>
+                <% states.forEach(function(state) { %>
+                  <option value="<%= state.id %>"><%= state.state_name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="add-company-city">City</label>
+              <select class="form-select" id="add-company-city">
+                <option value="">Select city</option>
+              </select>
+            </div>
                          <div class="mb-3">
                <label class="form-label" for="add-registration-number">Registration Number</label>
                <input type="text" class="form-control" id="add-registration-number" />
@@ -197,6 +216,8 @@
                   <th>Company Code</th>
                   <th>Email</th>
                   <th>Phone</th>
+                  <th>State</th>
+                  <th>City</th>
                   <th>Registration No.</th>
                   <th>Action</th>
                 </thead>
@@ -248,6 +269,21 @@
               <input type="text" class="form-control" id="edit-company-phone" />
             </div>
             <div class="mb-3">
+              <label class="form-label" for="edit-company-state">State</label>
+              <select class="form-select" id="edit-company-state">
+                <option value="">Select state</option>
+                <% states.forEach(function(state) { %>
+                  <option value="<%= state.id %>"><%= state.state_name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="form-label" for="edit-company-city">City</label>
+              <select class="form-select" id="edit-company-city">
+                <option value="">Select city</option>
+              </select>
+            </div>
+            <div class="mb-3">
               <label class="form-label" for="edit-registration-number">Registration Number</label>
               <input type="text" class="form-control" id="edit-registration-number" />
             </div>
@@ -271,8 +307,31 @@
 <!-- CUSTOM JS SCRIPT -->
 <script>
   $(document).ready(function() {
+    const companyCities = JSON.parse('<%- JSON.stringify(cities || []) %>');
+
+    function buildCityOptions(stateId, targetSelector) {
+      const select = $(targetSelector);
+      if (!stateId) {
+        select.html('<option value="">Select city</option>');
+        return;
+      }
+      const filtered = companyCities.filter(city => `${city.state_lid}` === `${stateId}`);
+      let options = '<option value="">Select city</option>';
+      filtered.forEach(city => {
+        options += `<option value="${city.id}">${city.name}</option>`;
+      });
+      select.html(options);
+    }
     $(".create-company-modal").on("click", function() {
       $("#add-company-modal").modal("show");
+    });
+
+    $("#add-company-state").on("change", function () {
+      buildCityOptions($(this).val(), "#add-company-city");
+    });
+
+    $("#edit-company-state").on("change", function () {
+      buildCityOptions($(this).val(), "#edit-company-city");
     });
 
     function serializeTable(tableId) {
@@ -289,6 +348,8 @@
       let email = $("#add-company-email").val();
       let phone = $("#add-company-phone").val();
       let registrationNumber = $("#add-registration-number").val();
+      let stateLid = $("#add-company-state").val();
+      let cityLid = $("#add-company-city").val();
       // Company type is always VENDOR - no need to get from dropdown
       let companyType = "VENDOR";
       
@@ -312,22 +373,26 @@
         return;
       }
 
-      if (!companyName || !companyCode) {
+      if (!companyName || !companyCode || !stateLid || !cityLid) {
         createAlert({
           title: 'ERROR',
-          msg: 'Company Name and Code are required',
+          msg: 'Company Name, Code, state and city are required',
           type: 'negative'
         });
         return;
       }
 
       let count = $("#add-more-company-table tbody tr").length == undefined ? 0 : $("#add-more-company-table tbody tr").length;
-      let tableRow = `<tr class="add-company-row" data-company-type="${companyType}">
+      const stateName = $("#add-company-state option:selected").text();
+      const cityName = $("#add-company-city option:selected").text();
+      let tableRow = `<tr class="add-company-row" data-company-type="${companyType}" data-state-lid="${stateLid}" data-city-lid="${cityLid}">
             <td>${++count}</td>
             <td class="company-name">${companyName}</td>
             <td class="company-code">${companyCode}</td>
             <td class="company-email">${email || '-'}</td>
             <td class="company-phone">${phone || '-'}</td>
+            <td class="company-state" data-state-lid="${stateLid}">${stateName || '-'}</td>
+            <td class="company-city" data-city-lid="${cityLid}">${cityName || '-'}</td>
             <td class="registration-number">${registrationNumber || '-'}</td>
             <td><button class='delete-row'>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
@@ -345,6 +410,8 @@
       $("#add-company-email").val('');
       $("#add-company-phone").val('');
       $("#add-registration-number").val('');
+      $("#add-company-state").val('');
+      $("#add-company-city").html('<option value="">Select city</option>');
     });
 
     // add-company modal - for deleting added companies in table
@@ -367,6 +434,8 @@
             email: $(element).find('.company-email').text().trim() === '-' ? '' : $(element).find('.company-email').text().trim(),
             phone: $(element).find('.company-phone').text().trim() === '-' ? '' : $(element).find('.company-phone').text().trim(),
             registrationNumber: $(element).find('.registration-number').text().trim() === '-' ? '' : $(element).find('.registration-number').text().trim(),
+            stateLid: $(element).data('state-lid'),
+            cityLid: $(element).data('city-lid'),
             company_type: $(element).attr('data-company-type') || 'VENDOR'
           }
           companies.push(obj);
@@ -425,14 +494,26 @@
     // EDIT COMPANY START
 
     $(document).on("click", ".btn-edit", function() {
-      console.log("edit btn clicked");
-      $("#edit-company-modal").modal("show");
-      let companyName = $(this).closest("tr").find(".company-name").text().trim();
-      let companyCode = $(this).closest("tr").find(".company-code").text().trim();
-      
+      const row = $(this).closest("tr");
+      const companyName = row.find(".company-name").text().trim();
+      const companyCode = row.find(".company-code").text().trim();
+      const email = row.find(".company-email").text().trim() === '-' ? '' : row.find(".company-email").text().trim();
+      const phone = row.find(".company-phone").text().trim() === '-' ? '' : row.find(".company-phone").text().trim();
+      const registrationNumber = row.find(".registration-number").text().trim() === '-' ? '' : row.find(".registration-number").text().trim();
+      const stateLid = row.data("state-lid");
+      const cityLid = row.data("city-lid");
+
+      $("#edit-company-state").val(stateLid);
+      buildCityOptions(stateLid, "#edit-company-city");
+      $("#edit-company-city").val(cityLid);
+
       $("#edit-company-name").val(companyName);
       $("#edit-company-code").val(companyCode);
+      $("#edit-company-email").val(email);
+      $("#edit-company-phone").val(phone);
+      $("#edit-registration-number").val(registrationNumber);
       $(".save-company").attr("data-id", $(this).attr("data-id"));
+      $("#edit-company-modal").modal("show");
     });
 
     $(document).on("click", ".save-company", function() {
@@ -441,9 +522,20 @@
       let email = $("#edit-company-email").val().trim();
       let phone = $("#edit-company-phone").val().trim();
       let registrationNumber = $("#edit-registration-number").val().trim();
+      let stateLid = $("#edit-company-state").val();
+      let cityLid = $("#edit-company-city").val();
       // Company type is always VENDOR
       let companyType = "VENDOR";
       let companyId = $(this).attr("data-id");
+
+      if (!stateLid || !cityLid) {
+        createAlert({
+          title: 'ERROR',
+          msg: 'State and city are required',
+          type: 'negative'
+        });
+        return;
+      }
 
       $.ajax({
         method: "POST",
@@ -459,22 +551,35 @@
             email: email,
             phone: phone,
             registrationNumber: registrationNumber,
-            companyType: companyType
+            companyType: companyType,
+            stateLid: stateLid,
+            cityLid: cityLid
           }
         }),
         success: function(response) {
-          $("#edit-company-modal").modal("hide");
           if (response.status === 200) {
+            const row = $('#table-content').find(`tr[data-id="${companyId}"]`);
+            const stateName = $("#edit-company-state option:selected").text();
+            const cityName = $("#edit-company-city option:selected").text();
+            
+            row.find('.company-name').text(companyName);
+            row.find('.company-code').text(companyCode);
+            row.find('.company-email').text(email || '-');
+            row.find('.company-phone').text(phone || '-');
+            row.find('.company-state').text(stateName);
+            row.find('.company-city').text(cityName);
+            row.find('.registration-number').text(registrationNumber || '-');
+            row.attr('data-state-lid', stateLid);
+            row.attr('data-city-lid', cityLid);
+            
+            $("#edit-company-modal").modal("hide");
             createAlert({
               title: 'Success',
               msg: response.data.message,
               type: "positive",
             });
-
-            let row = $('#table-content').find(`tr[data-id="${companyId}"]`);
-            row.find('.company-name').text(companyName);
-            row.find('.company-code').text(companyCode);
           } else {
+            $("#edit-company-modal").modal("hide");
             createAlert({
               title: 'Error',
               msg: response.data.message,
@@ -516,10 +621,10 @@
         companyLid: companyId
       }),
       success: function(response) {
-        if (response.status === 200) {
+        if (response.status === 200 && response.message === 'success') {
           createAlert({
             title: 'Success',
-            msg: 'Company deleted successfully!',
+            msg: response.data.message || 'Company deleted successfully!',
             type: "positive",
           });
 
@@ -528,15 +633,31 @@
         } else {
           createAlert({
             title: 'ERROR',
-            msg: response.data.message,
+            msg: response.data.message || 'Failed to delete company',
             type: "negative",
           });
         }
       },
-      error: function(error) {
+      error: function(xhr) {
+        let errorMsg = 'Something went wrong!';
+        
+        // Extract error message from response
+        if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+          errorMsg = xhr.responseJSON.data.message;
+        } else if (xhr.responseText) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            if (response.data && response.data.message) {
+              errorMsg = response.data.message;
+            }
+          } catch (e) {
+            console.error('Failed to parse error response:', e);
+          }
+        }
+        
         createAlert({
           title: 'ERROR',
-          msg: 'Something went wrong!',
+          msg: errorMsg,
           type: "negative",
         });
       },

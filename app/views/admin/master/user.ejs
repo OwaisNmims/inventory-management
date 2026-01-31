@@ -53,7 +53,7 @@
                         <a href="./masters">Master</a>
                       </li>
                       <li class="breadcrumb-item active" aria-current="page">
-                        Tax
+                        Users
                       </li>
                     </ol>
                   </nav>
@@ -68,13 +68,12 @@
           <div class="table-template">
             <div class="table-header">
               <div class="table-title">
-                <h3>Tax</h3>
+                <h3>Users</h3>
               </div>
               <div class="table-actions">
                 <button
                   style="background: none; border: none"
-                  data-bs-toggle="modal"
-                  data-bs-target="#add-tax-modal"
+                  class="create-user-modal"
                 >
                   <i class="fa-regular fa-square-plus"></i>
                 </button>
@@ -89,17 +88,19 @@
                     <thead>
                       <tr>
                         <th scope="col">Sr No.</th>
-                        <th scope="col">Tax</th>
-                        <th scope="col">Percentage</th>
+                        <th scope="col">First Name</th>
+                        <th scope="col">Last Name</th>
+                        <th scope="col">Email</th>
                         <th class="text-center" scope="col">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       <% users.forEach((user, idx) => { %>
-                      <tr>
+                      <tr data-id="<%= user.id %>">
                         <td><%- ++idx %></td>
-                        <td class="tax-name"><%- tax.name %></td>
-                        <td class="tax-percentage"><%- tax.percentage %></td>
+                        <td class="user-firstname"><%- user.firstname %></td>
+                        <td class="user-lastname"><%- user.lastname %></td>
+                        <td class="user-email"><%- user.email %></td>
                         <td class="text-center">
                           <div class="action-btns">
                             <a
@@ -108,7 +109,7 @@
                               data-toggle="tooltip"
                               data-placement="top"
                               title="Edit"
-                              data-tax-id="<%- tax.id %>"
+                              data-user-id="<%- user.id %>"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -133,7 +134,7 @@
                               data-toggle="tooltip"
                               data-placement="top"
                               title="Delete"
-                              data-tax-id="<%- tax.id %>"
+                              data-user-id="<%- user.id %>"
                             >
                               <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -173,93 +174,19 @@
 </div>
 <!-- END MAIN CONTAINER -->
 
-<!--ADD Modal -->
+<!--ADD User Modal -->
 <div
   class="modal fade"
-  id="add-tax-modal"
+  id="add-user-modal"
   tabindex="-1"
   role="dialog"
-  aria-labelledby="add-tax-modal"
+  aria-labelledby="add-user-modal"
   aria-hidden="true"
 >
-  <div class="modal-dialog modal-xl" role="document">
+  <div class="modal-dialog modal-md" role="document">
     <div class="modal-content modal-inputform">
       <div class="modal-header modal-inputform-header">
-        <h5 class="modal-title text-dark" id="">ADD TAX</h5>
-        <button
-          type="button"
-          class="btn fs-4 text-dark"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        >
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="row info-container">
-          <div class="col-md-3 select-fields">
-            <div class="input-group mb-3 d-flex flex-column">
-              <label class="form-label">Tax</label>
-              <input
-                type="text"
-                id="tax"
-                name="tax"
-                placeholder="Type tax name"
-              />
-            </div>
-            <div class="input-group mb-3 d-flex flex-column">
-              <label class="form-label">Percentage</label>
-              <input
-                type="number"
-                id="percentage"
-                name="percentage"
-                placeholder="Type tax Percentage"
-                min="1"
-                max="100"
-                onkeyup="if(parseInt(this.value)>100){ this.value =100; return false; }"
-              />
-            </div>
-
-            <div class="mb-3 d-grid gap-2">
-              <button class="btn text-light add-tax btn-info">ADD</button>
-            </div>
-          </div>
-          <div class="col-md-9 selected-fields">
-            <div class="table-responsive">
-              <table class="table table-bordered" id="add-more-tax-table">
-                <thead>
-                  <th>Sr No.</th>
-                  <th>Tax</th>
-                  <th>Percentage</th>
-                  <th>Action</th>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn create-tax btn-primary">CREATE</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Edit tax Modal -->
-<div
-  class="modal fade"
-  id="edit-tax-modal"
-  tabindex="-1"
-  data-bs-backdrop="static"
-  data-bs-keyboard="false"
-  aria-labelledby="edit-tax-modal"
-  aria-hidden="true"
->
-  <div class="modal-dialog modal-sm" role="document">
-    <div class="modal-content modal-inputform">
-      <div class="modal-header modal-inputform-header">
-        <h5 class="modal-title text-dark" id="">EDIT TAX</h5>
+        <h5 class="modal-title text-dark" id="">ADD USER</h5>
         <button
           type="button"
           class="btn fs-4 text-dark"
@@ -272,24 +199,148 @@
       <div class="modal-body">
         <div class="select-fields">
           <div class="mb-3">
-            <label class="form-label" for="edit-tax-input">Tax</label>
-            <input type="text" class="form-control" id="edit-tax-input" />
+            <label class="form-label">First Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="add-firstname"
+              name="firstname"
+              placeholder="Enter first name"
+              required
+            />
           </div>
           <div class="mb-3">
-            <label class="form-label" for="edit-tax-percentage"
-              >Percentage</label
-            >
-            <input type="text" class="form-control" id="edit-tax-percentage" />
+            <label class="form-label">Last Name</label>
+            <input
+              type="text"
+              class="form-control"
+              id="add-lastname"
+              name="lastname"
+              placeholder="Enter last name"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control"
+              id="add-email"
+              name="email"
+              placeholder="Enter email"
+              required
+            />
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input
+              type="password"
+              class="form-control"
+              id="add-password"
+              name="password"
+              placeholder="Enter password"
+              required
+            />
           </div>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" id="save-edited-data" class="btn btn-primary">
-          SAVE
-        </button>
+        <button type="button" class="btn btn-primary create-user">CREATE</button>
       </div>
     </div>
   </div>
+</div>
+
+<!-- Edit User Modal -->
+<div
+  class="modal fade"
+  id="edit-user-modal"
+  tabindex="-1"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  aria-labelledby="edit-user-modal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">EDIT USER</h5>
+        <button
+          type="button"
+          class="btn fs-4 text-dark"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="select-fields">
+          <div class="mb-3">
+            <label class="form-label" for="edit-firstname">First Name</label>
+            <input type="text" class="form-control" id="edit-firstname" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="edit-lastname">Last Name</label>
+            <input type="text" class="form-control" id="edit-lastname" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="edit-email">Email</label>
+            <input type="email" class="form-control" id="edit-email" required />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-warning change-password-btn">Change Password</button>
+        <button type="button" id="save-edited-user" class="btn btn-primary">SAVE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div
+  class="modal fade"
+  id="change-password-modal"
+  tabindex="-1"
+  data-bs-backdrop="static"
+  data-bs-keyboard="false"
+  aria-labelledby="change-password-modal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-md" role="document">
+    <div class="modal-content modal-inputform">
+      <div class="modal-header modal-inputform-header">
+        <h5 class="modal-title text-dark" id="">CHANGE PASSWORD</h5>
+        <button
+          type="button"
+          class="btn fs-4 text-dark"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="select-fields">
+          <div class="mb-3">
+            <label class="form-label" for="new-password">New Password</label>
+            <input type="password" class="form-control" id="new-password" required />
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="confirm-password">Confirm Password</label>
+            <input type="password" class="form-control" id="confirm-password" required />
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" id="save-new-password" class="btn btn-primary">UPDATE PASSWORD</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   <%- include ('../partials/footer') %>
 
@@ -297,189 +348,232 @@
   <script>
     $(document).ready(function () {
       // GLOBAL VARIABLES
-      let taxId;
-      let newTax = [];
+      let currentUserId;
 
-      // ADD tax
-      $("#add-tax-modal .add-tax").on("click", function () {
-        const percentage = Number($("#percentage").val());
-        const tax = $("#tax").val().toUpperCase();
-
-        console.log("percentage:::::>", percentage);
-
-        if (!isAlphabetWords(tax)) {
-          createAlert({
-            title: "Incorrect input!",
-            msg: "Incorrect input, please check and try again.",
-            type: "negative",
-          });
-
-          return false;
-        }
-
-        function isNumberInRange(num) {
-          // Check if it's a number and not NaN
-          if (typeof num === "number" && !isNaN(num)) {
-            // Check if it's within the range [0, 100]
-            return num > 0 && num <= 100;
-          }
-          return false;
-        }
-
-        if (!isNumberInRange(percentage)) {
-          createAlert({
-            title: "Incorrect input!",
-            msg: "Incorrect input, please check and try again.",
-            type: "negative",
-          });
-
-          return false;
-        }
-
-        // Check for duplicate before pushing
-        const isDuplicate = newTax.some((rowData) => rowData.tax === tax);
-
-        if (isDuplicate) {
-          createAlert({
-            title: "Duplicate Data!",
-            msg: "Duplicate entries detected.",
-            type: "negative",
-          });
-          return false;
-        }
-
-        newTax.push({ tax, percentage });
-
-        const newTr = $("<tr>");
-        let rowCount = $("#add-more-tax-table tbody tr").length + 1;
-
-        newTr.data("percentage", percentage);
-        newTr.data("tax", tax);
-
-        newTr.append($("<td>").text(rowCount));
-        newTr.append($("<td>").text(tax));
-        newTr.append($("<td>").text(percentage));
-        newTr.append(
-          $("<td>").html(
-            `<i class="fa-regular fa-trash-can delete-row-btn cursor-pointer"></i>`
-          )
-        );
-
-        $("#add-more-tax-table tbody").append(newTr);
+      // Show Add User Modal
+      $(".create-user-modal").on("click", function () {
+        $("#add-user-modal").modal("show");
       });
 
-      // Delete row button click handler
-      $(document).on("click", ".delete-row-btn", function () {
-        const tr = $(this).closest("tr");
-        const percentage = tr.data("percentage");
-        const tax = tr.data("tax");
+      // CREATE USER
+      $(".create-user").on("click", function () {
+        const firstname = $("#add-firstname").val().trim();
+        const lastname = $("#add-lastname").val().trim();
+        const email = $("#add-email").val().trim();
+        const password = $("#add-password").val();
 
-        // Remove row data from the array
-        newTax.splice(
-          newTax.findIndex(
-            (tax) => tax.percentage === percentage && tax.tax === tax
-          ),
-          1
-        );
-
-        tr.remove();
-        updateSerialNumbers("#add-more-tax-table tbody tr");
-      });
-
-      // CREATE tax
-      $("#add-tax-modal .create-tax").on("click", function () {
-        console.log("new tax create btn>>>> ", newTax);
-        if (newTax.length <= 0) {
+        // Validation
+        if (!firstname || !lastname || !email || !password) {
           createAlert({
-            title: "Empty tax List!",
-            msg: "Cannot create empty tax.",
+            title: "Validation Error!",
+            msg: "All fields are required.",
             type: "negative",
           });
-          return;
+          return false;
         }
-        console.log("before ajax tax :::>>>", newTax);
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Please enter a valid email address.",
+            type: "negative",
+          });
+          return false;
+        }
+
+        // Password validation (min 6 characters)
+        if (password.length < 6) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Password must be at least 6 characters long.",
+            type: "negative",
+          });
+          return false;
+        }
 
         $.ajax({
           method: "POST",
-          url: "/admin/tax/add",
-          data: {
-            input_json: JSON.stringify(newTax),
-          },
+          url: "/admin/users/insert",
+          data: { firstname, lastname, email, password },
           success: function (response) {
-            // console.log("responce ::>>::>>",response);
-            // console.log("responce msg::>>::>>",response);
-            if (response.data.status == 200) {
-              alert(response.data.message);
-              location.reload(true);
+            if (response.message === 'success') {
+              createAlert({
+                title: "Success!",
+                msg: "User created successfully.",
+                type: "positive",
+              });
+              setTimeout(() => location.reload(), 1500);
             } else {
               createAlert({
                 title: "ERROR",
-                msg: response.data.message,
+                msg: response.data?.message || "Failed to create user.",
                 type: "negative",
               });
             }
           },
-          error: function (error) {
+          error: function (xhr) {
+            const errorMsg = xhr.responseJSON?.data?.message || xhr.responseText || "Something went wrong!";
             createAlert({
               title: "ERROR",
-              msg: response.data.message,
+              msg: errorMsg,
               type: "negative",
             });
           },
         });
       });
-      // EDIT TAX
+
+      // EDIT USER - Open Modal
       $(document).on("click", ".btn-edit", function () {
-        taxId = $(this).attr("data-tax-id");
-        const thisTr = this.closest("tr");
-        const taxName = $(thisTr).find(".tax-name").text();
-        const taxPercentage = $(thisTr).find(".tax-percentage").text();
-        $("#edit-tax-input").val(taxName);
-        $("#edit-tax-percentage").val(taxPercentage);
-        $("#edit-tax-modal").modal("show");
+        currentUserId = $(this).data("user-id");
+        const thisTr = $(this).closest("tr");
+        const firstname = $(thisTr).find(".user-firstname").text();
+        const lastname = $(thisTr).find(".user-lastname").text();
+        const email = $(thisTr).find(".user-email").text();
+
+        $("#edit-firstname").val(firstname);
+        $("#edit-lastname").val(lastname);
+        $("#edit-email").val(email);
+        $("#edit-user-modal").modal("show");
       });
 
-      // Save Edited tax
-      $(document).on("click", "#save-edited-data", function () {
-        let taxName = $("#edit-tax-input").val().toUpperCase();
-        let taxPercentage = $("#edit-tax-percentage").val();
+      // SAVE EDITED USER
+      $("#save-edited-user").on("click", function () {
+        const firstname = $("#edit-firstname").val().trim();
+        const lastname = $("#edit-lastname").val().trim();
+        const email = $("#edit-email").val().trim();
+
+        // Validation
+        if (!firstname || !lastname || !email) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "All fields are required.",
+            type: "negative",
+          });
+          return false;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Please enter a valid email address.",
+            type: "negative",
+          });
+          return false;
+        }
 
         $.ajax({
           method: "POST",
-          url: "/admin/tax/update",
-          data: {
-            taxData: { taxId, taxName, taxPercentage },
-          },
+          url: "/admin/users/update",
+          data: { userId: currentUserId, firstname, lastname, email },
           success: function (response) {
-            console.log("response in edit tax", response);
-            // console.log("response in update tax",response.message);
-            if (response.data.status == "success") {
-              alert(response.data.message);
-              location.reload(true);
+            if (response.message === 'success') {
+              createAlert({
+                title: "Success!",
+                msg: "User updated successfully.",
+                type: "positive",
+              });
+              setTimeout(() => location.reload(), 1500);
             } else {
               createAlert({
                 title: "ERROR",
-                msg: response.data.message,
+                msg: response.data?.message || "Failed to update user.",
                 type: "negative",
               });
             }
           },
-          error: function (error) {
+          error: function (xhr) {
+            const errorMsg = xhr.responseJSON?.data?.message || xhr.responseText || "Something went wrong!";
             createAlert({
               title: "ERROR",
-              msg: response.data.message,
+              msg: errorMsg,
               type: "negative",
             });
           },
         });
       });
 
-      // DELETE TAX
+      // CHANGE PASSWORD - Open Modal
+      $(".change-password-btn").on("click", function () {
+        $("#edit-user-modal").modal("hide");
+        $("#change-password-modal").modal("show");
+      });
+
+      // SAVE NEW PASSWORD
+      $("#save-new-password").on("click", function () {
+        const newPassword = $("#new-password").val();
+        const confirmPassword = $("#confirm-password").val();
+
+        // Validation
+        if (!newPassword || !confirmPassword) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Both password fields are required.",
+            type: "negative",
+          });
+          return false;
+        }
+
+        if (newPassword.length < 6) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Password must be at least 6 characters long.",
+            type: "negative",
+          });
+          return false;
+        }
+
+        if (newPassword !== confirmPassword) {
+          createAlert({
+            title: "Validation Error!",
+            msg: "Passwords do not match.",
+            type: "negative",
+          });
+          return false;
+        }
+
+        $.ajax({
+          method: "POST",
+          url: "/admin/users/update-password",
+          data: { userId: currentUserId, newPassword },
+          success: function (response) {
+            if (response.message === 'success') {
+              createAlert({
+                title: "Success!",
+                msg: "Password updated successfully.",
+                type: "positive",
+              });
+              $("#change-password-modal").modal("hide");
+              $("#new-password").val("");
+              $("#confirm-password").val("");
+            } else {
+              createAlert({
+                title: "ERROR",
+                msg: response.data?.message || "Failed to update password.",
+                type: "negative",
+              });
+            }
+          },
+          error: function (xhr) {
+            const errorMsg = xhr.responseJSON?.data?.message || xhr.responseText || "Something went wrong!";
+            createAlert({
+              title: "ERROR",
+              msg: errorMsg,
+              type: "negative",
+            });
+          },
+        });
+      });
+
+      // DELETE USER
       $(document).on("click", ".btn-delete", function () {
-        taxId = $(this).attr("data-tax-id");
+        const userId = $(this).data("user-id");
 
         const isConfirmed = confirm(
-          "Are you sure you want to remove the city?"
+          "Are you sure you want to delete this user? This action cannot be undone."
         );
 
         if (!isConfirmed) {
@@ -488,31 +582,42 @@
 
         $.ajax({
           method: "POST",
-          url: "/admin/tax/delete",
-          data: {
-            taxData: { taxId },
-          },
+          url: "/admin/users/delete",
+          data: { userId },
           success: function (response) {
-						console.log(response);
-            if (response.status == true) {
-              alert(response.message);
-              location.reload(true);
+            if (response.message === 'success') {
+              createAlert({
+                title: "Success!",
+                msg: "User deleted successfully.",
+                type: "positive",
+              });
+              setTimeout(() => location.reload(), 1500);
             } else {
               createAlert({
                 title: "ERROR",
-                msg: response.message,
+                msg: response.data?.message || "Failed to delete user.",
                 type: "negative",
               });
             }
           },
-          error: function (error) {
+          error: function (xhr) {
+            const errorMsg = xhr.responseJSON?.data?.message || xhr.responseText || "Something went wrong!";
             createAlert({
               title: "ERROR",
-              msg: response.message,
+              msg: errorMsg,
               type: "negative",
             });
           },
         });
+      });
+
+      // Clear modal fields when closed
+      $("#add-user-modal").on("hidden.bs.modal", function () {
+        $("#add-firstname, #add-lastname, #add-email, #add-password").val("");
+      });
+
+      $("#change-password-modal").on("hidden.bs.modal", function () {
+        $("#new-password, #confirm-password").val("");
       });
     });
   </script>

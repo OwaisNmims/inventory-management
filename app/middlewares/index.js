@@ -24,6 +24,8 @@ exports.verify = function (req, res, next) {
               lastname: response.lastname,
               email: response.email,
             };
+            // Make user data available to all views
+            res.locals._user = req.body._user;
             res.locals.id = response.id;
             next();
           } else {

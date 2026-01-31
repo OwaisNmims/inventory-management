@@ -1,6 +1,8 @@
 const company = require('../models/admin/masters/company');
 const Country = require('../models/admin/masters/countryMaster');
 const CompanyType = require('../models/admin/masters/companyType');
+const StateMaster = require('../models/admin/masters/stateMaster');
+const CityModel = require('../models/admin/masters/city');
 
 module.exports = {
 
@@ -12,12 +14,15 @@ module.exports = {
         if (req.method == "GET") {
             const countries = await Country.findAllActive();
             const companyTypes = await CompanyType.findAllActive();
+            const states = await StateMaster.findAllActive();
+            const cities = await CityModel.getAllCities();
             const companies = await company.getAllCompanies();
-            console.log('companies>>> ', companies.rows);
             res.render("admin/master/company", {
                 companies: companies ? companies.rows : [],
                 countries: countries ? countries.rows : [],
-                companyTypes: companyTypes ? companyTypes.rows : []
+                companyTypes: companyTypes ? companyTypes.rows : [],
+                states: states ? states.rows : [],
+                cities: cities ? cities.rows : []
             });
         }
     },
@@ -27,6 +32,17 @@ module.exports = {
             let { _user, companyList } = {
                 ...req.body,
             };
+
+            const invalidEntry = companyList?.find(
+                (entry) => !entry.stateLid || !entry.cityLid
+            );
+            if (invalidEntry) {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'State and city are required for every company' }
+                });
+            }
 
             const result = await company.insert(companyList);
             const insertResult = result.rows[0].insert_companies;
@@ -59,6 +75,14 @@ module.exports = {
                 ...req.body,
             };
 
+            if (!companyData.stateLid || !companyData.cityLid) {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'State and city are required for the company' }
+                });
+            }
+
             const result = await company.updateCompany(companyData);
             
             res.status(200).json({
@@ -84,13 +108,27 @@ module.exports = {
             let { _user, companyLid } = {
                 ...req.body,
             };
+            const userId = _user?.id || 1;
 
-            const result = await company.deleteCompany({ companyLid });
+            // Validate if company can be deleted (business logic in model)
+            const validation = await company.validateCompanyDeletion(companyLid);
+
+            if (!validation.canDelete) {
+                const statusCode = validation.reason === 'Company not found' ? 404 : 400;
+                return res.status(statusCode).json({
+                    message: 'error',
+                    status: statusCode,
+                    data: { message: validation.reason }
+                });
+            }
+
+            // Proceed with deletion
+            const result = await company.deleteCompany({ companyLid }, userId);
             
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: result
+                data: { message: 'Company deleted successfully' }
             });
 
         } catch (e) {
