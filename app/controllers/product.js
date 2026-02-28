@@ -593,7 +593,7 @@ module.exports = {
 
             // Get SELF company and NEW label for auto-mapping
             const selfCompanyResult = await pool.query(`
-                SELECT id FROM company WHERE company_type = 'SELF' OR company_code = 'SELF' LIMIT 1
+                SELECT id FROM company WHERE company_type = 'SELF' AND active = TRUE LIMIT 1
             `);
             
             const newLabelResult = await pool.query(`

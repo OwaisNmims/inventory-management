@@ -76,8 +76,8 @@ module.exports = {
     validateCompanyDeletion: async (companyId) => {
         // Get company details
         const companyResult = await pool.query(
-            `SELECT id, name, company_code 
-             FROM company 
+            `SELECT id, name, company_code, company_type
+             FROM company
              WHERE id = $1 AND active = TRUE`,
             [companyId]
         );
@@ -92,7 +92,7 @@ module.exports = {
         const companyData = companyResult.rows[0];
 
         // Prevent deletion of SELF company
-        if (companyData.company_code === 'SELF') {
+        if (companyData.company_type === 'SELF') {
             return {
                 canDelete: false,
                 reason: 'Cannot delete SELF company'

@@ -137,6 +137,26 @@
                             <i class="fas fa-exchange-alt me-2"></i>Inventory Mapping
                         </a>
                     </li>
+                    <li>
+                        <a href="/admin/sales">
+                            <i class="fas fa-shopping-cart me-2"></i>Sales Management
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/sale-receipts">
+                            <i class="fas fa-receipt me-2"></i>Sale Receipts
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/goods-return">
+                            <i class="fas fa-undo me-2"></i>Goods Return
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/admin/reports">
+                            <i class="fas fa-chart-bar me-2"></i>Reports
+                        </a>
+                    </li>
                 </ul>
             </li>
 
@@ -367,3 +387,41 @@
     margin: 5px 0;
 }
 </style>
+
+<script>
+(function() {
+    // Highlight the sidebar link that matches the current URL path
+    const path = window.location.pathname;
+
+    // Check top-level direct links (Dashboard, Users)
+    document.querySelectorAll('#sidebar > nav ul.menu-categories > li.menu > a[href]').forEach(function(a) {
+        if (a.getAttribute('href') === path) {
+            a.closest('li.menu').classList.add('active');
+        }
+    });
+
+    // Check submenu links
+    document.querySelectorAll('#sidebar .submenu li a[href]').forEach(function(a) {
+        // Exact match OR current path starts with the link href (handles sub-pages)
+        if (path === a.getAttribute('href') || path.startsWith(a.getAttribute('href') + '/')) {
+            a.classList.add('active');
+
+            // Open the parent collapse
+            const submenu = a.closest('ul.submenu');
+            if (submenu) {
+                submenu.classList.add('show');
+                // Mark the parent toggle as expanded
+                const parentLi = submenu.closest('li.menu');
+                if (parentLi) {
+                    parentLi.classList.add('active');
+                    const toggle = parentLi.querySelector('a.dropdown-toggle');
+                    if (toggle) {
+                        toggle.setAttribute('aria-expanded', 'true');
+                        toggle.classList.remove('collapsed');
+                    }
+                }
+            }
+        }
+    });
+})();
+</script>

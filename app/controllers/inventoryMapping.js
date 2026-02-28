@@ -165,7 +165,7 @@ module.exports = {
                     JOIN inventory_status ist ON ist.id = iu.status_lid
                     WHERE iu.product_lid = $1 
                     AND iu.active = TRUE 
-                    AND c.company_code = 'SELF'
+                    AND c.company_type = 'SELF'
                     AND ist.name = 'AVAILABLE'
                     ORDER BY iu.created_at ASC
                     LIMIT $2
@@ -227,11 +227,11 @@ module.exports = {
         }
     },
 
-    // Transfer inventory back to SELF
+    // Transfer inventory back to SELF and generate a GR receipt
     transferToSelf: async (req, res) => {
         try {
-            const { mappingIds } = req.body;
-            
+            const { mappingIds, notes } = req.body;
+
             if (!mappingIds || !Array.isArray(mappingIds) || mappingIds.length === 0) {
                 return res.status(400).json({
                     message: 'error',
@@ -241,11 +241,10 @@ module.exports = {
             }
 
             // Get SELF company ID
-            const selfCompanyResult = await pool.query(`
-                SELECT id FROM company WHERE company_code = 'SELF' AND active = TRUE LIMIT 1
-            `);
+            const selfCompanyResult = await pool.query(
+                `SELECT id FROM company WHERE company_type = 'SELF' AND active = TRUE LIMIT 1`
+            );
             const selfCompanyId = selfCompanyResult.rows[0]?.id;
-
             if (!selfCompanyId) {
                 return res.status(500).json({
                     message: 'error',
@@ -254,47 +253,116 @@ module.exports = {
                 });
             }
 
-            // Transfer mappings back to SELF
-            for (const mappingId of mappingIds) {
-                // Get inventory unit ID from mapping
-                const mappingResult = await pool.query(`
-                    SELECT inventory_unit_lid FROM inventory_company_mapping 
-                    WHERE id = $1 AND active = TRUE
-                `, [mappingId]);
+            // Fetch all mapping details in one query (product, price, label, from-company)
+            const detailsResult = await pool.query(`
+                SELECT
+                    icm.id               AS mapping_id,
+                    icm.inventory_unit_lid,
+                    icm.company_lid      AS from_company_lid,
+                    p.id                 AS product_id,
+                    p.price,
+                    ml.name              AS label
+                FROM inventory_company_mapping icm
+                JOIN inventory_unit iu ON iu.id  = icm.inventory_unit_lid
+                JOIN product        p  ON p.id   = iu.product_lid
+                JOIN mapping_label  ml ON ml.id  = icm.label_lid
+                WHERE icm.id = ANY($1::int[])
+                  AND icm.active = TRUE
+            `, [mappingIds]);
 
-                if (mappingResult.rows.length > 0) {
-                    const inventoryUnitId = mappingResult.rows[0].inventory_unit_lid;
+            if (detailsResult.rows.length === 0) {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'No valid active mappings found' }
+                });
+            }
 
-                    // Update inventory unit
-                    await pool.query(`
-                        UPDATE inventory_unit 
-                        SET status_lid = (SELECT id FROM inventory_status WHERE name = 'AVAILABLE'),
+            const fromCompanyId = detailsResult.rows[0].from_company_lid;
+
+            const client = await pool.connect();
+            let grReceiptNumber, totalUnits = 0, totalAmount = 0;
+            try {
+                await client.query('BEGIN');
+
+                // Generate GR receipt number
+                const numRow = await client.query(`SELECT generate_goods_return_number() AS num`);
+                grReceiptNumber = numRow.rows[0].num;
+
+                // Insert GR receipt header
+                const grInsert = await client.query(`
+                    INSERT INTO goods_return_receipt
+                           (receipt_number, from_company_lid, notes, created_by)
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING id
+                `, [grReceiptNumber, fromCompanyId, notes || null, 1]);
+                const grReceiptId = grInsert.rows[0].id;
+
+                for (const row of detailsResult.rows) {
+                    const price = parseFloat(row.price) || 0;
+
+                    // Insert GR receipt item
+                    await client.query(`
+                        INSERT INTO goods_return_receipt_item
+                               (receipt_lid, inventory_unit_lid, product_lid, mapping_lid, product_price, label)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                    `, [grReceiptId, row.inventory_unit_lid, row.product_id, row.mapping_id, price, row.label]);
+
+                    // Return unit to AVAILABLE under SELF
+                    await client.query(`
+                        UPDATE inventory_unit
+                        SET status_lid          = (SELECT id FROM inventory_status WHERE name = 'AVAILABLE'),
                             current_company_lid = $1,
-                            updated_at = CURRENT_TIMESTAMP,
-                            updated_by = $2
+                            updated_at          = CURRENT_TIMESTAMP,
+                            updated_by          = $2
                         WHERE id = $3
-                    `, [selfCompanyId, 1, inventoryUnitId]);
+                    `, [selfCompanyId, 1, row.inventory_unit_lid]);
 
-                    // UPSERT mapping to SELF (no need to deactivate first)
-                    await pool.query(`
-                        INSERT INTO inventory_company_mapping (inventory_unit_lid, company_lid, label_lid, notes, created_by)
+                    // UPSERT mapping back to SELF
+                    await client.query(`
+                        INSERT INTO inventory_company_mapping
+                               (inventory_unit_lid, company_lid, label_lid, notes, created_by)
                         VALUES ($1, $2, (SELECT id FROM mapping_label WHERE name = 'NEW'), 'Transferred back to SELF', $3)
-                        ON CONFLICT (inventory_unit_lid) 
-                        DO UPDATE SET 
+                        ON CONFLICT (inventory_unit_lid)
+                        DO UPDATE SET
                             company_lid = EXCLUDED.company_lid,
-                            label_lid = EXCLUDED.label_lid,
-                            notes = EXCLUDED.notes,
-                            updated_at = CURRENT_TIMESTAMP,
-                            updated_by = EXCLUDED.created_by,
-                            active = TRUE
-                    `, [inventoryUnitId, selfCompanyId, 1]);
+                            label_lid   = EXCLUDED.label_lid,
+                            notes       = EXCLUDED.notes,
+                            updated_at  = CURRENT_TIMESTAMP,
+                            updated_by  = EXCLUDED.created_by,
+                            active      = TRUE
+                    `, [row.inventory_unit_lid, selfCompanyId, 1]);
+
+                    totalAmount += price;
+                    totalUnits++;
                 }
+
+                // Update GR receipt totals
+                await client.query(`
+                    UPDATE goods_return_receipt
+                    SET total_units  = $1,
+                        total_amount = $2,
+                        updated_at   = CURRENT_TIMESTAMP
+                    WHERE id = $3
+                `, [totalUnits, totalAmount, grReceiptId]);
+
+                await client.query('COMMIT');
+            } catch (txErr) {
+                await client.query('ROLLBACK');
+                throw txErr;
+            } finally {
+                client.release();
             }
 
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: { message: `Successfully transferred ${mappingIds.length} inventory units back to SELF` }
+                data: {
+                    message:           `Successfully transferred ${totalUnits} unit(s) back to SELF`,
+                    gr_receipt_number: grReceiptNumber,
+                    total_units:       totalUnits,
+                    total_amount:      totalAmount
+                }
             });
 
         } catch (e) {
@@ -307,11 +375,11 @@ module.exports = {
         }
     },
 
-    // Mark inventory as sold
+    // Mark inventory as sold and create a sale receipt
     markAsSold: async (req, res) => {
         try {
-            const { mappingIds } = req.body;
-            
+            const { mappingIds, notes } = req.body;
+
             if (!mappingIds || !Array.isArray(mappingIds) || mappingIds.length === 0) {
                 return res.status(400).json({
                     message: 'error',
@@ -320,32 +388,99 @@ module.exports = {
                 });
             }
 
-            // Mark inventory units as SOLD
-            for (const mappingId of mappingIds) {
-                // Get inventory unit ID from mapping
-                const mappingResult = await pool.query(`
-                    SELECT inventory_unit_lid FROM inventory_company_mapping 
-                    WHERE id = $1 AND active = TRUE
-                `, [mappingId]);
+            // Fetch all mapping details in one query (unit id, product, price, label, company)
+            const detailsResult = await pool.query(`
+                SELECT
+                    icm.id           AS mapping_id,
+                    icm.inventory_unit_lid,
+                    icm.company_lid,
+                    p.id             AS product_id,
+                    p.price,
+                    ml.name          AS label
+                FROM inventory_company_mapping icm
+                JOIN inventory_unit iu  ON iu.id  = icm.inventory_unit_lid
+                JOIN product p          ON p.id   = iu.product_lid
+                JOIN mapping_label ml   ON ml.id  = icm.label_lid
+                WHERE icm.id = ANY($1::int[])
+                  AND icm.active = TRUE
+            `, [mappingIds]);
 
-                if (mappingResult.rows.length > 0) {
-                    const inventoryUnitId = mappingResult.rows[0].inventory_unit_lid;
+            if (detailsResult.rows.length === 0) {
+                return res.status(400).json({
+                    message: 'error',
+                    status: 400,
+                    data: { message: 'No valid active mappings found for the provided IDs' }
+                });
+            }
 
-                    // Update inventory unit status to SOLD
-                    await pool.query(`
-                        UPDATE inventory_unit 
+            // Derive company from the first mapping row
+            const companyId = detailsResult.rows[0].company_lid;
+
+            // All writes happen inside a transaction so partial failures roll back cleanly
+            const client = await pool.connect();
+            let receiptNumber, receiptId, totalAmount = 0, totalUnits = 0;
+            try {
+                await client.query('BEGIN');
+
+                // Generate a unique receipt number
+                const receiptNumResult = await client.query(`SELECT generate_sale_receipt_number() AS receipt_number`);
+                receiptNumber = receiptNumResult.rows[0].receipt_number;
+
+                // Create the sale receipt header
+                const receiptResult = await client.query(`
+                    INSERT INTO sale_receipt (receipt_number, company_lid, notes, created_by)
+                    VALUES ($1, $2, $3, $4)
+                    RETURNING id
+                `, [receiptNumber, companyId, notes || null, 1]);
+                receiptId = receiptResult.rows[0].id;
+
+                // Process each mapping: insert receipt item + mark unit as SOLD
+                for (const row of detailsResult.rows) {
+                    const salePrice = parseFloat(row.price) || 0;
+
+                    await client.query(`
+                        INSERT INTO sale_receipt_item
+                            (receipt_lid, inventory_unit_lid, product_lid, mapping_lid, sale_price, label)
+                        VALUES ($1, $2, $3, $4, $5, $6)
+                    `, [receiptId, row.inventory_unit_lid, row.product_id, row.mapping_id, salePrice, row.label]);
+
+                    await client.query(`
+                        UPDATE inventory_unit
                         SET status_lid = (SELECT id FROM inventory_status WHERE name = 'SOLD'),
                             updated_at = CURRENT_TIMESTAMP,
                             updated_by = $1
                         WHERE id = $2
-                    `, [1, inventoryUnitId]);
+                    `, [1, row.inventory_unit_lid]);
+
+                    totalAmount += salePrice;
+                    totalUnits++;
                 }
+
+                // Update receipt totals
+                await client.query(`
+                    UPDATE sale_receipt
+                    SET total_units = $1, total_amount = $2, updated_at = CURRENT_TIMESTAMP
+                    WHERE id = $3
+                `, [totalUnits, totalAmount, receiptId]);
+
+                await client.query('COMMIT');
+            } catch (txErr) {
+                await client.query('ROLLBACK');
+                throw txErr;
+            } finally {
+                client.release();
             }
 
             res.status(200).json({
                 message: 'success',
                 status: 200,
-                data: { message: `Successfully marked ${mappingIds.length} inventory units as SOLD` }
+                data: {
+                    message: `Successfully marked ${totalUnits} inventory unit(s) as SOLD`,
+                    receipt_number: receiptNumber,
+                    receipt_id: receiptId,
+                    total_units: totalUnits,
+                    total_amount: totalAmount
+                }
             });
 
         } catch (e) {

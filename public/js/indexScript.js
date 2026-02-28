@@ -723,7 +723,6 @@ let transportTableRow;
 let transportTableRowCount = 0;
 
   addTransportTableBtn.addEventListener("click", function () {
-      console.log("add btn clicked!!");
     transportObj.fromOne = document.querySelector("#from-one").value;
     transportObj.toOne = document.querySelector("#to-one").value;
     transportObj.transportType = document.querySelector("#transport-type").value;

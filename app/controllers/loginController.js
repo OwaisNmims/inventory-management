@@ -12,8 +12,6 @@ module.exports = {
       if (req.method == "GET") {
   
         try {
-          console.log('ikde aalaaa')
-            
             res.render("login.ejs")
         } catch (error) {
             res.render("admin/error.ejs")
@@ -28,7 +26,6 @@ module.exports = {
   Authenticate: async (req, res, next) => {
     
     let token = req.cookies.token;
-    console.log('token:::::::::', req.cookies)
     let {
       email,
       password
@@ -40,7 +37,6 @@ module.exports = {
 
     Login.findOneForLogin(email).then( async (data) => {
       let result = data.rows[0];
-      console.log('result::::::::::::::', result)
       if (result != null || typeof result != "undefined") {
         if (bcrypt.compareSync(password, result.password)) {
 
@@ -61,8 +57,6 @@ module.exports = {
                   msg: "something went wrong...try again later",
                 });
               } else {
-                let resp = await response;
-                console.log("resp redis write ==> ", resp);
                 redisClient.client.expire(token, process.env.REDIS_TTL);
                   let redirect = "";
                   redirect = "/admin/dashboard";
@@ -94,12 +88,8 @@ module.exports = {
       
       if (token) {
         // Remove the token from Redis
-        redisClient.client.del(token, function (err, response) {
-          if (err) {
-            console.log('Error removing token from Redis:', err);
-          } else {
-            console.log('Token removed from Redis:', response);
-          }
+        redisClient.client.del(token, function (err) {
+          if (err) console.error('Error removing token from Redis:', err);
         });
       }
       

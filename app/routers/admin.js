@@ -29,6 +29,10 @@ const product = require('../controllers/product');
 const inventory = require('../controllers/inventory');
 const inventoryMapping = require('../controllers/inventoryMapping');
 const orderTracking = require('../controllers/orderTracking');
+const sales = require('../controllers/sales');
+const saleReceipt = require('../controllers/saleReceipt');
+const goodsReturn = require('../controllers/goodsReturn');
+const report = require('../controllers/report');
 // const {
 //     validate
 // } = require("../utils/index")
@@ -217,6 +221,27 @@ router.post('/users/insert', userController.insert);
 router.post('/users/update', userController.updateUser);
 router.post('/users/update-password', userController.updatePassword);
 router.post('/users/delete', userController.deleteUser);
+
+// Sales
+router.get('/sales', sales.index);
+router.get('/sales/inventory/:companyId', sales.getAvailableInventory);
+router.post('/sales/sell', sales.sell);
+
+// Sale Receipts
+router.get('/sale-receipts', saleReceipt.index);
+router.get('/sale-receipts/list', saleReceipt.list);
+router.get('/sale-receipts/:id', saleReceipt.getById);
+router.post('/sale-receipts/:receiptId/items/:itemId/reverse', saleReceipt.reverseItem);
+
+// Goods Return
+router.get('/goods-return', goodsReturn.index);
+router.get('/goods-return/list', goodsReturn.list);
+router.get('/goods-return/:id', goodsReturn.getById);
+
+// Reports
+router.get('/reports',              report.index);
+router.get('/reports/generate',     report.generate);
+router.get('/reports/download-csv', report.downloadCsv);
 
 // Logout
 router.get('/logout', loginController.logout);

@@ -173,9 +173,19 @@ module.exports = {
         // Validate sort parameters
         const allowedSortFields = ['product_name', 'product_code', 'category', 'price', 'inventory_id'];
         const allowedSortOrders = ['ASC', 'DESC'];
-        
+
         const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'product_name';
         const validSortOrder = allowedSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
+
+        // Natural sort for text+number columns, plain sort for others
+        let orderClause;
+        if (validSortBy === 'product_name') {
+            orderClause = `lower(regexp_replace(p.name, '[0-9]+$', '')) ${validSortOrder}, CAST(NULLIF(regexp_replace(p.name, '[^0-9]', '', 'g'), '') AS bigint) ${validSortOrder}`;
+        } else if (validSortBy === 'product_code') {
+            orderClause = `lower(regexp_replace(p.product_code, '[0-9]+$', '')) ${validSortOrder}, CAST(NULLIF(regexp_replace(p.product_code, '[^0-9]', '', 'g'), '') AS bigint) ${validSortOrder}`;
+        } else {
+            orderClause = `${validSortBy} ${validSortOrder}`;
+        }
 
         // Get total count for pagination
         const countStatement = {
@@ -216,7 +226,7 @@ module.exports = {
                     AND ist.name = 'AVAILABLE'
                     AND c.company_type = 'SELF'
                     ${searchCondition}
-                ORDER BY ${validSortBy} ${validSortOrder}, iu.id
+                ORDER BY ${orderClause}, iu.id
                 LIMIT $${searchParams.length + 1} OFFSET $${searchParams.length + 2}
             `,
             values: [...searchParams, parseInt(limit), offset]
@@ -279,10 +289,19 @@ module.exports = {
         // Validate sort parameters
         const allowedSortFields = ['product_name', 'product_code', 'company_name', 'company_type', 'total_units', 'available_units', 'mapped_units', 'sold_units'];
         const allowedSortOrders = ['ASC', 'DESC'];
-        
+
         const validSortBy = allowedSortFields.includes(sortBy) ? sortBy : 'product_name';
         const validSortOrder = allowedSortOrders.includes(sortOrder.toUpperCase()) ? sortOrder.toUpperCase() : 'ASC';
 
+        // Natural sort for text+number columns, plain sort for others
+        let orderClause;
+        if (validSortBy === 'product_name') {
+            orderClause = `lower(regexp_replace(p.name, '[0-9]+$', '')) ${validSortOrder}, CAST(NULLIF(regexp_replace(p.name, '[^0-9]', '', 'g'), '') AS bigint) ${validSortOrder}`;
+        } else if (validSortBy === 'product_code') {
+            orderClause = `lower(regexp_replace(p.product_code, '[0-9]+$', '')) ${validSortOrder}, CAST(NULLIF(regexp_replace(p.product_code, '[^0-9]', '', 'g'), '') AS bigint) ${validSortOrder}`;
+        } else {
+            orderClause = `${validSortBy} ${validSortOrder}`;
+        }
         // Get total count for pagination (count of unique product-company combinations)
         const countStatement = {
             text: `
@@ -335,7 +354,7 @@ module.exports = {
                 JOIN inventory_status ist ON ist.id = iu.status_lid
                 ${whereClause}
                 GROUP BY p.id, p.name, p.product_code, p.price, p.category, c.id, c.name, c.company_code, c.company_type
-                ORDER BY ${validSortBy} ${validSortOrder}
+                ORDER BY ${orderClause}
                 LIMIT $${params.length + 1} OFFSET $${params.length + 2}
             `,
             values: [...params, parseInt(limit), offset]
@@ -613,7 +632,7 @@ module.exports = {
             JOIN company c ON c.id = iu.current_company_lid
             WHERE p.active = TRUE 
             AND iu.active = TRUE 
-            AND c.company_code = 'SELF'
+            AND c.company_type = 'SELF'
             AND ist.name = 'AVAILABLE'
             ${searchCondition}
         `;
@@ -635,7 +654,7 @@ module.exports = {
             JOIN company c ON c.id = iu.current_company_lid
             WHERE p.active = TRUE 
             AND iu.active = TRUE 
-            AND c.company_code = 'SELF'
+            AND c.company_type = 'SELF'
             AND ist.name = 'AVAILABLE'
             ${searchCondition}
             GROUP BY p.id, p.name, p.product_code, p.category, p.price

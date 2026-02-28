@@ -1,0 +1,577 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Analytics">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active">
+                        <a href="/admin/dashboard">Dashboard</a>
+                      </li>
+                      <li class="breadcrumb-item active" aria-current="page">Sale Receipts</li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+
+          <!-- Filters -->
+          <div class="table-template mb-4">
+            <div class="table-header">
+              <div class="table-title">
+                <h3>Sale Receipts</h3>
+              </div>
+            </div>
+            <div class="table-content">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">Receipt #</label>
+                  <input type="text" class="form-control form-control-sm" id="filter-receipt"
+                         placeholder="e.g. SR-20260228">
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">State</label>
+                  <select class="form-select form-select-sm" id="filter-state">
+                    <option value="">All States</option>
+                    <% if (states && states.length > 0) { %>
+                      <% states.forEach(function(s) { %>
+                        <option value="<%= s.id %>"><%= s.name %></option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">City</label>
+                  <select class="form-select form-select-sm" id="filter-city">
+                    <option value="">All Cities</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">Company</label>
+                  <select class="form-select form-select-sm" id="filter-company">
+                    <option value="">All Companies</option>
+                    <% companies.forEach(function(c) { %>
+                      <option value="<%= c.id %>"
+                              data-state-lid="<%= c.state_lid || '' %>"
+                              data-city-lid="<%= c.city_lid || '' %>">
+                        <%= c.name %> (<%= c.company_code %>)
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <label class="form-label fw-semibold">Status</label>
+                  <select class="form-select form-select-sm" id="filter-status">
+                    <option value="">All</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="PARTIAL_REVERSAL">Partial Reversal</option>
+                    <option value="REVERSED">Reversed</option>
+                  </select>
+                </div>
+                <div class="col-md-1">
+                  <label class="form-label fw-semibold">From</label>
+                  <input type="date" class="form-control form-control-sm" id="filter-date-from">
+                </div>
+                <div class="col-md-1">
+                  <label class="form-label fw-semibold">To</label>
+                  <input type="date" class="form-control form-control-sm" id="filter-date-to">
+                </div>
+                <div class="col-md-1">
+                  <button class="btn btn-primary btn-sm w-100" id="btn-filter">
+                    <i class="fas fa-search me-1"></i> Go
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Receipts Table -->
+          <div class="table-template">
+            <div class="table-header">
+              <div class="table-title">
+                <h3 id="receipts-count-heading">All Receipts</h3>
+              </div>
+              <div class="table-actions">
+                <span class="badge badge-secondary" id="receipts-total-badge"></span>
+              </div>
+            </div>
+            <div class="table-content">
+              <div class="table-responsive">
+                <table class="table table-bordered" id="receipts-table">
+                  <thead class="table-dark">
+                    <tr>
+                      <th style="width: 40px;"></th>
+                      <th class="sortable" data-sort="receipt_number" style="cursor:pointer;">Receipt # <i class="sort-icon fas fa-sort ms-1"></i></th>
+                      <th class="sortable" data-sort="company_name" style="cursor:pointer;">Company <i class="sort-icon fas fa-sort ms-1"></i></th>
+                      <th class="sortable" data-sort="sale_date" style="cursor:pointer;">Date <i class="sort-icon fas fa-sort ms-1"></i></th>
+                      <th class="sortable text-center" data-sort="total_units" style="cursor:pointer;">Units <i class="sort-icon fas fa-sort ms-1"></i></th>
+                      <th class="sortable text-end" data-sort="total_amount" style="cursor:pointer;">Amount <i class="sort-icon fas fa-sort ms-1"></i></th>
+                      <th class="sortable text-center" data-sort="status" style="cursor:pointer;">Status <i class="sort-icon fas fa-sort ms-1"></i></th>
+                    </tr>
+                  </thead>
+                  <tbody id="receipts-tbody">
+                    <tr>
+                      <td colspan="7" class="text-center py-3">
+                        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                        Loading receipts...
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="d-flex justify-content-between align-items-center mt-3 d-none" id="pagination-wrapper">
+                <small class="text-muted" id="pagination-info"></small>
+                <div class="d-flex align-items-center gap-2">
+                  <select class="form-select form-select-sm" id="receipts-per-page" style="width:75px;">
+                    <option value="10">10</option>
+                    <option value="20" selected>20</option>
+                    <option value="50">50</option>
+                  </select>
+                  <small class="text-muted">per page</small>
+                  <nav>
+                    <ul class="pagination pagination-sm mb-0 ms-2" id="pagination-controls"></ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!--  END MAIN CONTAINER  -->
+
+<!-- Reversal Modal -->
+<div class="modal fade" id="reversal-modal" tabindex="-1" aria-labelledby="reversal-modal-label" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reversal-modal-label">
+          <i class="fas fa-undo me-2"></i>Reverse Item
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3" id="reversal-description">
+          This will return the unit to <strong>MAPPED</strong> status under the same company.
+        </p>
+        <label class="form-label fw-semibold">Reason (optional)</label>
+        <textarea class="form-control form-control-sm" id="reversal-reason" rows="3"
+                  placeholder="e.g. Customer returned item, damaged unit..."></textarea>
+        <input type="hidden" id="reversal-receipt-id">
+        <input type="hidden" id="reversal-item-id">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger btn-sm" id="btn-confirm-reversal">
+          <i class="fas fa-undo me-1"></i> Confirm Reversal
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include ('../partials/footer') %>
+
+<script>
+$(document).ready(function () {
+    let currentPage      = 1;
+    let currentLimit     = 20;
+    let currentSortBy    = 'sale_date';
+    let currentSortOrder = 'DESC';
+
+    // State / city / company cascade
+    const receiptCities = JSON.parse('<%- JSON.stringify(cities || []) %>');
+
+    $('#filter-state').on('change', function() {
+        const stateId = $(this).val();
+        const citySel = $('#filter-city');
+        citySel.html('<option value="">All Cities</option>');
+        if (stateId) {
+            receiptCities.filter(c => c.state_lid == stateId).forEach(function(c) {
+                citySel.append('<option value="' + c.id + '">' + c.name + '</option>');
+            });
+        }
+        filterReceiptCompanies();
+        loadReceipts(1);
+    });
+
+    $('#filter-city').on('change', function() {
+        filterReceiptCompanies();
+        loadReceipts(1);
+    });
+
+    $('#filter-company, #filter-status').on('change', function() {
+        loadReceipts(1);
+    });
+
+    function filterReceiptCompanies() {
+        const selectedState = $('#filter-state').val();
+        const selectedCity  = $('#filter-city').val();
+        $('#filter-company option').each(function() {
+            if (!$(this).val()) return;
+            const optState = $(this).data('state-lid');
+            const optCity  = $(this).data('city-lid');
+            let show = true;
+            if (selectedState && optState != selectedState) show = false;
+            if (selectedCity  && optCity  != selectedCity)  show = false;
+            $(this).prop('hidden', !show);
+        });
+        const cur = $('#filter-company').val();
+        if (cur && $('#filter-company option[value="' + cur + '"]:not([hidden])').length === 0) {
+            $('#filter-company').val('');
+        }
+    }
+
+    // Initial load
+    loadReceipts(1);
+
+    // Filter button & Enter key on receipt search
+    $('#btn-filter').on('click', function () {
+        loadReceipts(1);
+    });
+    $('#filter-receipt').on('keydown', function(e) {
+        if (e.key === 'Enter') loadReceipts(1);
+    });
+
+    $('#receipts-per-page').on('change', function() {
+        currentLimit = parseInt($(this).val());
+        loadReceipts(1);
+    });
+
+    // Column sort
+    $(document).on('click', '#receipts-table thead .sortable', function() {
+        const field = $(this).data('sort');
+        if (currentSortBy === field) {
+            currentSortOrder = currentSortOrder === 'ASC' ? 'DESC' : 'ASC';
+        } else {
+            currentSortBy    = field;
+            currentSortOrder = 'ASC';
+        }
+        $('#receipts-table thead .sortable .sort-icon')
+            .removeClass('fa-sort-up fa-sort-down').addClass('fa-sort');
+        $(this).find('.sort-icon')
+            .removeClass('fa-sort')
+            .addClass(currentSortOrder === 'ASC' ? 'fa-sort-up' : 'fa-sort-down');
+        loadReceipts(1);
+    });
+
+    // Load receipts list
+    function loadReceipts(page) {
+        currentPage = page;
+        $('#receipts-tbody').html(
+            '<tr><td colspan="7" class="text-center py-3">' +
+            '<div class="spinner-border spinner-border-sm me-2"></div>Loading...</td></tr>'
+        );
+
+        $.ajax({
+            url: '/admin/sale-receipts/list',
+            method: 'GET',
+            data: {
+                page:      page,
+                limit:     currentLimit,
+                receipt:   $('#filter-receipt').val().trim(),
+                stateLid:  $('#filter-state').val(),
+                cityLid:   $('#filter-city').val(),
+                company:   $('#filter-company').val(),
+                status:    $('#filter-status').val(),
+                dateFrom:  $('#filter-date-from').val(),
+                dateTo:    $('#filter-date-to').val(),
+                sortBy:    currentSortBy,
+                sortOrder: currentSortOrder
+            },
+            success: function (response) {
+                if (response.status === 200) {
+                    renderReceiptsTable(response.data.items);
+                    renderPagination(response.data.pagination);
+                } else {
+                    showTableError();
+                }
+            },
+            error: showTableError
+        });
+    }
+
+    function renderReceiptsTable(items) {
+        const tbody = $('#receipts-tbody');
+        tbody.empty();
+
+        if (items.length === 0) {
+            tbody.html('<tr><td colspan="7" class="text-center py-3 text-muted">' +
+                '<i class="fas fa-inbox me-1"></i>No receipts found</td></tr>');
+            $('#receipts-total-badge').text('');
+            return;
+        }
+
+        $('#receipts-total-badge').text(items.length + ' shown');
+
+        items.forEach(function (r) {
+            const statusClass = r.status === 'ACTIVE' ? 'badge-success'
+                              : r.status === 'REVERSED' ? 'badge-danger'
+                              : 'badge-warning';
+            const date = new Date(r.sale_date).toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric',
+                hour: '2-digit', minute: '2-digit'
+            });
+
+            const row =
+                '<tr class="receipt-row" style="cursor:pointer;" data-receipt-id="' + r.id + '">' +
+                    '<td class="text-center align-middle">' +
+                        '<i class="fas fa-chevron-right expand-icon text-muted" style="transition:transform .2s;font-size:11px;"></i>' +
+                    '</td>' +
+                    '<td class="align-middle"><code>' + r.receipt_number + '</code></td>' +
+                    '<td class="align-middle">' + r.company_name + ' <small class="text-muted">(' + r.company_code + ')</small></td>' +
+                    '<td class="align-middle"><small>' + date + '</small></td>' +
+                    '<td class="align-middle text-center"><span class="badge badge-info">' + r.total_units + '</span></td>' +
+                    '<td class="align-middle text-end"><strong>&#8377;' + parseFloat(r.total_amount).toFixed(2) + '</strong></td>' +
+                    '<td class="align-middle text-center"><span class="badge ' + statusClass + '">' + r.status.replace('_', ' ') + '</span></td>' +
+                '</tr>' +
+                '<tr class="items-row d-none" id="items-' + r.id + '">' +
+                    '<td colspan="7" class="p-0">' +
+                        '<div class="p-3 bg-light border-top">' +
+                            '<div class="items-placeholder text-center py-2 text-muted">' +
+                                '<div class="spinner-border spinner-border-sm me-1"></div> Loading items...' +
+                            '</div>' +
+                        '</div>' +
+                    '</td>' +
+                '</tr>';
+
+            tbody.append(row);
+        });
+    }
+
+    // Expand/collapse receipt rows
+    $(document).on('click', '.receipt-row', function () {
+        const receiptId  = $(this).data('receipt-id');
+        const itemsRow   = $('#items-' + receiptId);
+        const icon       = $(this).find('.expand-icon');
+        const isOpen     = !itemsRow.hasClass('d-none');
+
+        if (isOpen) {
+            itemsRow.addClass('d-none');
+            icon.css('transform', 'rotate(0deg)');
+            return;
+        }
+
+        // Close all other open rows
+        $('.items-row').addClass('d-none');
+        $('.expand-icon').css('transform', 'rotate(0deg)');
+
+        itemsRow.removeClass('d-none');
+        icon.css('transform', 'rotate(90deg)');
+
+        // Only fetch if not already loaded
+        if (itemsRow.find('.items-placeholder').length) {
+            loadReceiptItems(receiptId, itemsRow);
+        }
+    });
+
+    function loadReceiptItems(receiptId, container) {
+        $.ajax({
+            url: '/admin/sale-receipts/' + receiptId,
+            method: 'GET',
+            success: function (response) {
+                if (response.status === 200) {
+                    renderItemsTable(receiptId, container, response.data.items, response.data.receipt.company_type || '');
+                } else {
+                    container.find('.p-3').html('<p class="text-danger small mb-0"><i class="fas fa-exclamation-circle me-1"></i>Error loading items</p>');
+                }
+            },
+            error: function () {
+                container.find('.p-3').html('<p class="text-danger small mb-0"><i class="fas fa-exclamation-circle me-1"></i>Failed to load items</p>');
+            }
+        });
+    }
+
+    function renderItemsTable(receiptId, container, items, companyType) {
+        if (items.length === 0) {
+            container.find('.p-3').html('<p class="text-muted small mb-0"><i class="fas fa-inbox me-1"></i>No items</p>');
+            return;
+        }
+
+        let html = '<table class="table table-sm table-bordered mb-0">' +
+            '<thead><tr>' +
+            '<th>Product</th><th>Code</th><th>Label</th>' +
+            '<th class="text-end">Price</th><th class="text-center">Status</th><th style="width:110px;"></th>' +
+            '</tr></thead><tbody>';
+
+        items.forEach(function (item) {
+            const labelClass  = item.label === 'NEW' ? 'badge-success' : (item.label === 'OLD' ? 'badge-secondary' : 'badge-info');
+            const statusClass = item.status === 'SOLD' ? 'badge-warning' : 'badge-danger';
+            const canReverse  = item.status === 'SOLD';
+
+            html +=
+                '<tr>' +
+                '<td>' + item.product_name + '</td>' +
+                '<td><code>' + item.product_code + '</code></td>' +
+                '<td><span class="badge ' + labelClass + '">' + (item.label || '—') + '</span></td>' +
+                '<td class="text-end"><strong>&#8377;' + parseFloat(item.sale_price).toFixed(2) + '</strong></td>' +
+                '<td class="text-center"><span class="badge ' + statusClass + '">' + item.status + '</span></td>' +
+                '<td class="text-center">' +
+                (canReverse
+                    ? '<button class="btn btn-outline-danger btn-xs btn-reverse" ' +
+                        'data-receipt-id="' + receiptId + '" data-item-id="' + item.id + '" data-is-self="' + (companyType === 'SELF') + '">' +
+                        '<i class="fas fa-undo me-1"></i>Reverse</button>'
+                    : '<span class="text-muted small">Reversed</span>') +
+                '</td>' +
+                '</tr>';
+        });
+
+        html += '</tbody></table>';
+        container.find('.p-3').html(html);
+    }
+
+    // Open reversal modal
+    $(document).on('click', '.btn-reverse', function (e) {
+        e.stopPropagation();
+        const isSelf = $(this).data('is-self') === true;
+        $('#reversal-receipt-id').val($(this).data('receipt-id'));
+        $('#reversal-item-id').val($(this).data('item-id'));
+        $('#reversal-reason').val('');
+        $('#reversal-description').html(
+            isSelf
+                ? 'This will return the unit to <strong>AVAILABLE</strong> status back at the SELF warehouse.'
+                : 'This will return the unit to <strong>MAPPED</strong> status under the same company.'
+        );
+        const modal = new bootstrap.Modal(document.getElementById('reversal-modal'));
+        modal.show();
+    });
+
+    // Confirm reversal
+    $('#btn-confirm-reversal').on('click', function () {
+        const receiptId = $('#reversal-receipt-id').val();
+        const itemId    = $('#reversal-item-id').val();
+        const reason    = $('#reversal-reason').val();
+        const btn       = $(this);
+
+        btn.prop('disabled', true).html('<div class="spinner-border spinner-border-sm me-1"></div> Reversing...');
+
+        $.ajax({
+            method: 'POST',
+            url: '/admin/sale-receipts/' + receiptId + '/items/' + itemId + '/reverse',
+            headers: { 'Content-Type': 'application/json' },
+            data: JSON.stringify({ reversal_reason: reason }),
+            success: function (response) {
+                bootstrap.Modal.getInstance(document.getElementById('reversal-modal')).hide();
+
+                if (response.status === 200) {
+                    createAlert({
+                        title: 'REVERSAL SUCCESSFUL',
+                        msg: 'Item reversed. Receipt is now ' + response.data.receipt_status.replace('_', ' '),
+                        type: 'positive'
+                    });
+                    // Reload the receipt items inline
+                    const container = $('#items-' + receiptId);
+                    container.find('.p-3').html(
+                        '<div class="text-center py-2 text-muted">' +
+                        '<div class="spinner-border spinner-border-sm me-1"></div> Refreshing...</div>'
+                    );
+                    loadReceiptItems(receiptId, container);
+
+                    // Reload the main table to reflect updated status/totals
+                    loadReceipts(currentPage);
+                } else {
+                    createAlert({
+                        title: 'REVERSAL FAILED',
+                        msg: response.data.message || 'Failed to reverse item',
+                        type: 'negative'
+                    });
+                }
+                btn.prop('disabled', false).html('<i class="fas fa-undo me-1"></i> Confirm Reversal');
+            },
+            error: function () {
+                createAlert({ title: 'ERROR', msg: 'An error occurred during reversal', type: 'negative' });
+                btn.prop('disabled', false).html('<i class="fas fa-undo me-1"></i> Confirm Reversal');
+            }
+        });
+    });
+
+    // Pagination
+    function renderPagination(pag) {
+        const wrapper  = $('#pagination-wrapper');
+        const info     = $('#pagination-info');
+        const controls = $('#pagination-controls');
+
+        if (pag.totalRecords === 0) { wrapper.addClass('d-none'); return; }
+        wrapper.removeClass('d-none');
+
+        const start = (pag.currentPage - 1) * pag.limit + 1;
+        const end   = Math.min(pag.currentPage * pag.limit, pag.totalRecords);
+        info.text('Showing ' + start + '–' + end + ' of ' + pag.totalRecords + ' receipts');
+
+        controls.empty();
+        if (pag.hasPrevPage) {
+            controls.append('<li class="page-item"><a class="page-link" href="#" data-page="' + (pag.currentPage - 1) + '">&laquo;</a></li>');
+        }
+        for (let p = Math.max(1, pag.currentPage - 2); p <= Math.min(pag.totalPages, pag.currentPage + 2); p++) {
+            controls.append(
+                '<li class="page-item' + (p === pag.currentPage ? ' active' : '') + '">' +
+                '<a class="page-link" href="#" data-page="' + p + '">' + p + '</a></li>'
+            );
+        }
+        if (pag.hasNextPage) {
+            controls.append('<li class="page-item"><a class="page-link" href="#" data-page="' + (pag.currentPage + 1) + '">&raquo;</a></li>');
+        }
+    }
+
+    $(document).on('click', '#pagination-controls .page-link', function (e) {
+        e.preventDefault();
+        loadReceipts(parseInt($(this).data('page')));
+    });
+
+    function showTableError() {
+        $('#receipts-tbody').html(
+            '<tr><td colspan="7" class="text-center text-danger py-3">' +
+            '<i class="fas fa-exclamation-circle me-1"></i>Error loading receipts</td></tr>'
+        );
+    }
+});
+</script>
+
+<style>
+.btn-xs {
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+}
+</style>

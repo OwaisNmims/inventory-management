@@ -1,0 +1,374 @@
+<%- include ('../partials/head') %>
+
+<!--  BEGIN NAVBAR  -->
+<%- include ('../partials/header') %>
+<!--  END NAVBAR  -->
+
+<!--  BEGIN MAIN CONTAINER  -->
+<div class="main-container" id="container">
+  <div class="overlay"></div>
+  <div class="search-overlay"></div>
+
+  <!--  BEGIN SIDEBAR  -->
+  <%- include ('../partials/sidebar') %>
+  <!--  END SIDEBAR  -->
+
+  <!--  BEGIN CONTENT AREA  -->
+  <div id="content" class="main-content">
+    <div class="layout-px-spacing">
+      <div class="middle-content container-xxl p-0">
+        <!--  BEGIN BREADCRUMBS  -->
+        <div class="secondary-nav">
+          <div class="breadcrumbs-container" data-page-heading="Reports">
+            <header class="header navbar navbar-expand-sm">
+              <a href="javascript:void(0);" class="btn-toggle sidebarCollapse" data-placement="bottom">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="feather feather-menu">
+                  <line x1="3" y1="12" x2="21" y2="12"></line>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+              </a>
+              <div class="d-flex breadcrumb-content">
+                <div class="page-header">
+                  <div class="page-title"></div>
+                  <nav class="breadcrumb-style-one" aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                      <li class="breadcrumb-item active"><a href="/admin/dashboard">Dashboard</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Reports</li>
+                    </ol>
+                  </nav>
+                </div>
+              </div>
+            </header>
+          </div>
+        </div>
+        <!--  END BREADCRUMBS  -->
+
+        <div class="main-content">
+
+          <!-- Filters -->
+          <div class="table-template mb-4">
+            <div class="table-header">
+              <div class="table-title"><h3>Company Report</h3></div>
+            </div>
+            <div class="table-content">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">State</label>
+                  <select class="form-select form-select-sm" id="filter-state">
+                    <option value="">All States</option>
+                    <% if (states && states.length > 0) { %>
+                      <% states.forEach(function(s) { %>
+                        <option value="<%= s.id %>"><%= s.name %></option>
+                      <% }); %>
+                    <% } %>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-semibold">City</label>
+                  <select class="form-select form-select-sm" id="filter-city">
+                    <option value="">All Cities</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-semibold">Company <span class="text-danger">*</span></label>
+                  <select class="form-select form-select-sm" id="filter-company">
+                    <option value="">Select a company...</option>
+                    <% companies.forEach(function(c) { %>
+                      <option value="<%= c.id %>"
+                              data-state-lid="<%= c.state_lid || '' %>"
+                              data-city-lid="<%= c.city_lid || '' %>">
+                        <%= c.name %> (<%= c.company_code %>)
+                      </option>
+                    <% }); %>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <button class="btn btn-primary btn-sm w-100" id="btn-generate">
+                    <i class="fas fa-chart-bar me-1"></i> Generate
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Summary Cards (hidden until data loads) -->
+          <div id="report-summary" class="d-none mb-4">
+            <div class="row g-3">
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-4 fw-bold text-primary" id="sum-products">0</div>
+                    <div class="text-muted small">Products</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-4 fw-bold text-secondary" id="sum-mapped">0</div>
+                    <div class="text-muted small" id="sum-mapped-label">Total Mapped</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-4 fw-bold text-warning" id="sum-available">0</div>
+                    <div class="text-muted small">Available Now</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-4 fw-bold text-success" id="sum-sold">0</div>
+                    <div class="text-muted small">Sold</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-4 fw-bold text-info" id="sum-returned">0</div>
+                    <div class="text-muted small" id="sum-returned-label">Returned</div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-sm-6 col-md-4 col-xl-2">
+                <div class="card border-0 shadow-sm h-100">
+                  <div class="card-body text-center py-3">
+                    <div class="fs-5 fw-bold text-success" id="sum-sold-value">&#8377;0</div>
+                    <div class="text-muted small">Sold Value</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Report Table -->
+          <div id="report-section" class="d-none">
+            <div class="table-template">
+              <div class="table-header">
+                <div class="table-title">
+                  <h3 id="report-heading">Report</h3>
+                </div>
+                <div class="table-actions d-flex align-items-center gap-2">
+                  <span class="badge badge-secondary" id="report-row-count"></span>
+                  <a id="download-csv-link" href="#" class="btn btn-success btn-sm" target="_blank">
+                    <i class="fas fa-download me-1"></i> Download CSV
+                  </a>
+                </div>
+              </div>
+              <div class="table-content">
+                <div class="table-responsive">
+                  <table class="table table-bordered table-hover" id="report-table">
+                    <thead class="table-dark">
+                      <tr>
+                        <th>Product Name</th>
+                        <th>Code</th>
+                        <th>Category</th>
+                        <th class="text-center">Label</th>
+                        <th class="text-end">Unit Price</th>
+                        <th class="text-center" id="th-mapped">Total<br>Mapped</th>
+                        <th class="text-center">Available<br>Now</th>
+                        <th class="text-center">Sold</th>
+                        <th class="text-center" id="th-reversed">Reversed</th>
+                        <th class="text-center" id="th-returned">Returned</th>
+                        <th class="text-end">Sold Value</th>
+                        <th class="text-end">Available<br>Value</th>
+                      </tr>
+                    </thead>
+                    <tbody id="report-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Initial placeholder (before any generation) -->
+          <div id="report-placeholder" class="text-center text-muted py-5">
+            <i class="fas fa-chart-bar fa-3x mb-3 d-block" style="opacity:.3;"></i>
+            <p class="mb-0">Select a company and click <strong>Generate</strong> to view the report.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <!--  END CONTENT AREA  -->
+</div>
+<!--  END MAIN CONTAINER  -->
+
+<%- include ('../partials/footer') %>
+
+<script>
+$(document).ready(function() {
+
+    // ── State / city / company cascade ───────────────────────────────────────
+    const reportCities = JSON.parse('<%- JSON.stringify(cities || []) %>');
+
+    $('#filter-state').on('change', function() {
+        const stateId = $(this).val();
+        const citySel = $('#filter-city');
+        citySel.html('<option value="">All Cities</option>');
+        if (stateId) {
+            reportCities.filter(c => c.state_lid == stateId).forEach(function(c) {
+                citySel.append('<option value="' + c.id + '">' + c.name + '</option>');
+            });
+        }
+        filterCompanies();
+    });
+
+    $('#filter-city').on('change', filterCompanies);
+
+    function filterCompanies() {
+        const selState = $('#filter-state').val();
+        const selCity  = $('#filter-city').val();
+        $('#filter-company option').each(function() {
+            if (!$(this).val()) return;
+            let show = true;
+            if (selState && $(this).data('state-lid') != selState) show = false;
+            if (selCity  && $(this).data('city-lid')  != selCity)  show = false;
+            $(this).prop('hidden', !show);
+        });
+        const cur = $('#filter-company').val();
+        if (cur && $('#filter-company option[value="' + cur + '"]:not([hidden])').length === 0) {
+            $('#filter-company').val('');
+        }
+    }
+
+    // ── Generate button ───────────────────────────────────────────────────────
+    $('#btn-generate').on('click', generateReport);
+
+    // ── Generate report ───────────────────────────────────────────────────────
+    function generateReport() {
+        const company = $('#filter-company').val();
+
+        if (!company) {
+            createAlert({ title: 'REQUIRED', msg: 'Please select a company first.', type: 'negative' });
+            return;
+        }
+
+        const btn = $('#btn-generate');
+        btn.prop('disabled', true).html('<div class="spinner-border spinner-border-sm me-1"></div> Loading...');
+
+        // Show loading state in table area
+        $('#report-placeholder').addClass('d-none');
+        $('#report-summary').removeClass('d-none');
+        $('#report-section').removeClass('d-none');
+        $('#report-tbody').html(
+            '<tr><td colspan="12" class="text-center py-4">' +
+            '<div class="spinner-border spinner-border-sm me-2"></div>Generating report...</td></tr>'
+        );
+
+        $.ajax({
+            url: '/admin/reports/generate',
+            method: 'GET',
+            data: { company: company },
+            success: function(response) {
+                if (response.status === 200) {
+                    renderReport(response.data);
+                    // Build CSV download link
+                    const params = new URLSearchParams({ company: company });
+                    $('#download-csv-link').attr('href', '/admin/reports/download-csv?' + params.toString());
+                } else {
+                    showError(response.data && response.data.message || 'Failed to generate report');
+                }
+            },
+            error: function() {
+                showError('Failed to generate report. Please try again.');
+            },
+            complete: function() {
+                btn.prop('disabled', false).html('<i class="fas fa-chart-bar me-1"></i> Generate');
+            }
+        });
+    }
+
+    // ── Render report data ────────────────────────────────────────────────────
+    function renderReport(data) {
+        const s      = data.summary;
+        const isSelf = data.isSelf;
+
+        // Adjust labels when report is for SELF
+        if (isSelf) {
+            $('#sum-mapped-label').text('Total Units');
+            $('#sum-returned-label').text('Returned to SELF');
+            $('#th-mapped').html('Total<br>Units');
+            $('#th-returned').html('Returned<br>to SELF');
+        } else {
+            $('#sum-mapped-label').text('Total Mapped');
+            $('#sum-returned-label').text('Returned');
+            $('#th-mapped').html('Total<br>Mapped');
+            $('#th-returned').html('Returned');
+        }
+
+        // Update summary cards
+        $('#sum-products').text(s.totalProducts);
+        $('#sum-mapped').text(s.totalMapped);
+        $('#sum-available').text(s.totalAvailable);
+        $('#sum-sold').text(s.totalSold);
+        $('#sum-returned').text(s.totalReturned);
+        $('#sum-sold-value').html('&#8377;' + s.totalSoldValue.toFixed(2));
+
+        // Update heading
+        $('#report-heading').text('Report — ' + data.company.name + ' (' + data.company.company_code + ')');
+        $('#report-row-count').text(data.rows.length + ' rows');
+
+        // Render table rows
+        const tbody = $('#report-tbody');
+        tbody.empty();
+
+        if (data.rows.length === 0) {
+            tbody.html(
+                '<tr><td colspan="12" class="text-center py-4 text-muted">' +
+                '<i class="fas fa-inbox me-2"></i>No data found for this company.</td></tr>'
+            );
+            return;
+        }
+
+        data.rows.forEach(function(r) {
+            const labelClass = r.label === 'NEW' ? 'badge-success' : 'badge-secondary';
+            const availBadge = r.qty_available > 0 ? 'badge-warning' : 'badge-light text-muted';
+            const soldBadge  = r.qty_sold     > 0 ? 'badge-success' : 'badge-light text-muted';
+            const retBadge   = r.qty_returned > 0 ? 'badge-info'    : 'badge-light text-muted';
+            const revBadge   = r.qty_reversed > 0 ? 'badge-danger'  : 'badge-light text-muted';
+
+            tbody.append(
+                '<tr>' +
+                '<td class="align-middle">' + escHtml(r.product_name) + '</td>' +
+                '<td class="align-middle"><code>' + escHtml(r.product_code || '') + '</code></td>' +
+                '<td class="align-middle"><small class="text-muted">' + escHtml(r.category || '—') + '</small></td>' +
+                '<td class="align-middle text-center"><span class="badge ' + labelClass + '">' + escHtml(r.label || '—') + '</span></td>' +
+                '<td class="align-middle text-end">&#8377;' + parseFloat(r.unit_price || 0).toFixed(2) + '</td>' +
+                '<td class="align-middle text-center">' + r.qty_mapped_total + '</td>' +
+                '<td class="align-middle text-center"><span class="badge ' + availBadge + '">' + r.qty_available + '</span></td>' +
+                '<td class="align-middle text-center"><span class="badge ' + soldBadge  + '">' + r.qty_sold      + '</span></td>' +
+                '<td class="align-middle text-center"><span class="badge ' + revBadge   + '">' + r.qty_reversed  + '</span></td>' +
+                '<td class="align-middle text-center"><span class="badge ' + retBadge   + '">' + r.qty_returned  + '</span></td>' +
+                '<td class="align-middle text-end"><strong>&#8377;' + parseFloat(r.sold_value      || 0).toFixed(2) + '</strong></td>' +
+                '<td class="align-middle text-end"><strong>&#8377;' + parseFloat(r.available_value || 0).toFixed(2) + '</strong></td>' +
+                '</tr>'
+            );
+        });
+    }
+
+    function showError(msg) {
+        $('#report-tbody').html(
+            '<tr><td colspan="12" class="text-center text-danger py-4">' +
+            '<i class="fas fa-exclamation-circle me-2"></i>' + escHtml(msg) + '</td></tr>'
+        );
+    }
+
+    // Basic HTML escape to prevent XSS from server data rendered into innerHTML
+    function escHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+    }
+});
+</script>

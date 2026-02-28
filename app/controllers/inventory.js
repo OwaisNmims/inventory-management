@@ -8,16 +8,25 @@ module.exports = {
                 const inventoryUnits = await inventory.getAllInventoryUnits();
                 const summary = await inventory.getInventorySummary();
                 
-                // Get all companies for filter dropdown
+                // Get all companies with location data for filter dropdown
                 const { pool } = require('../config/dbConfig');
                 const companiesResult = await pool.query(`
-                    SELECT DISTINCT c.id, c.name, c.company_code, c.company_type 
+                    SELECT DISTINCT c.id, c.name, c.company_code, c.company_type,
+                                    c.state_lid, c.city_lid
                     FROM company c
                     JOIN inventory_company_mapping icm ON icm.company_lid = c.id
                     WHERE c.active = TRUE AND icm.active = TRUE
                     ORDER BY c.name
                 `);
-                
+
+                const statesResult = await pool.query(`
+                    SELECT id, name FROM state WHERE active = TRUE ORDER BY name
+                `);
+
+                const citiesResult = await pool.query(`
+                    SELECT id, name, state_lid FROM city WHERE active = TRUE ORDER BY name
+                `);
+
                 // Get all products for filter dropdown
                 const productsResult = await pool.query(`
                     SELECT DISTINCT p.id, p.name, p.product_code
@@ -26,11 +35,13 @@ module.exports = {
                     WHERE p.active = TRUE AND iu.active = TRUE
                     ORDER BY p.name
                 `);
-                
+
                 res.render("admin/master/inventory", {
                     inventoryUnits: inventoryUnits ? inventoryUnits.rows : [],
                     summary: summary ? summary.rows : [],
                     companies: companiesResult.rows,
+                    states: statesResult.rows,
+                    cities: citiesResult.rows,
                     products: productsResult.rows
                 });
             }
